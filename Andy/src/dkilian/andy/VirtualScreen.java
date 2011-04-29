@@ -96,6 +96,13 @@ public class VirtualScreen
 		_pw = view.getWidth();
 		_ph = view.getHeight();
 	}
+
+	/** Sets the dimensions of the physical screen by querying the current view */
+	public final void setPhysicalDimensions(KernelGLView view)
+	{
+		_pw = view.getWidth();
+		_ph = view.getHeight();
+	}
 	
 	/**
 	 * Computes the transformation from virtual coordinates to physical screen

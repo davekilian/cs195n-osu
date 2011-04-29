@@ -34,6 +34,20 @@ public abstract class KernelActivity extends Activity
 		_quitOnPause = quit;
 	}
 	
+	/** Gets a value from the activity indicating whether the game should execute in Canvas/Paint mode or OpenGL surface mode */
+	protected abstract boolean enableOpenGL();
+	
+	/**
+	 * Gets the minimum version of OpenGL ES required by this game (only called if this object returns true for enableOpenGL() 
+	 * during startup). The upper 16 bits indicate the major version and the lower 16 bits indicate the minor version (e.g.
+	 * 0x10001 for OpenGL ES 1.1 and 0x20000 for OpenGL ES 2.0). If the device does not support the version of OpenGL ES
+	 * returned by this method, the game will exit, showing the supplied error message (in getMissingGLError())
+	 */
+	protected abstract int getMinimumGLVersion();
+	
+	/** Gets the error shown when the required version of OpenGL is not supported on the current device */
+	protected abstract String getMissingGLError();
+	
 	/** Called before the Kernel is created. Allows the game to required initialization tasks */
 	protected abstract void initialize();
 	
@@ -56,15 +70,29 @@ public abstract class KernelActivity extends Activity
 		initialize();
 		
 		_kernel = new Kernel(this);
-		setContentView(_kernel.getView());
-		_kernel.getVirtualScreen().setPhysicalDimensions(_kernel.getView());
-		_kernel.getView().getPaint().setFilterBitmap(true);
+		
+		if (enableOpenGL())
+		{
+			if (_kernel.getGLView().getGLVersion() < getMinimumGLVersion())
+			{
+				// TODO: display an error message and quit
+			}
+			
+			setContentView(_kernel.getGLView());
+			_kernel.getVirtualScreen().setPhysicalDimensions(_kernel.getGLView());
+			_kernel.getGLView().queueResize();
+		}
+		else
+		{
+			setContentView(_kernel.getView());
+			_kernel.getVirtualScreen().setPhysicalDimensions(_kernel.getView());
+			_kernel.getView().queueResize();
+			_kernel.getView().getPaint().setFilterBitmap(true);
+		}
 		
 		onKernelInitialized();
-
-		_kernel.getView().queueResize();
-		_kernel.setScreen(execFirst());
 		
+		_kernel.setScreen(execFirst());
 		_kernel.start();
 	}
 	
@@ -73,7 +101,10 @@ public abstract class KernelActivity extends Activity
 	public void onConfigurationChanged(Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
-		_kernel.getView().queueResize();
+		if (_kernel.isOpenGLEnabled())
+			_kernel.getGLView().queueResize();
+		else
+			_kernel.getView().queueResize();
 	}
 	
 	/** Called by the OS during touch events */
@@ -103,9 +134,24 @@ public abstract class KernelActivity extends Activity
     public void onPause()
     {
     	if (_quitOnPause)
+    	{
     		System.exit(0);
+    	}
     	else
+    	{
     		super.onPause();
+    		if (_kernel.isOpenGLEnabled())
+    			_kernel.getGLView().onPause();
+    	}
+    }
+    
+    /** Resumes the game after it has been paused (e.g. via tombstoning) */
+    @Override
+    public void onResume()
+    {
+    	super.onResume();
+    	if (_kernel.isOpenGLEnabled())
+    		_kernel.getGLView().onResume();
     }
 	
 	/** Gets a reference to the game's Kernel. This value is undefined before onKernelInitialized() has been called */

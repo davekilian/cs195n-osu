@@ -39,7 +39,10 @@ public class KernelDrawCallback implements Callback
 				_kernel._drawDelta = timestep;
 			_kernel._lastDraw = now;
 			
-			_kernel.getView().invalidate();
+			if (_kernel.isOpenGLEnabled())
+				_kernel.getGLView().invalidate();
+			else
+				_kernel.getView().invalidate();
 			
 			if (_kernel._running)
 				_kernel._drawHandler.sendEmptyMessageAtTime(0, (long)(now + 1000 * (timestep - (_kernel._updateDelta - timestep))));

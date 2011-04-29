@@ -15,7 +15,7 @@ public class KernelView extends View
 {
 	/** The cached paint object */
 	private Paint _paint;
-	/** The cached canvas. Invalided after onDraw() returns */
+	/** The cached canvas. Invalidated after onDraw() returns */
 	private Canvas _canvas;
 	/** The executing kernel */
 	private Kernel _kernel;

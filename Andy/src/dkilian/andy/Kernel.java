@@ -14,8 +14,10 @@ public class Kernel
 {
 	/** The activity used to detect input and changes in configuration */
 	private KernelActivity _activity;
-	/** The view used to output graphics */
+	/** The view used to output graphics in non-OpenGL mode */
 	private KernelView _view;
+	/** The view used to output graphics in OpenGL mode */
+	private KernelGLView _glView;
 	/** The virtual screen used to abstract the device's resolution */
 	private VirtualScreen _virtualScreen;
 	/** The stack of active screens. The top item is the one currently executing */
@@ -52,7 +54,11 @@ public class Kernel
 	public Kernel(KernelActivity activity)
 	{
 		_activity = activity;
-		_view = new KernelView(this, activity);
+		if (_activity.enableOpenGL())
+			_glView = new KernelGLView(this, activity);
+		else
+			_view = new KernelView(this, activity);
+		
 		_virtualScreen = new VirtualScreen();
 		_screenStack = new Stack<Screen>();
 		_targetUpdatesPerSec = _targetDrawsPerSec = 30;
@@ -71,10 +77,22 @@ public class Kernel
 		return _activity;
 	}
 	
+	/** Gets a value indicating whether the game is running in OpenGL ES mode or Canvas/Paint mode */
+	public final boolean isOpenGLEnabled()
+	{
+		return _view == null && _glView != null;
+	}
+	
 	/** Gets the main view, containing the Paint and Canvas objects to do custom rendering */
 	public final KernelView getView()
 	{
 		return _view;
+	}
+	
+	/** Gets the main view, containing the OpenGL ES context */
+	public final KernelGLView getGLView()
+	{
+		return _glView;
 	}
 	
 	/** Gets the object that manages the transformation from virtual to physical screen space */

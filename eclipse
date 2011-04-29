@@ -1,0 +1,9 @@
+To compile this project with Eclipse,
+
+- Install Eclipse
+- Install the Android SDK (2.2 or greater)
+- Install the ADT plugin for eclipse
+- Install the CDT plugin for eclipse
+- Download the NDK install it at /Developer/AndroidNDK
+- Open the project in eclipse and build all
+

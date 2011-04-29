@@ -1,26 +1,26 @@
-package hello.gl;
+package hello.jni;
 
 import dkilian.andy.KernelActivity;
 import dkilian.andy.Screen;
 
-public class MainActivity extends KernelActivity
+public class MainActivity extends KernelActivity 
 {
 	@Override
 	protected boolean enableOpenGL() 
 	{
-		return true;
+		return false;
 	}
 
 	@Override
 	protected int getMinimumGLVersion() 
 	{
-		return 0x10000;
+		return 0;
 	}
 
 	@Override
 	protected String getMissingGLError() 
 	{
-		return "lol your device sucks";
+		return "lol wat";
 	}
 
 	@Override

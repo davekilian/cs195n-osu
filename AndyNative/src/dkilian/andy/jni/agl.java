@@ -227,7 +227,7 @@ public class agl
 	 * @param h The height of the FBO, in pixels
 	 * @return A handle to the FBO created
 	 */
-	public static native int  CreateFBO(int w, int h);
+	public static native int CreateFBO(int w, int h);
 	
 	/**
 	 * Attaches a color texture to an FBO. See aglCreateTexture().

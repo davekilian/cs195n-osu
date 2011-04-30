@@ -1,33 +1,68 @@
 
 #include "agl.h"
+#include "matrix.h"
+
+#include <jni.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #include "stdio.h"
 #include "stdlib.h"
 #include "math.h"
 
+GLint _agl_virtualWidth = 0;	// The width of the viewport in virtual coordinates
+GLint _agl_virtualHeight = 0;	// The height of the viewport in virtual coordinates
+Matrix _agl_virtualTransform;	// The transform from virtual coordinates to world coordinates
+Matrix _agl_projection;			// The transform from world coordinates to screen space ([0, 0] - [1, 1])
+
 void  aglInitialize2D(GLint w, GLint h)
 {
+	aglSetVirtualDimensions(w, h);
+	aglComputeVirtualTransform();
 
+	matrix_ortho(&_agl_projection, 0.f, 1.f, 1.f, 0.f, 1.f, 100.f);
+
+	// TODO: glViewport?
+
+	// TODO: initialize the quad (for sprite rendering)
+
+	// TODO: load internal shaders
 }
 
 void  aglSetVirtualDimensions(GLint w, GLint h)
 {
-
+	_agl_virtualWidth = w;
+	_agl_virtualHeight = h;
 }
 
 void  aglGetVirtualTransform(GLfloat *m)
 {
-
+	memcpy(m, &_agl_virtualTransform.data, 16 * sizeof(float));
 }
 
 void  aglSetVirtualTransform(GLfloat *m)
 {
-
+	memcpy(&_agl_virtualTransform.data, m, 16 * sizeof(float));
 }
 
 void  aglComputeVirtualTransform()
 {
+	matrix_identity(&_agl_virtualTransform);
+	float scalex, scaley;
 
+	scalex = 1.f / _agl_virtualWidth;
+	scaley = 1.f / _agl_virtualHeight;
+
+	if (scalex < scaley)
+	{
+		matrix_scale(&_agl_virtualTransform, scalex, scalex, 1.f);
+		matrix_translate(&_agl_virtualTransform, 0.f, .5f * (1 - scalex * _agl_virtualHeight), 0.f);
+	}
+	else
+	{
+		matrix_scale(&_agl_virtualTransform, scaley, scaley, 1.f);
+		matrix_translate(&_agl_virtualTransform, .5f * (1 - scaley * _agl_virtualWidth), 0.f, 0.f);
+	}
 }
 
 GLint aglLoadShader(const char* vertex, const char* fragment)

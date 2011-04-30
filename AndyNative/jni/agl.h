@@ -43,6 +43,14 @@ void  aglAttachToFBO(GLint fbo, GLint tex);
 void  aglDeleteFBO(GLint fbo);
 void  aglBeginOffscreenRender(GLint fbo);
 void  aglEndOffscreenRender();
+void  aglLoadIdentity();
+void  aglLoadMatrix(GLfloat *m);
+void  aglPushMatrix();
+void  aglPopMatrix();
+void  aglTranslatef(float tx, float ty, float tz);
+void  aglRotatef(float angle);
+void  aglAxisAngle(float x, float y, float z, float angle);
+void  aglScalef(float sx, float sy, float sz);
 // TODO: particle system acceleration. Efficient data marshaling could be tricky
 
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h);

@@ -10,10 +10,18 @@
 #include "stdlib.h"
 #include "math.h"
 
-GLint _agl_virtualWidth = 0;	// The width of the viewport in virtual coordinates
-GLint _agl_virtualHeight = 0;	// The height of the viewport in virtual coordinates
-Matrix _agl_virtualTransform;	// The transform from virtual coordinates to world coordinates
-Matrix _agl_projection;			// The transform from world coordinates to screen space ([0, 0] - [1, 1])
+typedef struct _ShaderAttachment
+{
+	GLint shader;
+	GLint program;
+	struct _ShaderAttachment *next;
+} ShaderAttachment;
+
+GLint _agl_virtualWidth = 0;		// The width of the viewport in virtual coordinates
+GLint _agl_virtualHeight = 0;		// The height of the viewport in virtual coordinates
+Matrix _agl_virtualTransform;		// The transform from virtual coordinates to world coordinates
+Matrix _agl_projection;				// The transform from world coordinates to screen space ([0, 0] - [1, 1])
+ShaderAttachment *_agl_shaders = 0;	// Pairs each shader program with its attached vertex/fragment shaders, for cleanup purposes
 
 void  aglInitialize2D(GLint w, GLint h)
 {
@@ -67,22 +75,89 @@ void  aglComputeVirtualTransform()
 
 GLint aglLoadShader(const char* vertex, const char* fragment)
 {
-	return -1;
+	GLint program, v, f, len;
+	ShaderAttachment *va, *fa;
+
+	// Vertex shader
+	v = glCreateShader(GL_VERTEX_SHADER);
+	len = strlen(vertex);
+	glShaderSource(v, 1, &vertex, &len);
+	glCompileShader(v);
+
+	// Fragment shader
+	f = glCreateShader(GL_FRAGMENT_SHADER);
+	len = strlen(fragment);
+	glShaderSource(f, 1, &fragment, &len);
+	glCompileShader(f);
+
+	// Program
+	program = glCreateProgram();
+	glAttachShader(program, v);
+	glAttachShader(program, f);
+	glLinkProgram(program);
+
+	// Remember attachment (for cleanup later)
+	va = (ShaderAttachment*)malloc(sizeof(ShaderAttachment));
+	fa = (ShaderAttachment*)malloc(sizeof(ShaderAttachment));
+
+	va->shader = v;
+	va->program = program;
+	va->next = fa;
+
+	fa->shader = f;
+	fa->program = program;
+	fa->next = _agl_shaders;
+
+	_agl_shaders = va;
+
+	return program;
 }
 
 void  aglUseShader(GLint shader)
 {
+	glUseProgram(shader);
 
+	// TODO: create a list of standard parameters that can be passed to shaders
+	// TODO: pass those standard params to the shader
 }
 
 void  aglClearShader()
 {
-
+	glUseProgram(0);
 }
 
 void  aglDeleteShader(GLint shader)
 {
+	ShaderAttachment *prev = 0, *curr = _agl_shaders;
 
+	while (curr)
+	{
+		if (curr->program == shader)
+		{
+			glDetachShader(curr->program, curr->shader);
+			glDeleteShader(curr->shader);
+
+			if (prev)
+			{
+				prev->next = curr->next;
+				free(curr);
+				curr = prev->next;
+			}
+			else
+			{
+				_agl_shaders = curr->next;
+				free(curr);
+				curr = _agl_shaders;
+			}
+		}
+		else
+		{
+			prev = curr;
+			curr = curr->next;
+		}
+	}
+
+	glDeleteShader(shader);
 }
 
 GLint aglCreateTexture(GLint w, GLint h)

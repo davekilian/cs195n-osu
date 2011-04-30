@@ -6,6 +6,7 @@ public class Hello
 	{
 		System.loadLibrary("AndyNative");
 	}
-	
+
 	public static native String hello();
+	public static native void helloGL();
 }

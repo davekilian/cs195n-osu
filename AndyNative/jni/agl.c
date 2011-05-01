@@ -189,6 +189,41 @@ GLint aglLoadShader(const char* vertex, const char* fragment)
 	return program;
 }
 
+void  aglUniform(GLint program, const char* param, GLfloat v)
+{
+	glUniform1f(glGetUniformLocation(program, param), v);
+}
+
+void  aglUniform2(GLint program, const char* param, GLfloat v1, GLfloat v2)
+{
+	glUniform2f(glGetUniformLocation(program, param), v1, v2);
+}
+
+void  aglUniform3(GLint program, const char* param, GLfloat v1, GLfloat v2, GLfloat v3)
+{
+	glUniform3f(glGetUniformLocation(program, param), v1, v2, v3);
+}
+
+void  aglUniform4(GLint program, const char* param, GLfloat v1, GLfloat v2, GLfloat v3, GLfloat v4)
+{
+	glUniform4f(glGetUniformLocation(program, param), v1, v2, v3, v4);
+}
+
+void  aglUniformMat2(GLint program, const char* param, GLfloat *m)
+{
+	glUniformMatrix2fv(glGetUniformLocation(program, param), 1, 0, m);
+}
+
+void  aglUniformMat3(GLint program, const char* param, GLfloat *m)
+{
+	glUniformMatrix3fv(glGetUniformLocation(program, param), 1, 0, m);
+}
+
+void  aglUniformMat4(GLint program, const char* param, GLfloat *m)
+{
+	glUniformMatrix4fv(glGetUniformLocation(program, param), 1, 0, m);
+}
+
 void  aglUseShader(GLint shader)
 {
 	glUseProgram(shader);
@@ -553,6 +588,61 @@ jint Java_dkilian_andy_jni_agl_LoadShader(JNIEnv *env, jobject *thiz, jstring ve
 	(*env)->ReleaseStringUTFChars(env, fragment, f);
 
 	return ret;
+}
+
+void Java_dkilian_andy_jni_agl_Uniform(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloat v)
+{
+	const char *p = (*env)->GetStringUTFChars(env, param, NULL);
+	aglUniform(shader, p, v);
+	(*env)->ReleaseStringUTFChars(env, param, p);
+}
+
+void Java_dkilian_andy_jni_agl_Uniform2(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloat v1, jfloat v2)
+{
+	const char *p = (*env)->GetStringUTFChars(env, param, NULL);
+	aglUniform2(shader, p, v1, v2);
+	(*env)->ReleaseStringUTFChars(env, param, p);
+}
+
+void Java_dkilian_andy_jni_agl_Uniform3(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloat v1, jfloat v2, jfloat v3)
+{
+	const char *p = (*env)->GetStringUTFChars(env, param, NULL);
+	aglUniform3(shader, p, v1, v2, v3);
+	(*env)->ReleaseStringUTFChars(env, param, p);
+}
+
+void Java_dkilian_andy_jni_agl_Uniform4(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloat v1, jfloat v2, jfloat v3, jfloat v4)
+{
+	const char *p = (*env)->GetStringUTFChars(env, param, NULL);
+	aglUniform4(shader, p, v1, v2, v3, v4);
+	(*env)->ReleaseStringUTFChars(env, param, p);
+}
+
+void Java_dkilian_andy_jni_agl_UniformMat2(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloatArray mat)
+{
+	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
+	const char *p = (*env)->GetStringUTFChars(env, param, NULL);
+	aglUniformMat2(shader, p, m);
+	(*env)->ReleaseStringUTFChars(env, param, p);
+	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
+}
+
+void Java_dkilian_andy_jni_agl_UniformMat3(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloatArray mat)
+{
+	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
+	const char *p = (*env)->GetStringUTFChars(env, param, NULL);
+	aglUniformMat3(shader, p, m);
+	(*env)->ReleaseStringUTFChars(env, param, p);
+	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
+}
+
+void Java_dkilian_andy_jni_agl_UniformMat4(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloatArray mat)
+{
+	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
+	const char *p = (*env)->GetStringUTFChars(env, param, NULL);
+	aglUniformMat4(shader, p, m);
+	(*env)->ReleaseStringUTFChars(env, param, p);
+	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
 }
 
 void Java_dkilian_andy_jni_agl_UseShader(JNIEnv *env, jobject *thiz, jint shader)

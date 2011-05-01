@@ -63,7 +63,69 @@ public class agl
 	 * @param fragment The source code of the fragment shader
 	 * @return A handle to the shader, or zero if an error occurred
 	 */
-	public static native int  LoadShader(String vertex, String fragment);
+	public static native int LoadShader(String vertex, String fragment);
+
+	/**
+	 * Sets a 1D uniform value
+	 * @param shader A handle to the shader to modify
+	 * @param param The name of the shader uniform to modify
+	 * @param v The value to assign to the shader uniform
+	 */
+	public static native void Uniform(int shader, String param, float v);
+
+	/**
+	 * Sets a 2D uniform value
+	 * @param shader A handle to the shader to modify
+	 * @param param The name of the shader uniform to modify
+	 * @param v1 The value to assign to the shader uniform's X component
+	 * @param v2 The value to assign to the shader uniform's Y component
+	 */
+	public static native void Uniform2(int shader, String param, float v1, float v2);
+
+	/**
+	 * Sets a 3D uniform value
+	 * @param shader A handle to the shader to modify
+	 * @param param The name of the shader uniform to modify
+	 * @param v1 The value to assign to the shader uniform's X component
+	 * @param v2 The value to assign to the shader uniform's Y component
+	 * @param v3 The value to assign to the shader uniform's Z component
+	 */
+	public static native void Uniform3(int shader, String param, float v1, float v2, float v3);
+
+	/**
+	 * Sets a 4D uniform value
+	 * @param shader A handle to the shader to modify
+	 * @param param The name of the shader uniform to modify
+	 * @param v1 The value to assign to the shader uniform's X component
+	 * @param v2 The value to assign to the shader uniform's Y component
+	 * @param v3 The value to assign to the shader uniform's Z component
+	 * @param v4 The value to assign to the shader uniform's W component
+	 */
+	public static native void Uniform4(int shader, String param, float v1, float v2, float v3, float v4);
+	
+	/**
+	 * Sets a 2x2 uniform value
+	 * @param shader A handle to the shader to modify
+	 * @param param The name of the shader uniform to modify
+	 * @param m The contents of the 2x2 matrix to assign to the shader uniform
+	 */
+	public static native void UniformMat2(int shader, String param, float[] m);
+
+	/**
+	 * Sets a 3x3 uniform value
+	 * @param shader A handle to the shader to modify
+	 * @param param The name of the shader uniform to modify
+	 * @param m The contents of the 3x3 matrix to assign to the shader uniform
+	 */
+	public static native void UniformMat3(int shader, String param, float[] m);
+
+	/**
+	 * Sets a 4x4 uniform value
+	 * @param shader A handle to the shader to modify
+	 * @param param The name of the shader uniform to modify
+	 * @param m The contents of the 4x4 matrix to assign to the shader uniform
+	 */
+	public static native void UniformMat4(int shader, String param, float[] m);
 	
 	/**
 	 * Sets the given shader as the active shader, which will be used in subsequent rendering operations

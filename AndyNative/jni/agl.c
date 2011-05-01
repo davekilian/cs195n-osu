@@ -166,27 +166,41 @@ void  aglDeleteShader(GLint shader)
 
 GLint aglCreateTexture(GLint w, GLint h)
 {
-	return -1;
+	GLuint tex = aglCreateEmptyTexture();
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+	return tex;
 }
 
 GLint aglCreateEmptyTexture()
 {
-	return -1;
+	GLuint tex;
+
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	return tex;
 }
 
 void  aglBindTexture(GLint tex)
 {
-
+	glBindTexture(GL_TEXTURE_2D, tex);
 }
 
 void  aglUnbindTexture()
 {
-
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void  aglDeleteTexture(GLint tex)
 {
-
+	GLuint t = tex;
+	glDeleteTextures(1, &t);
 }
 
 void  aglTexturedQuad()

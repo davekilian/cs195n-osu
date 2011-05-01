@@ -52,7 +52,8 @@ void  aglTranslatef(GLfloat tx, GLfloat ty, GLfloat tz);
 void  aglRotatef(GLfloat angle);
 void  aglAxisAngle(GLfloat x, GLfloat y, GLfloat z, GLfloat angle);
 void  aglScalef(GLfloat sx, GLfloat sy, GLfloat sz);
-// TODO: particle system acceleration. Efficient data marshaling could be tricky
+// TODO: um, shader parameters. D'Oh.
+// TODO: particle system acceleration. Efficient data marshaling could be tricky.
 
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h);
 void Java_dkilian_andy_jni_agl_SetVirtualDimensions(JNIEnv *env, jobject *thiz, jint w, jint h);

@@ -237,7 +237,9 @@ public class agl
 	public static native void AttachToFBO(int fbo, int tex);
 	
 	/**
-	 * Deletes an FBO and its attachments, invalidating them and releasing resources they are currently using
+	 * Deletes an FBO and its attachments, invalidating them and releasing resources they are currently using.
+	 * This includes all color textures attached to the FBO. Detach them first (manually) if you want to keep
+	 * the texture after the FBO is destroyed.
 	 * @param fbo A handle to the FBO to delete
 	 */
 	public static native void DeleteFBO(int fbo);

@@ -18,12 +18,32 @@ typedef struct _ShaderAttachment
 	struct _ShaderAttachment *next;
 } ShaderAttachment;
 
-GLint _agl_virtualWidth = 0;		// The width of the viewport in virtual coordinates
-GLint _agl_virtualHeight = 0;		// The height of the viewport in virtual coordinates
-Matrix _agl_virtualTransform;		// The transform from virtual coordinates to world coordinates
-Matrix _agl_projection;				// The transform from world coordinates to screen space ([0, 0] - [1, 1])
-ShaderAttachment *_agl_shaders = 0;	// Pairs each shader program with its attached vertex/fragment shaders, for cleanup purposes
-MatrixStack *_agl_modelview = 0;	// Emulates OpenGL 1.0's ModelView matrix stack
+typedef struct _FBODepthAttachment
+{
+	GLint depth;
+	GLint fbo;
+	struct _FBODepthAttachment *next;
+} FBODepthAttachment;
+
+typedef struct _FBOColorAttachment
+{
+	GLint color;
+	GLint fbo;
+	struct _FBOColorAttachment *next;
+} FBOColorAttachment;
+
+GLint _agl_virtualWidth = 0;			// The width of the viewport in virtual coordinates
+GLint _agl_virtualHeight = 0;			// The height of the viewport in virtual coordinates
+Matrix _agl_virtualTransform;			// The transform from virtual coordinates to world coordinates
+Matrix _agl_projection;					// The transform from world coordinates to screen space ([0, 0] - [1, 1])
+ShaderAttachment *_agl_shaders = 0;		// Pairs each shader program with its attached vertex/fragment shaders, for cleanup purposes
+MatrixStack *_agl_modelview = 0;		// Emulates OpenGL 1.0's ModelView matrix stack
+FBOColorAttachment *_agl_fbo_color = 0;	// Pairs each FBO with its attached depth buffer, for cleanup purposes
+FBODepthAttachment *_agl_fbo_depth = 0;	// Pairs each FBO with its attached color buffer(s), for cleanup purposes
+GLfloat _agl_clear_r = 0;				// The red component of the current clear color
+GLfloat _agl_clear_g = 0;				// The green component of the current clear color
+GLfloat _agl_clear_b = 0;				// The blue component of the current clear color
+GLfloat _agl_clear_a = 0;				// The alpha component of the current clear color
 
 void  aglInitialize2D(GLint w, GLint h)
 {
@@ -270,27 +290,120 @@ void  aglEndFrame()
 
 GLint aglCreateFBO(GLint w, GLint h)
 {
-	return -1;
+	GLuint fbo, depth;
+	FBODepthAttachment *da;
+
+	// Depth buffer
+	glGenRenderbuffers(1, &depth);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
+
+	// Frame buffer
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
+
+	// Remember association for cleanup
+	da = (FBODepthAttachment*)malloc(sizeof(FBODepthAttachment));
+	da->fbo = fbo;
+	da->depth = depth;
+	da->next = _agl_fbo_depth;
+	_agl_fbo_depth = da;
+
+	return fbo;
 }
 
 void  aglAttachToFBO(GLint fbo, GLint tex)
 {
+	FBOColorAttachment *ca;
 
+	// Attach color buffer
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+
+	// Remember association for cleanup
+	ca = (FBOColorAttachment*)malloc(sizeof(FBOColorAttachment));
+	ca->fbo = fbo;
+	ca->color = tex;
+	ca->next = _agl_fbo_color;
+	_agl_fbo_color = ca;
 }
 
 void  aglDeleteFBO(GLint fbo)
 {
+	GLuint uint;
+	FBODepthAttachment *prevd = 0, *currd = _agl_fbo_depth;
+	FBOColorAttachment *prevc = 0, *currc = _agl_fbo_color;
 
+	while (currd)
+	{
+		if (currd->fbo == fbo)
+		{
+			uint = currd->depth;
+			glDeleteRenderbuffers(1, &uint);
+
+			if (prevd)
+			{
+				prevd->next = currd->next;
+				free(currd);
+				currd = prevd->next;
+			}
+			else
+			{
+				_agl_fbo_depth = currd->next;
+				free(currd);
+				currd = _agl_fbo_depth;
+			}
+		}
+		else
+		{
+			prevd = currd;
+			currd = currd->next;
+		}
+	}
+
+	while (currc)
+	{
+		if (currc->fbo == fbo)
+		{
+			uint = currc->color;
+			glDeleteTextures(1, &uint);
+
+			if (prevc)
+			{
+				prevc->next = currc->next;
+				free(currc);
+				currc = prevc->next;
+			}
+			else
+			{
+				_agl_fbo_color = currc->next;
+				free(currc);
+				currc = _agl_fbo_color;
+			}
+		}
+		else
+		{
+			prevc = currc;
+			currc = currc->next;
+		}
+	}
+
+	uint = fbo;
+	glDeleteFramebuffers(1, &uint);
 }
 
 void  aglBeginOffscreenRender(GLint fbo)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
+	glClearColor(_agl_clear_r, _agl_clear_g, _agl_clear_b, _agl_clear_a);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void  aglEndOffscreenRender()
 {
-
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void  aglLoadIdentity()
@@ -337,6 +450,9 @@ void  aglScalef(GLfloat sx, GLfloat sy, GLfloat sz)
 {
 	matrix_scale(matrix_stack_matrix_ptr(_agl_modelview), sx, sy, sz);
 }
+
+
+
 
 
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h)

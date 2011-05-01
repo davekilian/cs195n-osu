@@ -3,7 +3,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := AndyNative
-LOCAL_SRC_FILES := agl.c hello.c helloGL.c matrix.c
+LOCAL_SRC_FILES := agl.c hello.c helloGL.c matrix.c matstack.c
 LOCAL_CFLAGS    := -Wall
 LOCAL_LDLIBS    := -llog -lGLESv2
 

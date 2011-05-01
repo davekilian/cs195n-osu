@@ -1,6 +1,7 @@
 
 #include "agl.h"
 #include "matrix.h"
+#include "matstack.h"
 
 #include <jni.h>
 #include <GLES2/gl2.h>
@@ -22,9 +23,12 @@ GLint _agl_virtualHeight = 0;		// The height of the viewport in virtual coordina
 Matrix _agl_virtualTransform;		// The transform from virtual coordinates to world coordinates
 Matrix _agl_projection;				// The transform from world coordinates to screen space ([0, 0] - [1, 1])
 ShaderAttachment *_agl_shaders = 0;	// Pairs each shader program with its attached vertex/fragment shaders, for cleanup purposes
+MatrixStack *_agl_modelview = 0;	// Emulates OpenGL 1.0's ModelView matrix stack
 
 void  aglInitialize2D(GLint w, GLint h)
 {
+	_agl_modelview = matrix_stack_create();
+
 	aglSetVirtualDimensions(w, h);
 	aglComputeVirtualTransform();
 
@@ -275,6 +279,51 @@ void  aglEndOffscreenRender()
 
 }
 
+void  aglLoadIdentity()
+{
+	matrix_identity(matrix_stack_matrix_ptr(_agl_modelview));
+}
+
+void  aglLoadMatrix(GLfloat *m)
+{
+	memcpy(matrix_stack_data_ptr(_agl_modelview), m, 16 * sizeof(float));
+}
+
+void  aglGetMatrix(GLfloat *m)
+{
+	memcpy(m, matrix_stack_data_ptr(_agl_modelview), 16 * sizeof(float));
+}
+
+void  aglPushMatrix()
+{
+	matrix_stack_push(_agl_modelview);
+}
+
+void  aglPopMatrix()
+{
+	matrix_stack_pop(_agl_modelview);
+}
+
+void  aglTranslatef(GLfloat tx, GLfloat ty, GLfloat tz)
+{
+	matrix_translate(matrix_stack_matrix_ptr(_agl_modelview), tx, ty, tz);
+}
+
+void  aglRotatef(GLfloat angle)
+{
+	matrix_rotate2d(matrix_stack_matrix_ptr(_agl_modelview), angle);
+}
+
+void  aglAxisAngle(GLfloat x, GLfloat y, GLfloat z, GLfloat angle)
+{
+	matrix_rotate3d(matrix_stack_matrix_ptr(_agl_modelview), angle, x, y, z);
+}
+
+void  aglScalef(GLfloat sx, GLfloat sy, GLfloat sz)
+{
+	matrix_scale(matrix_stack_matrix_ptr(_agl_modelview), sx, sy, sz);
+}
+
 
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h)
 {
@@ -448,4 +497,53 @@ void Java_dkilian_andy_jni_agl_BeginOffscreenRender(JNIEnv *env, jobject *thiz, 
 void Java_dkilian_andy_jni_agl_EndOffscreenRender(JNIEnv *env, jobject *thiz)
 {
 	aglEndOffscreenRender();
+}
+
+void Java_dkilian_andy_jni_agl_LoadIdentity(JNIEnv *env, jobject *thiz)
+{
+	aglLoadIdentity();
+}
+
+void Java_dkilian_andy_jni_agl_LoadMatrix(JNIEnv *env, jobject *thiz, jfloatArray mat)
+{
+	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
+	aglLoadMatrix(m);
+	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
+}
+
+void Java_dkilian_andy_jni_agl_GetMatrix(JNIEnv *env, jobject *thiz, jfloatArray mat)
+{
+	float m[16];
+	aglGetMatrix(m);
+	(*env)->SetFloatArrayRegion(env, mat, 0, 16, &(m[0]));
+}
+
+void Java_dkilian_andy_jni_agl_PushMatrix(JNIEnv *env, jobject *thiz)
+{
+	aglPushMatrix();
+}
+
+void Java_dkilian_andy_jni_agl_PopMatrix(JNIEnv *env, jobject *thiz)
+{
+	aglPopMatrix();
+}
+
+void Java_dkilian_andy_jni_agl_Translatef(JNIEnv *env, jobject *thiz, jfloat tx, jfloat ty, jfloat tz)
+{
+	aglTranslatef(tx, ty, tz);
+}
+
+void Java_dkilian_andy_jni_agl_Rotatef(JNIEnv *env, jobject *thiz, jfloat angle)
+{
+	aglRotatef(angle);
+}
+
+void Java_dkilian_andy_jni_agl_AxisAngle(JNIEnv *env, jobject *thiz, jfloat x, jfloat y, jfloat z, jfloat angle)
+{
+	aglAxisAngle(x, y, z, angle);
+}
+
+void Java_dkilian_andy_jni_agl_Scalef(JNIEnv *env, jobject *thiz, jfloat sx, jfloat sy, jfloat sz)
+{
+	aglScalef(sx, sy, sz);
 }

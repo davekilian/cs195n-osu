@@ -45,12 +45,13 @@ void  aglBeginOffscreenRender(GLint fbo);
 void  aglEndOffscreenRender();
 void  aglLoadIdentity();
 void  aglLoadMatrix(GLfloat *m);
+void  aglGetMatrix(GLfloat *m);
 void  aglPushMatrix();
 void  aglPopMatrix();
-void  aglTranslatef(float tx, float ty, float tz);
-void  aglRotatef(float angle);
-void  aglAxisAngle(float x, float y, float z, float angle);
-void  aglScalef(float sx, float sy, float sz);
+void  aglTranslatef(GLfloat tx, GLfloat ty, GLfloat tz);
+void  aglRotatef(GLfloat angle);
+void  aglAxisAngle(GLfloat x, GLfloat y, GLfloat z, GLfloat angle);
+void  aglScalef(GLfloat sx, GLfloat sy, GLfloat sz);
 // TODO: particle system acceleration. Efficient data marshaling could be tricky
 
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h);
@@ -85,5 +86,14 @@ void Java_dkilian_andy_jni_agl_AttachToFBO(JNIEnv *env, jobject *thiz, jint fbo,
 void Java_dkilian_andy_jni_agl_DeleteFBO(JNIEnv *env, jobject *thiz, jint fbo);
 void Java_dkilian_andy_jni_agl_BeginOffscreenRender(JNIEnv *env, jobject *thiz, jint fbo);
 void Java_dkilian_andy_jni_agl_EndOffscreenRender(JNIEnv *env, jobject *thiz);
+void Java_dkilian_andy_jni_agl_LoadIdentity(JNIEnv *env, jobject *thiz);
+void Java_dkilian_andy_jni_agl_LoadMatrix(JNIEnv *env, jobject *thiz, jfloatArray m);
+void Java_dkilian_andy_jni_agl_GetMatrix(JNIEnv *env, jobject *thiz, jfloatArray m);
+void Java_dkilian_andy_jni_agl_PushMatrix(JNIEnv *env, jobject *thiz);
+void Java_dkilian_andy_jni_agl_PopMatrix(JNIEnv *env, jobject *thiz);
+void Java_dkilian_andy_jni_agl_Translatef(JNIEnv *env, jobject *thiz, jfloat tx, jfloat ty, jfloat tz);
+void Java_dkilian_andy_jni_agl_Rotatef(JNIEnv *env, jobject *thiz, jfloat angle);
+void Java_dkilian_andy_jni_agl_AxisAngle(JNIEnv *env, jobject *thiz, jfloat x, jfloat y, jfloat z, jfloat angle);
+void Java_dkilian_andy_jni_agl_Scalef(JNIEnv *env, jobject *thiz, jfloat sx, jfloat sy, jfloat sz);
 
 #endif /* AGL_H_ */

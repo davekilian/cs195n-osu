@@ -253,4 +253,64 @@ public class agl
 	 * color buffer(s) to be read back / rendered like any other texture.
 	 */
 	public static native void EndOffscreenRender();
+	
+	/**
+	 * Sets the top value on the modelview matrix stack to the identity matrix
+	 */
+	public static native void LoadIdentity();
+	
+	/**
+	 * Sets the top value on the modelview matrix stack
+	 * @param m A 16-value array containing the values to place in the matrix
+	 */
+	public static native void LoadMatrix(float[] m);
+	
+	/**
+	 * Gets the top value of the maodelview matrix stack
+	 * @param m A 16-value array that will receive the values from the matrix
+	 */
+	public static native void GetMatrix(float[] m);
+	
+	/**
+	 * Pushes a new matrix onto the modelview matrix stack. The new top matrix will be a
+	 * component-wise copy of the matrix that was previously the top of the stack.
+	 */
+	public static native void PushMatrix();
+	
+	/**
+	 * Pops a matrix off the modelview matrix stack. If the stack only has one object,
+	 * this call is a no-op
+	 */
+	public static native void PopMatrix();
+	
+	/**
+	 * Multiplies the top of the modelview matrix stack by a translation matrix
+	 * @param tx The X component of the translation, in virtual coordinates
+	 * @param ty The Y component of the translation, in virtual coordinates
+	 * @param tz The Z component of the translation, in virtual coordinates
+	 */
+	public static native void Translatef(float tx, float ty, float tz);
+	
+	/**
+	 * Multiplies the top of the modelview matrix stack by a rotation (around the Z axis) matrix
+	 * @param angle The rotation angle, in degrees 
+	 */
+	public static native void Rotatef(float angle);
+	
+	/**
+	 * Multiplies the top of the modelview matrix stack by a rotation (around an arbitrary axis) matrix
+	 * @param x The X component of the rotation axis
+	 * @param y The Y component of the rotation axis
+	 * @param z The Z component of the rotation axis
+	 * @param angle The rotation angle, in degrees
+	 */
+	public static native void AxisAngle(float x, float y, float z, float angle);
+	
+	/**
+	 * Multiplies the top of the modelview matrix stack by a scale matrix
+	 * @param sx The scaling factor for the X axis
+	 * @param sy The scaling factor for the Y axis
+	 * @param sz The scaling factor for the Z axis
+	 */
+	public static native void Scalef(float sx, float sy, float sz);
 }

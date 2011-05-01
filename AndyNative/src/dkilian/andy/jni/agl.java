@@ -11,6 +11,11 @@ package dkilian.andy.jni;
  */
 public class agl 
 {	
+	static
+	{
+		System.loadLibrary("AndyNative");
+	}
+	
 	/**
 	 * Initializes Andy's native OpenGL renderer in 2D rendering mode
 	 * @param w The width of the screen in virtual coordinates

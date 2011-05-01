@@ -3,6 +3,8 @@ package dkilian.andy;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import dkilian.andy.jni.agl;
+
 import android.opengl.GLSurfaceView;
 
 /**
@@ -47,14 +49,13 @@ public class KernelGLRenderer implements GLSurfaceView.Renderer
 				_resized = false;
 				_kernel.getVirtualScreen().setPhysicalDimensions(_view);
 				_kernel.getVirtualScreen().computeTransform(true);
-				// TODO: agl virtual transform
+				agl.SetVirtualDimensions(_view.getWidth(), _view.getHeight());
+				agl.ComputeVirtualTransform();
 			}
 			
-			// TODO: agl begin frame
-			
+			agl.BeginFrame();
 			s.draw(_kernel, _kernel.getDrawTimeDelta());
-			
-			// TODO: agl end frame
+			agl.EndFrame();
 		}
 		else
 		{

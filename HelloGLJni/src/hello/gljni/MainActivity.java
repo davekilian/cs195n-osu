@@ -14,7 +14,7 @@ public class MainActivity extends KernelActivity
 	@Override
 	protected int getMinimumGLVersion() 
 	{
-		return 0x10000;
+		return 0x20000;
 	}
 
 	@Override

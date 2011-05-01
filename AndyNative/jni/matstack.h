@@ -16,5 +16,6 @@ void matrix_stack_get_elems(MatrixStack* ms, float *e);
 void matrix_stack_set_elems(MatrixStack* ms, float *e);
 void matrix_stack_get(MatrixStack* ms, Matrix *m);
 void matrix_stack_set(MatrixStack* ms, Matrix *m);
+void matrix_stack_reset(MatrixStack* ms);
 
 #endif /* MATSTACK_H_ */

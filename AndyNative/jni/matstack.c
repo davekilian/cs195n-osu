@@ -115,3 +115,12 @@ void matrix_stack_set(MatrixStack* ms, Matrix *m)
 	matrix_copy(matrix_stack_matrix_ptr(ms), m);
 }
 
+void matrix_stack_reset(MatrixStack* ms)
+{
+	mstack *m = (mstack*)ms;
+
+	while (m->depth > 1)
+		matrix_stack_pop(ms);
+
+	matrix_identity(m->top->mat);
+}

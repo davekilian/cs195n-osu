@@ -19,6 +19,15 @@ public class agl
 	public static native void Initialize2D(int w, int h);
 	
 	/**
+	 * Releases internal state resources allocated in aglInitialize2D
+	 * and destroys all active shaders, and framebuffers (including their
+	 * attached depth buffers and color buffer textures) that were created 
+	 * using agl's APIs. Textures not currently bound to an FBO are not
+	 * affected by this call.
+	 */
+	public static native void Cleanup2D();
+	
+	/**
 	 * Sets the dimensions of the screen in virtual coordinates
 	 * @param w The width of the screen in virtual coordinates
 	 * @param h The height of the screen in virtual coordinates

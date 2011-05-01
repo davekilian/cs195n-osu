@@ -44,6 +44,8 @@ GLfloat _agl_clear_r = 0;				// The red component of the current clear color
 GLfloat _agl_clear_g = 0;				// The green component of the current clear color
 GLfloat _agl_clear_b = 0;				// The blue component of the current clear color
 GLfloat _agl_clear_a = 0;				// The alpha component of the current clear color
+GLuint _agl_quad_verts = 0;				// The vertices of the pre-allocated textured quad
+GLuint _agl_quad_elems = 0;				// The elements of the pre-allocated textured quad
 
 void  aglInitialize2D(GLint w, GLint h)
 {
@@ -54,11 +56,61 @@ void  aglInitialize2D(GLint w, GLint h)
 
 	matrix_ortho(&_agl_projection, 0.f, 1.f, 1.f, 0.f, 1.f, 100.f);
 
-	// TODO: glViewport?
-
 	// TODO: initialize the quad (for sprite rendering)
 
 	// TODO: load internal shaders
+}
+
+void  aglCleanup2D()
+{
+	GLuint uint = 0;
+	ShaderAttachment *sa = 0;
+	FBOColorAttachment *ca = 0;
+	FBODepthAttachment *da = 0;
+
+	matrix_stack_destroy(_agl_modelview);
+	_agl_modelview = 0;
+
+	sa = _agl_shaders;
+	while (sa)
+	{
+		glDetachShader(sa->program, sa->shader);
+		glDeleteShader(sa->shader);
+		sa = sa->next;
+	}
+
+	sa = _agl_shaders;
+	while (sa)
+	{
+		ShaderAttachment *tmp = sa->next;
+		glDeleteProgram(sa->program);
+		free(sa);
+		sa = tmp;
+	}
+
+	ca = _agl_fbo_color;
+	while (ca)
+	{
+		FBOColorAttachment *tmp = ca->next;
+		uint = ca->color;
+		glDeleteTextures(1, &uint);
+		uint = ca->fbo;
+		glDeleteFramebuffers(1, &uint);
+		free(ca);
+		ca = tmp;
+	}
+
+	da = _agl_fbo_depth;
+	while (da)
+	{
+		FBODepthAttachment *tmp = da->next;
+		uint = da->depth;
+		glDeleteRenderbuffers(1, &uint);
+		uint = da->fbo;
+		glDeleteFramebuffers(1, &uint);
+		free(da);
+		da = tmp;
+	}
 }
 
 void  aglSetVirtualDimensions(GLint w, GLint h)
@@ -275,17 +327,16 @@ void  aglDrawBitmapWithoutShaderTransformed(GLint tex, GLfloat x, GLfloat y, GLf
 
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b)
 {
-
+	glClearColor(r, g, b, 1.f);
 }
 
 void  aglBeginFrame()
 {
-
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 
 void  aglEndFrame()
 {
-
 }
 
 GLint aglCreateFBO(GLint w, GLint h)
@@ -458,6 +509,11 @@ void  aglScalef(GLfloat sx, GLfloat sy, GLfloat sz)
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h)
 {
 	aglInitialize2D(w, h);
+}
+
+void Java_dkilian_andy_jni_agl_Cleanup2D(JNIEnv *env, jobject *thiz)
+{
+	aglCleanup2D();
 }
 
 void Java_dkilian_andy_jni_agl_SetVirtualDimensions(JNIEnv *env, jobject *thiz, jint w, jint h)

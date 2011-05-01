@@ -1,7 +1,8 @@
 /*
  * agl.h
  *
- * Function definitions for Andy's high-level native OpenGL ES wrapper functions
+ * Function definitions for Andy's high-level native OpenGL ES wrapper functions.
+ * Let's pronounce it 'agile' :D
  */
 
 #ifndef AGL_H_
@@ -12,6 +13,7 @@
 #include <GLES2/gl2ext.h>
 
 void  aglInitialize2D(GLint w, GLint h);
+void  aglCleanup2D();
 void  aglSetVirtualDimensions(GLint w, GLint h);
 void  aglGetVirtualTransform(GLfloat *m);
 void  aglSetVirtualTransform(GLfloat *m);
@@ -56,6 +58,7 @@ void  aglScalef(GLfloat sx, GLfloat sy, GLfloat sz);
 // TODO: particle system acceleration. Efficient data marshaling could be tricky.
 
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h);
+void Java_dkilian_andy_jni_agl_Cleanup2D(JNIEnv *env, jobject *thiz);
 void Java_dkilian_andy_jni_agl_SetVirtualDimensions(JNIEnv *env, jobject *thiz, jint w, jint h);
 void Java_dkilian_andy_jni_agl_GetVirtualTransform(JNIEnv *env, jobject *thiz, jfloatArray m);
 void Java_dkilian_andy_jni_agl_SetVirtualTransfrom(JNIEnv *env, jobject *thiz, jfloatArray m);

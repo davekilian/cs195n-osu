@@ -35,10 +35,10 @@ typedef struct _FBOColorAttachment
 
 const GLfloat _agl_quad_vdata[] =
 {
-		-1.f, -1.f,
-		 1.f, -1.f,
-		-1.f,  1.f,
-		 1.f,  1.f
+		0.f, 0.f,
+		1.f, 0.f,
+		0.f, 1.f,
+		1.f, 1.f
 };
 
 const GLushort _agl_quad_edata[] =
@@ -51,17 +51,14 @@ const char _agl_quad_vshader[] =
 		""
 		"uniform mat4 aglModelview;"
 		"uniform mat4 aglVirtualTransform;"
-		"uniform mat4 aglProjection;"
 		""
 		"varying lowp vec2 texcoord;"
 		""
 		"void main()"
 		"{"
-		"	gl_Position = vec4(aglPosition, 0.0, 1.0);"
+		"	gl_Position = aglVirtualTransform * aglModelview * vec4(aglPosition, 0.0, 1.0);"
 		"	texcoord = vec2(0.5) + vec2(0.5) * aglPosition;"
 		"}";
-		// TODO: should obey modelviewprojection matrices
-		// Update: should just be VirtualTransform * (ModelView * (aglPosition)). Can nix the projection matrix.
 
 const char _agl_quad_fshader[] =
 		"uniform sampler2D aglTexture;"
@@ -70,7 +67,7 @@ const char _agl_quad_fshader[] =
 		""
 		"void main()"
 		"{"
-		"	gl_FragColor = vec4(1.0);"
+		"	gl_FragColor = vec4(texcoord, 0.0, 1.0);"
 		"}";
 		// TODO: should sample the texture
 
@@ -92,7 +89,7 @@ GLint _agl_quad_program = 0;			// The program used to draw textured quads
 GLint _agl_bound_shader = 0;			// The currently bound shader. Used to set aglPosition in aglTexturedQuad() if applicable.
 
 // Maybe there are preprocessor hacks to make this prettier
-#define LOG_ENABLED 0
+#define LOG_ENABLED 1
 
 #if LOG_ENABLED
 #define logcat(a) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a);
@@ -218,21 +215,47 @@ void  aglComputeVirtualTransform()
 
 	matrix_identity(&_agl_virtualTransform);
 	float scalex, scaley;
+	GLint viewport[4];
 
-	scalex = 1.f / _agl_virtualWidth;
-	scaley = 1.f / _agl_virtualHeight;
+	glGetIntegerv(GL_VIEWPORT, viewport);
+
+	scalex = (float)viewport[2] / (float)_agl_virtualWidth;
+	scaley = (float)viewport[3] / (float)_agl_virtualHeight;
+
+	logfmt2("Physical dimensions: %dx%d", viewport[2], viewport[3]);
+	logfmt2("Virtual dimensions: %dx%d", _agl_virtualWidth, _agl_virtualHeight);
+
+	// Read bottom-up to get a chronological view of transformations
+
+	// Flip
+	matrix_scale(&_agl_virtualTransform, 1.f, -1.f, 1.f);
+
+	// Normalized device coordinates to OpenGL space
+	matrix_translate(&_agl_virtualTransform, -1.f, -1.f, 0.f);
+	matrix_scale(&_agl_virtualTransform, 2.f, 2.f, 1.f);
+
+	// Device coordinates to normalized device coordinates
+	matrix_scale(&_agl_virtualTransform, 1.f / viewport[2], 1.f / viewport[3], 1.f);
 
 	if (scalex < scaley)
 	{
 		logcat("Top/bottom letterboxes");
+		logfmt("Scaling entire scene by a factor of %f", scalex);
+		logfmt("Translating by %f", .5f * (viewport[3] - scalex * _agl_virtualHeight));
+
+		// Virtual coordinates to device coordinates
+		matrix_translate(&_agl_virtualTransform, 0.f, .5f * (viewport[3] - scalex * _agl_virtualHeight), 0.f);
 		matrix_scale(&_agl_virtualTransform, scalex, scalex, 1.f);
-		matrix_translate(&_agl_virtualTransform, 0.f, .5f * (1 - scalex * _agl_virtualHeight), 0.f);
 	}
 	else
 	{
 		logcat("Left/right letterboxes");
+		logfmt("Scaling entire scene by a factor of %f", scaley);
+		logfmt("Translating by %f", .5f * (viewport[2] - scaley * _agl_virtualWidth));
+
+		// Virtual coordinates to device coordinates
+		matrix_translate(&_agl_virtualTransform, 0.f, .5f * (viewport[2] - scaley * _agl_virtualWidth), 0.f);
 		matrix_scale(&_agl_virtualTransform, scaley, scaley, 1.f);
-		matrix_translate(&_agl_virtualTransform, .5f * (1 - scaley * _agl_virtualWidth), 0.f, 0.f);
 	}
 }
 

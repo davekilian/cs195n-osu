@@ -1,6 +1,5 @@
 package dkilian.andy;
 
-import dkilian.andy.jni.agl;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -82,7 +81,6 @@ public abstract class KernelActivity extends Activity
 			setContentView(_kernel.getGLView());
 			_kernel.getVirtualScreen().setPhysicalDimensions(_kernel.getGLView());
 			_kernel.getGLView().queueResize();
-			agl.Initialize2D(_kernel.getGLView().getWidth(), _kernel.getGLView().getHeight());
 		}
 		else
 		{

@@ -124,3 +124,8 @@ void matrix_stack_reset(MatrixStack* ms)
 
 	matrix_identity(m->top->mat);
 }
+
+int matrix_stack_depth(MatrixStack *ms)
+{
+	return ((mstack*)ms)->depth;
+}

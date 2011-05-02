@@ -6,6 +6,7 @@
 #include <jni.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include <android/log.h>
 
 #include "stdio.h"
 #include "stdlib.h"
@@ -46,15 +47,13 @@ const GLushort _agl_quad_edata[] =
 };
 
 const char _agl_quad_vshader[] =
-		"#version 100"
-		""
-		"attribute vec2 aglPosition;"
+		"attribute lowp vec2 aglPosition;"
 		""
 		"uniform mat4 aglModelview;"
 		"uniform mat4 aglVirtualTransform;"
 		"uniform mat4 aglProjection;"
 		""
-		"varying vec2 texcoord;"
+		"varying lowp vec2 texcoord;"
 		""
 		"void main()"
 		"{"
@@ -62,13 +61,12 @@ const char _agl_quad_vshader[] =
 		"	texcoord = vec2(0.5) + vec2(0.5) * aglPosition;"
 		"}";
 		// TODO: should obey modelviewprojection matrices
+		// Update: should just be VirtualTransform * (ModelView * (aglPosition)). Can nix the projection matrix.
 
 const char _agl_quad_fshader[] =
-		"#version 100"
-		""
 		"uniform sampler2D aglTexture;"
 		""
-		"varying vec2 texcoord;"
+		"varying lowp vec2 texcoord;"
 		""
 		"void main()"
 		"{"
@@ -93,6 +91,21 @@ GLuint _agl_quad_elems = 0;				// Element buffer contain the textured quad's ind
 GLint _agl_quad_program = 0;			// The program used to draw textured quads
 GLint _agl_bound_shader = 0;			// The currently bound shader. Used to set aglPosition in aglTexturedQuad() if applicable.
 
+// Maybe there are preprocessor hacks to make this prettier
+#define LOG_ENABLED 0
+
+#if LOG_ENABLED
+#define logcat(a) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a);
+#define logfmt(a, b) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a, b);
+#define logfmt2(a, b, c) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a, b, c);
+#define logfmt3(a, b, c, d) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a, b, c, d);
+#else
+#define logcat(a)
+#define logfmt(a, b)
+#define logfmt2(a, b, c)
+#define logfmt3(a, b, c, d)
+#endif
+
 void  aglInitialize2D(GLint w, GLint h)
 {
 	_agl_modelview = matrix_stack_create();
@@ -100,7 +113,7 @@ void  aglInitialize2D(GLint w, GLint h)
 	aglSetVirtualDimensions(w, h);
 	aglComputeVirtualTransform();
 
-	matrix_ortho(&_agl_projection, 0.f, 1.f, 1.f, 0.f, 1.f, 100.f);
+	matrix_ortho(&_agl_projection, 0.f, 1.f, 1.f, 0.f, -1.f, 1.f);
 
 	glGenBuffers(1, &_agl_quad_verts);
 	glBindBuffer(GL_ARRAY_BUFFER, _agl_quad_verts);
@@ -109,10 +122,15 @@ void  aglInitialize2D(GLint w, GLint h)
 
 	glGenBuffers(1, &_agl_quad_elems);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _agl_quad_elems);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_agl_quad_elems), _agl_quad_edata, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_agl_quad_edata), _agl_quad_edata, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	_agl_quad_program = aglLoadShader(_agl_quad_vshader, _agl_quad_fshader);
+
+	logfmt2("Virtual dimensions: %dx%d", w, h);
+	logfmt("Loaded quad shader handle: %d", _agl_quad_program);
+	logfmt("Modelview matrix stack initialized with depth: %d", matrix_stack_depth(_agl_modelview));
+	logcat("agl init complete");
 }
 
 void  aglCleanup2D()
@@ -125,7 +143,8 @@ void  aglCleanup2D()
 	matrix_stack_destroy(_agl_modelview);
 	_agl_modelview = 0;
 
-	// TODO: clean up quad buffers
+	glDeleteBuffers(1, &_agl_quad_verts);
+	glDeleteBuffers(1, &_agl_quad_elems);
 
 	aglDeleteShader(_agl_quad_program);
 	_agl_quad_program = 0;
@@ -135,6 +154,7 @@ void  aglCleanup2D()
 	{
 		glDetachShader(sa->program, sa->shader);
 		glDeleteShader(sa->shader);
+		logfmt2("Deleted shader %d attached to program %d", sa->shader, sa->program);
 		sa = sa->next;
 	}
 
@@ -143,6 +163,7 @@ void  aglCleanup2D()
 	{
 		ShaderAttachment *tmp = sa->next;
 		glDeleteProgram(sa->program);
+		logfmt("Deleted program %d", sa->program);
 		free(sa);
 		sa = tmp;
 	}
@@ -155,6 +176,7 @@ void  aglCleanup2D()
 		glDeleteTextures(1, &uint);
 		uint = ca->fbo;
 		glDeleteFramebuffers(1, &uint);
+		logfmt2("Deleted color attachment %d attached to FBO %d", ca->color, ca->fbo);
 		free(ca);
 		ca = tmp;
 	}
@@ -167,6 +189,7 @@ void  aglCleanup2D()
 		glDeleteRenderbuffers(1, &uint);
 		uint = da->fbo;
 		glDeleteFramebuffers(1, &uint);
+		logfmt2("Deleted depth attachment %d attached to FBO %d", da->depth, da->fbo);
 		free(da);
 		da = tmp;
 	}
@@ -176,6 +199,7 @@ void  aglSetVirtualDimensions(GLint w, GLint h)
 {
 	_agl_virtualWidth = w;
 	_agl_virtualHeight = h;
+	logfmt2("Virtual dimensions set to %dx%d, aglComputeTransform() to apply.", w, h);
 }
 
 void  aglGetVirtualTransform(GLfloat *m)
@@ -190,6 +214,8 @@ void  aglSetVirtualTransform(GLfloat *m)
 
 void  aglComputeVirtualTransform()
 {
+	logcat("Computing virtual transforms ...");
+
 	matrix_identity(&_agl_virtualTransform);
 	float scalex, scaley;
 
@@ -198,11 +224,13 @@ void  aglComputeVirtualTransform()
 
 	if (scalex < scaley)
 	{
+		logcat("Top/bottom letterboxes");
 		matrix_scale(&_agl_virtualTransform, scalex, scalex, 1.f);
 		matrix_translate(&_agl_virtualTransform, 0.f, .5f * (1 - scalex * _agl_virtualHeight), 0.f);
 	}
 	else
 	{
+		logcat("Left/right letterboxes");
 		matrix_scale(&_agl_virtualTransform, scaley, scaley, 1.f);
 		matrix_translate(&_agl_virtualTransform, .5f * (1 - scaley * _agl_virtualWidth), 0.f, 0.f);
 	}
@@ -210,6 +238,8 @@ void  aglComputeVirtualTransform()
 
 GLint aglLoadShader(const char* vertex, const char* fragment)
 {
+	logcat("Compiling a shader ...");
+
 	GLint program, v, f, len;
 	ShaderAttachment *va, *fa;
 
@@ -218,18 +248,93 @@ GLint aglLoadShader(const char* vertex, const char* fragment)
 	len = strlen(vertex);
 	glShaderSource(v, 1, &vertex, &len);
 	glCompileShader(v);
+	logfmt("Vertex shader created with handle; %d", v);
+#if LOG_ENABLED
+	{
+		GLint compiled = 0;
+		glGetShaderiv(v, GL_COMPILE_STATUS, &compiled);
+		if (compiled == GL_FALSE)
+		{
+			char *log;
+			int loglen;
+
+			glGetShaderiv(v, GL_INFO_LOG_LENGTH, &loglen);
+			log = malloc(loglen);
+			glGetShaderInfoLog(v, loglen, &loglen, log);
+
+			logcat("Vertex shader compilation failed");
+			logcat(log);
+
+			free(log);
+		}
+		else
+		{
+			logcat("Vertex shader compilation succeeded");
+		}
+	}
+#endif
 
 	// Fragment shader
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 	len = strlen(fragment);
 	glShaderSource(f, 1, &fragment, &len);
 	glCompileShader(f);
+	logfmt("Fragment shader created with handle; %d", f);
+#if LOG_ENABLED
+	{
+		GLint compiled = 0;
+		glGetShaderiv(f, GL_COMPILE_STATUS, &compiled);
+		if (compiled == GL_FALSE)
+		{
+			char *log;
+			int loglen;
+
+			glGetShaderiv(f, GL_INFO_LOG_LENGTH, &loglen);
+			log = malloc(loglen);
+			glGetShaderInfoLog(f, loglen, &loglen, log);
+
+			logcat("Fragment shader compilation failed");
+			logcat(log);
+
+			free(log);
+		}
+		else
+		{
+			logcat("Fragment shader compilation succeeded");
+		}
+	}
+#endif
 
 	// Program
 	program = glCreateProgram();
 	glAttachShader(program, v);
 	glAttachShader(program, f);
 	glLinkProgram(program);
+	logfmt("Shader program created with handle: %d", program);
+#if LOG_ENABLED
+	{
+		GLint linked = 0;
+		glGetProgramiv(program, GL_LINK_STATUS, &linked);
+		if (linked == GL_FALSE)
+		{
+			char *log;
+			int loglen;
+
+			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &loglen);
+			log = malloc(loglen);
+			glGetProgramInfoLog(program, loglen, &loglen, log);
+
+			logcat("Program linkage failed");
+			logcat(log);
+
+			free(log);
+		}
+		else
+		{
+			logcat("Program linkage succeeded");
+		}
+	}
+#endif
 
 	// Remember attachment (for cleanup later)
 	va = (ShaderAttachment*)malloc(sizeof(ShaderAttachment));
@@ -245,6 +350,7 @@ GLint aglLoadShader(const char* vertex, const char* fragment)
 
 	_agl_shaders = va;
 
+	logcat("Compilation completed.");
 	return program;
 }
 
@@ -318,13 +424,13 @@ void  aglUseShader(GLint shader)
 
 void  aglUseQuadShader()
 {
-	aglUseShader(_agl_quad_program);
+	aglUseShader(_agl_quad_program);\
 }
 
 void  aglClearShader()
 {
 	_agl_bound_shader = 0;
-	glUseProgram(0);
+	glUseProgram(0);\
 }
 
 void  aglDeleteShader(GLint shader)
@@ -413,6 +519,7 @@ void  aglTexturedQuad()
 		glEnableVertexAttribArray(pos);
 	}
 
+//	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, _agl_quad_edata);
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 
 	if (pos >= 0)

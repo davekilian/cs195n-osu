@@ -22,6 +22,8 @@ public class KernelGLRenderer implements GLSurfaceView.Renderer
 	private GL10 _gl;
 	/** Whether or not the virtual screen transform should be recomputed next frame */
 	private boolean _resized;
+	/** Whether or not the first draw is the first (in which case aglInitialize2D() needs to be called */
+	private boolean _firstDraw;
 	
 	/**
 	 * Creates an OpenGL renderer
@@ -33,6 +35,7 @@ public class KernelGLRenderer implements GLSurfaceView.Renderer
 		_kernel = kernel;
 		_view = view;
 		_resized = false;
+		_firstDraw = true;
 	}
 	
 	/** Draws the current frame */
@@ -44,12 +47,18 @@ public class KernelGLRenderer implements GLSurfaceView.Renderer
 		Screen s = _kernel.getScreen();
 		if (s != null)
 		{
+			if (_firstDraw)
+			{
+				agl.Initialize2D(_kernel.getVirtualScreen().getWidth(), _kernel.getVirtualScreen().getHeight());
+				_firstDraw = false;
+			}
+			
 			if (_resized)
 			{
 				_resized = false;
 				_kernel.getVirtualScreen().setPhysicalDimensions(_view);
 				_kernel.getVirtualScreen().computeTransform(true);
-				agl.SetVirtualDimensions(_view.getWidth(), _view.getHeight());
+				agl.SetVirtualDimensions(_kernel.getVirtualScreen().getWidth(), _kernel.getVirtualScreen().getHeight());
 				agl.ComputeVirtualTransform();
 			}
 			

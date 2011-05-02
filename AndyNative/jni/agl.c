@@ -32,6 +32,50 @@ typedef struct _FBOColorAttachment
 	struct _FBOColorAttachment *next;
 } FBOColorAttachment;
 
+const GLfloat _agl_quad_vdata[] =
+{
+		-1.f, -1.f,
+		 1.f, -1.f,
+		-1.f,  1.f,
+		 1.f,  1.f
+};
+
+const GLushort _agl_quad_edata[] =
+{
+		0, 1, 2, 3
+};
+
+const char _agl_quad_vshader[] =
+		"#version 100"
+		""
+		"attribute vec2 aglPosition;"
+		""
+		"uniform mat4 aglModelview;"
+		"uniform mat4 aglVirtualTransform;"
+		"uniform mat4 aglProjection;"
+		""
+		"varying vec2 texcoord;"
+		""
+		"void main()"
+		"{"
+		"	gl_Position = vec4(aglPosition, 0.0, 1.0);"
+		"	texcoord = vec2(0.5) + vec2(0.5) * aglPosition;"
+		"}";
+		// TODO: should obey modelviewprojection matrices
+
+const char _agl_quad_fshader[] =
+		"#version 100"
+		""
+		"uniform sampler2D aglTexture;"
+		""
+		"varying vec2 texcoord;"
+		""
+		"void main()"
+		"{"
+		"	gl_FragColor = vec4(1.0);"
+		"}";
+		// TODO: should sample the texture
+
 GLint _agl_virtualWidth = 0;			// The width of the viewport in virtual coordinates
 GLint _agl_virtualHeight = 0;			// The height of the viewport in virtual coordinates
 Matrix _agl_virtualTransform;			// The transform from virtual coordinates to world coordinates
@@ -44,8 +88,10 @@ GLfloat _agl_clear_r = 0;				// The red component of the current clear color
 GLfloat _agl_clear_g = 0;				// The green component of the current clear color
 GLfloat _agl_clear_b = 0;				// The blue component of the current clear color
 GLfloat _agl_clear_a = 0;				// The alpha component of the current clear color
-GLuint _agl_quad_verts = 0;				// The vertices of the pre-allocated textured quad
-GLuint _agl_quad_elems = 0;				// The elements of the pre-allocated textured quad
+GLuint _agl_quad_verts = 0;				// Vertex buffer containing the textured quad's data
+GLuint _agl_quad_elems = 0;				// Element buffer contain the textured quad's indices
+GLint _agl_quad_program = 0;			// The program used to draw textured quads
+GLint _agl_bound_shader = 0;			// The currently bound shader. Used to set aglPosition in aglTexturedQuad() if applicable.
 
 void  aglInitialize2D(GLint w, GLint h)
 {
@@ -56,9 +102,17 @@ void  aglInitialize2D(GLint w, GLint h)
 
 	matrix_ortho(&_agl_projection, 0.f, 1.f, 1.f, 0.f, 1.f, 100.f);
 
-	// TODO: initialize the quad (for sprite rendering)
+	glGenBuffers(1, &_agl_quad_verts);
+	glBindBuffer(GL_ARRAY_BUFFER, _agl_quad_verts);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(_agl_quad_vdata), _agl_quad_vdata, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// TODO: load internal shaders
+	glGenBuffers(1, &_agl_quad_elems);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _agl_quad_elems);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_agl_quad_elems), _agl_quad_edata, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	_agl_quad_program = aglLoadShader(_agl_quad_vshader, _agl_quad_fshader);
 }
 
 void  aglCleanup2D()
@@ -70,6 +124,11 @@ void  aglCleanup2D()
 
 	matrix_stack_destroy(_agl_modelview);
 	_agl_modelview = 0;
+
+	// TODO: clean up quad buffers
+
+	aglDeleteShader(_agl_quad_program);
+	_agl_quad_program = 0;
 
 	sa = _agl_shaders;
 	while (sa)
@@ -191,49 +250,80 @@ GLint aglLoadShader(const char* vertex, const char* fragment)
 
 void  aglUniform(GLint program, const char* param, GLfloat v)
 {
-	glUniform1f(glGetUniformLocation(program, param), v);
+	GLint loc = glGetUniformLocation(program, param);
+	if (loc >= 0)
+		glUniform1f(loc, v);
 }
 
 void  aglUniform2(GLint program, const char* param, GLfloat v1, GLfloat v2)
 {
-	glUniform2f(glGetUniformLocation(program, param), v1, v2);
+	GLint loc = glGetUniformLocation(program, param);
+	if (loc >= 0)
+		glUniform2f(loc, v1, v2);
 }
 
 void  aglUniform3(GLint program, const char* param, GLfloat v1, GLfloat v2, GLfloat v3)
 {
-	glUniform3f(glGetUniformLocation(program, param), v1, v2, v3);
+	GLint loc = glGetUniformLocation(program, param);
+	if (loc >= 0)
+		glUniform3f(loc, v1, v2, v3);
 }
 
 void  aglUniform4(GLint program, const char* param, GLfloat v1, GLfloat v2, GLfloat v3, GLfloat v4)
 {
-	glUniform4f(glGetUniformLocation(program, param), v1, v2, v3, v4);
+	GLint loc = glGetUniformLocation(program, param);
+	if (loc >= 0)
+		glUniform4f(loc, v1, v2, v3, v4);
 }
 
 void  aglUniformMat2(GLint program, const char* param, GLfloat *m)
 {
-	glUniformMatrix2fv(glGetUniformLocation(program, param), 1, 0, m);
+	GLint loc = glGetUniformLocation(program, param);
+	if (loc >= 0)
+		glUniformMatrix2fv(loc, 1, 0, m);
 }
 
 void  aglUniformMat3(GLint program, const char* param, GLfloat *m)
 {
-	glUniformMatrix3fv(glGetUniformLocation(program, param), 1, 0, m);
+	GLint loc = glGetUniformLocation(program, param);
+	if (loc >= 0)
+		glUniformMatrix3fv(loc, 1, 0, m);
 }
 
 void  aglUniformMat4(GLint program, const char* param, GLfloat *m)
 {
-	glUniformMatrix4fv(glGetUniformLocation(program, param), 1, 0, m);
+	GLint loc = glGetUniformLocation(program, param);
+	if (loc >= 0)
+		glUniformMatrix4fv(loc, 1, 0, m);
+}
+
+void  aglUniformTexture(GLint program, const char* param, GLint t)
+{
+	GLint loc = glGetUniformLocation(program, param);
+	if (loc >= 0)
+		glUniform1i(loc, t);
 }
 
 void  aglUseShader(GLint shader)
 {
 	glUseProgram(shader);
 
-	// TODO: create a list of standard parameters that can be passed to shaders
-	// TODO: pass those standard params to the shader
+	aglUniformMat4(shader, "aglModelview", matrix_stack_data_ptr(_agl_modelview));
+	aglUniformMat4(shader, "aglVirtualTransform", _agl_virtualTransform.data);
+	aglUniformMat4(shader, "aglProjection", _agl_projection.data);
+	aglUniformTexture(shader, "aglTexture", 0);	// For texture 0
+
+	_agl_bound_shader = shader;
+}
+
+void  aglUseQuadShader()
+{
+	aglUseShader(_agl_quad_program);
 }
 
 void  aglClearShader()
 {
+	_agl_bound_shader = 0;
 	glUseProgram(0);
 }
 
@@ -274,9 +364,7 @@ void  aglDeleteShader(GLint shader)
 GLint aglCreateTexture(GLint w, GLint h)
 {
 	GLuint tex = aglCreateEmptyTexture();
-
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
 	return tex;
 }
 
@@ -296,11 +384,13 @@ GLint aglCreateEmptyTexture()
 
 void  aglBindTexture(GLint tex)
 {
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex);
 }
 
 void  aglUnbindTexture()
 {
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -312,7 +402,24 @@ void  aglDeleteTexture(GLint tex)
 
 void  aglTexturedQuad()
 {
+	GLint pos = glGetAttribLocation(_agl_bound_shader, "aglPosition");
 
+	glBindBuffer(GL_ARRAY_BUFFER, _agl_quad_verts);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _agl_quad_elems);
+
+	if (pos >= 0)
+	{
+		glVertexAttribPointer(pos, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
+		glEnableVertexAttribArray(pos);
+	}
+
+	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
+
+	if (pos >= 0)
+		glDisableVertexAttribArray(pos);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void  aglDrawBitmap(GLint tex)
@@ -645,9 +752,21 @@ void Java_dkilian_andy_jni_agl_UniformMat4(JNIEnv *env, jobject *thiz, jint shad
 	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
 }
 
+void Java_dkilian_andy_jni_agl_UniformTexture(JNIEnv *env, jobject *thiz, jint shader, jstring param, jint t)
+{
+	const char *p = (*env)->GetStringUTFChars(env, param, NULL);
+	aglUniformTexture(shader, p, t);
+	(*env)->ReleaseStringUTFChars(env, param, p);
+}
+
 void Java_dkilian_andy_jni_agl_UseShader(JNIEnv *env, jobject *thiz, jint shader)
 {
 	aglUseShader(shader);
+}
+
+void Java_dkilian_andy_jni_agl_UseQuadShader(JNIEnv *env, jobject *thiz)
+{
+	aglUseQuadShader();
 }
 
 void Java_dkilian_andy_jni_agl_ClearShader(JNIEnv *env, jobject *thiz)

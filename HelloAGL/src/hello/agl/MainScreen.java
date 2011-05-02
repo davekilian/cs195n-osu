@@ -41,5 +41,9 @@ public class MainScreen implements Screen
 	{
 //		agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
 		agl.ClearColor(FloatMath.sin(_time / 5), FloatMath.sin(_time / 2), FloatMath.sin(_time / 3));
+		
+		agl.UseQuadShader();
+		agl.TexturedQuad();
+		agl.ClearShader();
 	}
 }

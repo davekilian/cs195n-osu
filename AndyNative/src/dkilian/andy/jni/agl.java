@@ -128,10 +128,25 @@ public class agl
 	public static native void UniformMat4(int shader, String param, float[] m);
 	
 	/**
+	 * Sets a texture uniform value
+	 * @param shader A handle to the shader to modify
+	 * @param param The name of the shader uniform to modify
+	 * @param texture The texture index to bind to the uniform. Usually this is 0, for GL_TEXTURE0.
+	 */
+	public static native void UniformTexture(int shader, String param, int texture);
+	
+	/**
 	 * Sets the given shader as the active shader, which will be used in subsequent rendering operations
 	 * @param shader A handle to the shader to make active
 	 */
 	public static native void UseShader(int shader);
+	
+	/**
+	 * Sets the built-in textured-quad rendering shader as the active shader, which will be used in
+	 * subsequent rendering operations. Useful if you plan on calling aglTexturedQuad(). This is 
+	 * handled automatically in all variants of aglDrawBitmapWithoutShader(). 
+	 */
+	public static native void UseQuadShader();
 	
 	/**
 	 * Clears the current shader, marking no shader as active
@@ -152,7 +167,7 @@ public class agl
 	 * @param h The height of the texture, in pixels
 	 * @return A handle to the texture
 	 */
-	public static native int  CreateTexture(int w, int h);
+	public static native int CreateTexture(int w, int h);
 	
 	/**
 	 * Creates a texture with no attached data. Use GLUtils.texImage2D() to fill the texture with color data.

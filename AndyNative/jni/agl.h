@@ -26,7 +26,9 @@ void  aglUniform4(GLint shader, const char* param, GLfloat v1, GLfloat v2, GLflo
 void  aglUniformMat2(GLint shader, const char* param, GLfloat *m);
 void  aglUniformMat3(GLint shader, const char* param, GLfloat *m);
 void  aglUniformMat4(GLint shader, const char* param, GLfloat *m);
+void  aglUniformTexture(GLint shader, const char* param, GLint t);
 void  aglUseShader(GLint shader);
+void  aglUseQuadShader();
 void  aglClearShader();
 void  aglDeleteShader(GLint shader);
 GLint aglCreateTexture(GLint w, GLint h);
@@ -61,7 +63,6 @@ void  aglTranslatef(GLfloat tx, GLfloat ty, GLfloat tz);
 void  aglRotatef(GLfloat angle);
 void  aglAxisAngle(GLfloat x, GLfloat y, GLfloat z, GLfloat angle);
 void  aglScalef(GLfloat sx, GLfloat sy, GLfloat sz);
-// TODO: um, shader parameters. D'Oh.
 // TODO: particle system acceleration. Efficient data marshaling could be tricky.
 
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h);
@@ -78,7 +79,9 @@ void Java_dkilian_andy_jni_agl_Uniform4(JNIEnv *env, jobject *thiz, jint shader,
 void Java_dkilian_andy_jni_agl_UniformMat2(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloatArray m);
 void Java_dkilian_andy_jni_agl_UniformMat3(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloatArray m);
 void Java_dkilian_andy_jni_agl_UniformMat4(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloatArray m);
-void Java_dkilian_andy_jni_agl_UseShader(JNIEnv *env, jobject *thiz ,jint shader);
+void Java_dkilian_andy_jni_agl_UniformTexture(JNIEnv *env, jobject *thiz, jint shader, jstring param, jint t);
+void Java_dkilian_andy_jni_agl_UseShader(JNIEnv *env, jobject *thiz, jint shader);
+void Java_dkilian_andy_jni_agl_UseQuadShader(JNIEnv *env, jobject *thiz);
 void Java_dkilian_andy_jni_agl_ClearShader(JNIEnv *env, jobject *thiz);
 void Java_dkilian_andy_jni_agl_DeleteShader(JNIEnv *env, jobject *thiz, jint shader);
 jint Java_dkilian_andy_jni_agl_CreateTexture(JNIEnv *env, jobject *thiz, jint w, jint h);

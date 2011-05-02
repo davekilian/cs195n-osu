@@ -1,0 +1,148 @@
+OSU FILE FORMAT GUIDE
+---
+osu file format v9 - :\
+
+[General] ------------
+AudioFilename: Name of the file in the song file directory
+
+AudioLeadIn: Millis before the music starts playing - does not affect hitbox timings
+
+PreviewTime: ?
+
+Countdown: Sets the timing of the countdown animation and sound before the first hitboxes appear - timing seems to be slower for 0 (off) to 2, with mod operations taking place for higher values
+
+SampleSet: Types of sounds coming out of each successful hitbox strike
+
+StackLeniency: [E] The higher the value, the more likely it is to snap together notes of further time-distance (2 to 10) - osu automatically stack these notes so adjusting this will auto stack these notes (I'm guessing for numerical ordering values)
+
+Mode: [E] Osu can be played in a few different modes (keyboard, taiko, etc.) - this should force a mode - 0 is all modes
+
+LetterboxInBreaks: True (1) or False (0) - the break sections will have letterboxing around them
+
+SkinPreference: Overwrites the osu skin preferences - "Default" to use default osu skin, no section here if no preference
+
+CountdownOffset: [E] The timing offset of the countdown. 0 to 2 - Not sure how it changes the values (think it's by the number of beats early according to E text?)
+
+StoryFireInFront: [E] Have yet to see - Some animation that puts the storyboard with fire in front (0 if true, not in file if false)
+
+EpilepsyWarning: [E] Puts a warning before the song starts for flashing backgrounds (1 is on, not in file if false) - does not delay song, displays over intro
+
+
+[Editor] ------------
+(I think these are editor details only - what gives me that idea? :P)
+
+DistanceSpacing: 0.8
+
+BeatDivisor: 2
+
+GridSize: 8
+
+
+[Metadata] ------------
+Title: Song Name - does not affect song selection (perhaps this is stored when beatmaps are first installed?)
+
+Artist:RevenG vs DE-SIRE
+
+Creator:Zelos
+
+Version:Standard
+
+Source:Dance Dance Revolution
+
+Tags:animask Extreme Krisom
+
+
+[Difficulty] ------------
+HPDrainRate: How fast your HP drains per miss and over time (max is 10) - amount of HP lost increases from 0 (still drains) to 10
+
+CircleSize: Size of hit boxes - smaller is bigger - only seems to affect size, not position - smallest appears to be 10, any smaller stays at 10 (E allows 3-7, could be based on difficulty)
+
+OverallDifficulty: [E] The harshness of the timing window; The difficulty of the spinners - 0 to 10, higher the harder
+
+ApproachRate: How quickly the hitboxes appear on the screen - 10 is max, 0 is min, the larger, the faster they come - affects outer timing circles as well
+
+SliderMultiplier: Changes the rate of speed of a given slider... O_o The higher it is, the faster the ball moves across the screen - 0 is lowest, 10 is hightest
+
+SliderTickRate: Divides sliders into this many components - points are awarded as you transition from one side to the other - 10 is max, 1 is lowest, anything else exhibits the properties of the values before hand
+
+
+[Events] ------------
+(VALUES ARE BELOW, not next to like the others)
+
+//Background and Video events
+[?],[?],[background-file-name-in-quotes]
+5,5 breaks the song so it doesn't launch, 10,10 makes the background not show - don't think this is useful, filename is filename
+
+//Break Periods
+Break timings
+[? - always 2 from what I have seen],[Start-time],[End-time]
+Timings are in milliseconds - note these are not on the beats
+
+//Storyboard Layer 0 (Background)
+//Storyboard Layer 1 (Fail)
+//Storyboard Layer 2 (Pass)
+//Storyboard Layer 3 (Foreground)
+//Storyboard Sound Samples
+//Background Colour Transformations
+[?,?,R,G,B]
+
+?: Anything besides 3 seems to make the background color not appear in-game (but does appear in the menus)
+
+?: No idea.
+
+RGB: color values 0-255
+
+
+[TimingPoints] ------------
+([E] - Changing song temp and timings? [T] Seems to only affect slider speed and timings)
+
+[Offset, BPM, Time Signature, SampleSet, SampleSetCustom, Vol, InheritPreviousTimings, KIAI]
+
+Offset: Offset to start timing
+
+BPM: bpm in some weird format - so 363.636363636364=165; first is val, next seem to be multipliers ([E] says for slider velocity), -100 means no change, -133.3(repeating) is 75% & -66.6(repeating) is 150% - no visible change in game
+
+Time Signature: 3, 4, 5, 6, 7 over 4 - don't know how this impacts the game
+
+SampleSet: Changes the type of hits 
+
+SampleSetCustom: Selects the custom sound set to associate
+
+Vol: The volume of the hitbox hits at a given section
+
+InheritPreviousTimings: Changes the inherited values - When 1, sets its own values, 0, it inherits. BPM is no longer a multiplier, and I think some other values become irrelevant
+
+KIAI: Makes the section more epic by adding some flair or something, harder hits and icon popping up
+
+
+[Colours] ------------
+[Name# : B,R,G]
+
+Names are "Combo#", colors are vals between 0-255 for each channel
+
+Entire field and header disappears if custom colors are not enabled (get a default - theirs are green, blue, red, orange)
+
+
+[HitObjects] ------------
+[X, Y, Timing, PieceType, ?, TYPE-SPECIFIC]
+
+X: x-position; 0-512, LR, anything more or less takes edge cases
+
+Y: y-position; 0-384, TB, anything more went off-screen, less was fine - I was playing in widescreen, how does this affect the grid?
+
+Timing: timing in millis
+
+PieceType:
+(New Combo specifies that the numbers should reset for a given value pair and that the colors should change to the next set)
+	1 - Button
+	5 - Button (New Combo)
+	2 - Slider
+	6 - Slider (New Combo)
+	12 - Spinner
+
+?: 0 or 2? Don't know why - applies to all buttons
+
+TYPE-SPECIFIC:
+	Button - none
+	Spinner - End time
+	Sliders - B|x:y (for each part)|end_x:end_y,times repeated,?velocity?,?|?

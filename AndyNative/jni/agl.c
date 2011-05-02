@@ -574,6 +574,12 @@ void  aglDrawBitmapTransformed(GLint tex, GLfloat x, GLfloat y, GLfloat rot, GLf
 	aglDrawBitmap(tex);
 }
 
+void  aglDrawBitmapMatrix(GLint tex, GLfloat *m)
+{
+	aglLoadMatrix(m);
+	aglDrawBitmap(tex);
+}
+
 void  aglDrawBitmapWithShader(GLint tex, GLint shader)
 {
 	aglUseShader(shader);
@@ -592,6 +598,12 @@ void  aglDrawBitmapWithShaderTransformed(GLint tex, GLint shader, GLfloat x, GLf
 	aglDrawBitmapTransformed(tex, x, y, rot, xscale, yscale);
 }
 
+void  aglDrawBitmapWithShaderMatrix(GLint tex, GLint shader, GLfloat *m)
+{
+	aglUseShader(shader);
+	aglDrawBitmapMatrix(tex, m);
+}
+
 void  aglDrawBitmapWithoutShader(GLint tex)
 {
 	aglDrawBitmapWithShader(tex, _agl_quad_program);
@@ -605,6 +617,11 @@ void  aglDrawBitmapWithoutShaderTranslated(GLint tex, GLfloat x, GLfloat y)
 void  aglDrawBitmapWithoutShaderTransformed(GLint tex, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
 {
 	aglDrawBitmapWithShaderTransformed(tex, _agl_quad_program, x, y, rot, xscale, yscale);
+}
+
+void  aglDrawBitmapWithoutShaderMatrix(GLint tex, GLfloat *m)
+{
+	aglDrawBitmapWithShaderMatrix(tex, _agl_quad_program, m);
 }
 
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b)
@@ -964,6 +981,13 @@ void Java_dkilian_andy_jni_agl_DrawBitmapTransformed(JNIEnv *env, jobject *thiz,
 	aglDrawBitmapTransformed(tex, x, y, rot, xscale, yscale);
 }
 
+void Java_dkilian_andy_jni_agl_DrawBitmapMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloatArray mat)
+{
+	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
+	aglDrawBitmapMatrix(tex, m);
+	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
+}
+
 void Java_dkilian_andy_jni_agl_DrawBitmapWithShader(JNIEnv *env, jobject *thiz, jint tex, jint shader)
 {
 	aglDrawBitmapWithShader(tex, shader);
@@ -979,6 +1003,13 @@ void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderTransformed(JNIEnv *env, jobj
 	aglDrawBitmapWithShaderTransformed(tex, shader, x, y, rot, xscale, yscale);
 }
 
+void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jint shader, jfloatArray m)
+{
+	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
+	aglDrawBitmapWithShaderMatrix(tex, shader, m);
+	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
+}
+
 void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShader(JNIEnv *env, jobject *thiz, jint tex)
 {
 	aglDrawBitmapWithoutShader(tex);
@@ -992,6 +1023,13 @@ void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTranslated(JNIEnv *env, jo
 void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTransformed(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale)
 {
 	aglDrawBitmapWithoutShaderTransformed(tex, x, y, rot, xscale, yscale);
+}
+
+void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderMatrix(JNIEnv *env, jobject *thiz, jin tex, floatArraoy mat)
+{
+	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
+	aglDrawBitmapWithoutShaderMatrix(tex, m);
+	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
 }
 
 void Java_dkilian_andy_jni_agl_ClearColor(JNIEnv *env, jobject *thiz, jfloat r, jfloat g, jfloat b)

@@ -40,12 +40,15 @@ void  aglTexturedQuad();
 void  aglDrawBitmap(GLint tex);
 void  aglDrawBitmapTranslated(GLint tex, GLfloat x, GLfloat y);
 void  aglDrawBitmapTransformed(GLint tex, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale);
+void  aglDrawBitmapMatrix(GLint tex, GLfloat *m);
 void  aglDrawBitmapWithShader(GLint tex, GLint shader);
 void  aglDrawBitmapWithShaderTranslated(GLint tex, GLint shader, GLfloat x, GLfloat y);
 void  aglDrawBitmapWithShaderTransformed(GLint tex, GLint shader, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale);
+void  aglDrawBitmapWithShaderMatrix(GLint tex, GLint shader, GLfloat *m);
 void  aglDrawBitmapWithoutShader(GLint tex);
 void  aglDrawBitmapWithoutShaderTranslated(GLint tex, GLfloat x, GLfloat y);
 void  aglDrawBitmapWithoutShaderTransformed(GLint tex, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale);
+void  aglDrawBitmapWithoutShaderMatrix(GLint tex, GLfloat *m);
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b);
 void  aglBeginFrame();
 void  aglEndFrame();
@@ -64,6 +67,18 @@ void  aglRotatef(GLfloat angle);
 void  aglAxisAngle(GLfloat x, GLfloat y, GLfloat z, GLfloat angle);
 void  aglScalef(GLfloat sx, GLfloat sy, GLfloat sz);
 // TODO: particle system acceleration. Efficient data marshaling could be tricky.
+/*
+ * One possible (but friggin impossible to program)
+ * - Create a gigantic float array
+ * - Put each particle's parameters in the array
+ * 	 - So the particle stores its position, velocity etc
+ * 	 - A stride tells once how many floats to jump over to get to the next item
+ * - Send the entire friggin array to OpenGL and tell it to render using the same
+ *   usage, with some stride to skip over irrelevant data
+ * Unpacking/freeing the array every call sucks. But it might suck less than making lots of
+ * JNI calls. In the end, the only way to know is to implement both and choose the one that
+ * performs better under stress.
+ */
 
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h);
 void Java_dkilian_andy_jni_agl_Cleanup2D(JNIEnv *env, jobject *thiz);
@@ -93,12 +108,15 @@ void Java_dkilian_andy_jni_agl_TexturedQuad(JNIEnv *env, jobject *thiz);
 void Java_dkilian_andy_jni_agl_DrawBitmap(JNIEnv *env, jobject *thiz, jint tex);
 void Java_dkilian_andy_jni_agl_DrawBitmapTranslated(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y);
 void Java_dkilian_andy_jni_agl_DrawBitmapTransformed(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale);
+void Java_dkilian_andy_jni_agl_DrawBitmapMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloatArray mat);
 void Java_dkilian_andy_jni_agl_DrawBitmapWithShader(JNIEnv *env, jobject *thiz, jint tex, jint shader);
 void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderTranslated(JNIEnv *env, jobject *thiz, jint tex, jint shader, jfloat x, jfloat y);
 void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderTransformed(JNIEnv *env, jobject *thiz, jint tex, jint shader, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale);
+void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jint shader, jfloatArray mat);
 void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShader(JNIEnv *env, jobject *thiz, jint tex);
 void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTranslated(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y);
 void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTransformed(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale);
+void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloatArray mat);
 void Java_dkilian_andy_jni_agl_ClearColor(JNIEnv *env, jobject *thiz, jfloat r, jfloat g, jfloat b);
 void Java_dkilian_andy_jni_agl_BeginFrame(JNIEnv *env, jobject *thiz);
 void Java_dkilian_andy_jni_agl_EndFrame(JNIEnv *env, jobject *thiz);

@@ -89,7 +89,7 @@ GLint _agl_quad_program = 0;			// The program used to draw textured quads
 GLint _agl_bound_shader = 0;			// The currently bound shader. Used to set aglPosition in aglTexturedQuad() if applicable.
 
 // Maybe there are preprocessor hacks to make this prettier
-#define LOG_ENABLED 1
+#define LOG_ENABLED 0
 
 #if LOG_ENABLED
 #define logcat(a) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a);
@@ -554,47 +554,57 @@ void  aglTexturedQuad()
 
 void  aglDrawBitmap(GLint tex)
 {
-
+	aglBindTexture(tex);
+	aglTexturedQuad();
 }
 
 void  aglDrawBitmapTranslated(GLint tex, GLfloat x, GLfloat y)
 {
-
+	aglLoadIdentity();
+	aglTranslatef(x, y, 0.f);
+	aglDrawBitmap(tex);
 }
 
 void  aglDrawBitmapTransformed(GLint tex, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
 {
-
+	aglLoadIdentity();
+	aglTranslatef(x, y, 0.f);
+	aglRotatef(rot);
+	aglScalef(xscale, yscale, 1.f);
+	aglDrawBitmap(tex);
 }
 
 void  aglDrawBitmapWithShader(GLint tex, GLint shader)
 {
-
+	aglUseShader(shader);
+	aglDrawBitmap(tex);
 }
 
 void  aglDrawBitmapWithShaderTranslated(GLint tex, GLint shader, GLfloat x, GLfloat y)
 {
-
+	aglUseShader(shader);
+	aglDrawBitmapTranslated(tex, x, y);
 }
 
 void  aglDrawBitmapWithShaderTransformed(GLint tex, GLint shader, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
 {
-
+	aglUseShader(shader);
+	aglDrawBitmapTransformed(tex, x, y, rot, xscale, yscale);
 }
 
 void  aglDrawBitmapWithoutShader(GLint tex)
 {
-
+	aglDrawBitmapWithShader(tex, _agl_quad_program);
 }
 
 void  aglDrawBitmapWithoutShaderTranslated(GLint tex, GLfloat x, GLfloat y)
 {
-
+	aglDrawBitmapWithShaderTranslated(tex, _agl_quad_program, x, y);
 }
 
 void  aglDrawBitmapWithoutShaderTransformed(GLint tex, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
 {
-
+	aglDrawBitmapWithShaderTransformed(tex, _agl_quad_program, x, y, rot, xscale, yscale);
 }
 
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b)

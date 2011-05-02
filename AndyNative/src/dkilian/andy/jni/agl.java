@@ -208,7 +208,7 @@ public class agl
 	
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
-	 * The supplied translation will be post-concatenated with the current ModelView matrix.
+	 * The supplied absolute translation will be used, overwriting the current Modelview matrix.
 	 * The currently bound shader will be used, if applicable.
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param x The amount to translate the sprite, in virtual coordinates
@@ -218,7 +218,7 @@ public class agl
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
-	 * The supplied transformations will be post-concatenated with the current ModelView matrix.
+	 * The supplied transformations will be used, overwriting the current Modelview matrix.
 	 * The currently bound shader will be used, if applicable.
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param x The amount to translate the sprite, in virtual coordinates
@@ -240,7 +240,7 @@ public class agl
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
-	 * The supplied translation will be post-concatenated with the current ModelView matrix.
+	 * The supplied absolute translation will be used, overwriting the current Modelview matrix.
 	 * The given shader will be bound, in place of any previously bound shader (if applicable).
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param shader The shader to use to render the sprite
@@ -251,7 +251,7 @@ public class agl
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
-	 * The supplied transformations will be post-concatenated with the current ModelView matrix.
+	 * The supplied transformations will be used, overwriting the current Modelview matrix.
 	 * The given shader will be bound, in place of any previously bound shader (if applicable).
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param shader The shader to use to render the sprite
@@ -266,15 +266,15 @@ public class agl
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The current ModelView matrix will be used as the current transformation.
-	 * Any currently bound shader will be unbound first.
+	 * Any currently bound shader will be unbound first, and AGL's built-in no-frills quad shader will be used to render the sprite.
 	 * @param tex The texture containing the bitmap data to draw
 	 */
 	public static native void DrawBitmapWithoutShader(int tex);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
-	 * The supplied translation will be post-concatenated with the current ModelView matrix.
-	 * Any currently bound shader will be unbound first.
+	 * The supplied absolute translation will be used, overwriting the current Modelview matrix.
+	 * Any currently bound shader will be unbound first, and AGL's built-in no-frills quad shader will be used to render the sprite.
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates
@@ -283,8 +283,9 @@ public class agl
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
-	 * The supplied transformations will be post-concatenated with the current ModelView matrix.
+	 * The supplied transformations will be used, overwriting the current Modelview matrix.
 	 * Any currently bound shader will be unbound first.
+	 * Any currently bound shader will be unbound first, and AGL's built-in no-frills quad shader will be used to render the sprite.
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates

@@ -124,7 +124,7 @@ Entire field and header disappears if custom colors are not enabled (get a defau
 
 
 [HitObjects] ------------
-[X, Y, Timing, ?, ?]
+[X, Y, Timing, PieceType, ?, TYPE-SPECIFIC]
 
 X: x-position; 0-512, LR, anything more or less takes edge cases
 
@@ -132,6 +132,17 @@ Y: y-position; 0-384, TB, anything more went off-screen, less was fine - I was p
 
 Timing: timing in millis
 
-?: 2 Broke it!
+PieceType:
+(New Combo specifies that the numbers should reset for a given value pair and that the colors should change to the next set)
+	1 - Button
+	5 - Button (New Combo)
+	2 - Slider
+	6 - Slider (New Combo)
+	12 - Spinner
 
-?: ?
+?: 0 or 2? Don't know why - applies to all buttons
+
+TYPE-SPECIFIC:
+	Button - none
+	Spinner - End time
+	Sliders - B|x:y (for each part)|end_x:end_y,times repeated,?velocity?,?|?

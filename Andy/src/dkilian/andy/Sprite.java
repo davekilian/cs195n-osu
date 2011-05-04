@@ -1,6 +1,5 @@
 package dkilian.andy;
 
-import android.graphics.Matrix;
 import android.graphics.Rect;
 
 /**
@@ -9,11 +8,23 @@ import android.graphics.Rect;
  */
 public interface Sprite 
 {
-	/** Gets the matrix containing the concatenated transformations performed on this sprite */
-	Matrix getTransform();
+	/** Gets the translation between this sprite and the origin, in virtual coordinates */
+	Vector2 getTranslation();
 	
-	/** Sets the matrix containing the concatenated transformations performed on this sprite */
-	void setTransform(Matrix m);
+	/** Sets the translation between this sprite and the origin, in virtual coordinates */
+	void setTranslation(Vector2 t);
+	
+	/** Gets the world-space rotation of this sprite around its origin, in degrees */
+	float getRotation();
+
+	/** Sets the world-space rotation of this sprite around its origin, in degrees */
+	void setRotation(float rot);
+	
+	/** Gets the scaling factor between this sprite's object coordinates and the virtual coordinates in which this sprite is displayed */
+	Vector2 getScale();
+
+	/** Sets the scaling factor between this sprite's object coordinates and the virtual coordinates in which this sprite is displayed */
+	void setScale(Vector2 s);
 	
 	/** Gets this sprite's width, in pixels */
 	int getWidth();

@@ -105,7 +105,8 @@ public class MotionTween extends Tween
 		for (int i = 0; i < _targets.size(); ++i)
 		{
 			Sprite target = _targets.get(i);
-			target.getTransform().postTranslate(dx, dy);
+			target.getTranslation().x += dx;
+			target.getTranslation().y += dy;
 		}
 	}
 }

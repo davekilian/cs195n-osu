@@ -1,6 +1,5 @@
 package dkilian.andy;
 
-import android.graphics.Matrix;
 import android.graphics.Rect;
 
 /**
@@ -14,14 +13,18 @@ public class SpriteSheetSprite implements Sprite
 	private SpriteSheet _source;
 	/** The portion of the source this sprite draws */
 	private SpriteSheetFrame _frame;
-	/** This sprite's transformation matrix */
-	private Matrix _transform;
 	/** Not supported */
 	private boolean _clipEnabled;
 	/** Not supported */
 	private Rect _clipRect;
-	/** Temp value used in drawing. Preallocated to avoid garbage collection */
-	private Matrix _world;
+	/** The translation between the origin and this sprite, in virtual coordinates */
+	private Vector2 _translation;
+	/** The rotation of this sprite around its center in degrees */
+	private float _rotation;
+	/** The scaling factor between this sprite's object coordinates and the virtual coordinates in which this sprite is displayed */
+	private Vector2 _scale;
+	/** Temporary value used in rendering. Preallocated for GC performance */
+	private Vector2 _tmp;
 	
 	/**
 	 * Creates a new sprite-sheet sprite
@@ -32,8 +35,10 @@ public class SpriteSheetSprite implements Sprite
 	{
 		_source = source;
 		_frame = frame;
-		_transform = new Matrix();
-		_world = new Matrix();
+		_translation = Vector2.Zero();
+		_rotation = 0.f;
+		_scale = Vector2.One();
+		_tmp = Vector2.Zero();
 	}
 	
 	/** Gets the sprite sheet this sprite reads from */
@@ -58,20 +63,6 @@ public class SpriteSheetSprite implements Sprite
 	public void setFrame(SpriteSheetFrame frame)
 	{
 		_frame = frame;
-	}
-
-	/** Gets this sprite's transformation matrix */
-	@Override
-	public Matrix getTransform() 
-	{
-		return _transform;
-	}
-
-	/** Sets this sprite's transformation matrix */
-	@Override
-	public void setTransform(Matrix m) 
-	{
-		_transform = m;
 	}
 
 	/** Gets the width of this sprite, in pixels */
@@ -123,13 +114,58 @@ public class SpriteSheetSprite implements Sprite
 		// Technically we could do some kind of union on the cliprect and frame rect to support clip rects.
 		// But I'm tired and I don't wanna.
 		
-		_world.reset();
-		_world.postTranslate(-_frame.getBounds().left, -_frame.getBounds().top);
-		_world.postConcat(_transform);
+		_tmp.set(_translation);
+		_tmp.x -= _frame.getBounds().left;
+		_tmp.y -= _frame.getBounds().top;
 		
-		_source.getSource().setTransform(_world);
+		_source.getSource().getTranslation().set(_tmp);
+		_source.getSource().setRotation(_rotation);
+		_source.getSource().getScale().set(_scale);
+		
 		_source.getSource().setClipRectEnabled(true);
 		_source.getSource().setClipRect(_frame.getBounds());
 		_source.getSource().draw(kernel);
+	}
+
+	/** Gets the translation between this sprite and the origin, in virtual coordinates */
+	@Override
+	public Vector2 getTranslation() 
+	{
+		return _translation;
+	}
+
+	/** Sets the translation between this sprite and the origin, in virtual coordinates */
+	@Override
+	public void setTranslation(Vector2 t) 
+	{
+		_translation = t;
+	}
+
+	/** Gets the world-space rotation of this sprite around its origin, in degrees */
+	@Override
+	public float getRotation() 
+	{
+		return _rotation;
+	}
+
+	/** Sets the world-space rotation of this sprite around its origin, in degrees */
+	@Override
+	public void setRotation(float rot) 
+	{
+		_rotation = rot;
+	}
+
+	/** Gets the scaling factor between this sprite's object coordinates and the virtual coordinates in which this sprite is displayed */
+	@Override
+	public Vector2 getScale() 
+	{
+		return _scale;
+	}
+
+	/** Sets the scaling factor between this sprite's object coordinates and the virtual coordinates in which this sprite is displayed */
+	@Override
+	public void setScale(Vector2 s) 
+	{
+		_scale = s;
 	}
 }

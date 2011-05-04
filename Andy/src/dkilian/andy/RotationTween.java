@@ -77,7 +77,7 @@ public class RotationTween extends Tween
 		for (int i = 0; i < _targets.size(); ++i)
 		{
 			Sprite target = _targets.get(i);
-			target.getTransform().postRotate(dtheta);
+			target.setRotation(target.getRotation() + dtheta);
 		}
 	}
 }

@@ -25,6 +25,12 @@ public class BitmapSprite implements Sprite
 	private RectF _destRect;
 	/** Temporary value used when drawing with the clip rectangle enabled. Preallocated to avoid needless garbage collection */
 	private float[] _destPoints;
+	/** The translation between the origin and this sprite, in virtual coordinates */
+	private Vector2 _translation;
+	/** The rotation of this sprite around its center in degrees */
+	private float _rotation;
+	/** The scaling factor between this sprite's object coordinates and the virtual coordinates in which this sprite is displayed */
+	private Vector2 _scale;
 	
 	/**
 	 * Creates a new bitmap sprite
@@ -34,6 +40,9 @@ public class BitmapSprite implements Sprite
 	{
 		_bitmap = bitmap;
 		_transform = new Matrix();
+		_translation = Vector2.Zero();
+		_rotation = 0.f;
+		_scale = Vector2.One();
 		_clipEnabled = false;
 		_clipRect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
 		_destRect = new RectF();
@@ -53,14 +62,12 @@ public class BitmapSprite implements Sprite
 	}
 	
 	/** Gets this sprite's transformation matrix */
-	@Override
 	public final Matrix getTransform() 
 	{
 		return _transform;
 	}
 
 	/** Sets this sprite's transformation matrix */
-	@Override
 	public final void setTransform(Matrix m) 
 	{
 		_transform = m;
@@ -114,6 +121,11 @@ public class BitmapSprite implements Sprite
 	{
 		if (_clipEnabled)
 		{
+			_transform.reset();
+			_transform.postScale(_scale.x, _scale.y);
+			_transform.postRotate(_rotation);
+			_transform.postTranslate(_translation.x, _translation.y);
+			
 			_destPoints[0] = _clipRect.left;
 			_destPoints[1] = _clipRect.top;
 			_destPoints[2] = _clipRect.right;
@@ -130,5 +142,47 @@ public class BitmapSprite implements Sprite
 		{
 			kernel.getView().getCanvas().drawBitmap(_bitmap, _transform, kernel.getView().getPaint());
 		}
+	}
+
+	/** Gets the translation between this sprite and the origin, in virtual coordinates */
+	@Override
+	public Vector2 getTranslation() 
+	{
+		return _translation;
+	}
+
+	/** Sets the translation between this sprite and the origin, in virtual coordinates */
+	@Override
+	public void setTranslation(Vector2 t) 
+	{
+		_translation = t;
+	}
+
+	/** Gets the world-space rotation of this sprite around its origin, in degrees */
+	@Override
+	public float getRotation() 
+	{
+		return _rotation;
+	}
+
+	/** Sets the world-space rotation of this sprite around its origin, in degrees */
+	@Override
+	public void setRotation(float rot) 
+	{
+		_rotation = rot;
+	}
+
+	/** Gets the scaling factor between this sprite's object coordinates and the virtual coordinates in which this sprite is displayed */
+	@Override
+	public Vector2 getScale() 
+	{
+		return _scale;
+	}
+
+	/** Sets the scaling factor between this sprite's object coordinates and the virtual coordinates in which this sprite is displayed */
+	@Override
+	public void setScale(Vector2 s) 
+	{
+		_scale = s;
 	}
 }

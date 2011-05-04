@@ -105,7 +105,8 @@ public class ScaleTween extends Tween
 		for (int i = 0; i < _targets.size(); ++i)
 		{
 			Sprite target = _targets.get(i);
-			target.getTransform().postScale(dx, dy);
+			target.getScale().x *= dx;
+			target.getScale().y *= dy;
 		}
 	}
 }

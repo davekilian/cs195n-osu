@@ -57,7 +57,7 @@ const char _agl_quad_vshader[] =
 		"void main()"
 		"{"
 		"	gl_Position = aglVirtualTransform * aglModelview * vec4(aglPosition, 0.0, 1.0);"
-		"	texcoord = vec2(0.5) + vec2(0.5) * aglPosition;"
+		"	texcoord = aglPosition;"
 		"}";
 
 const char _agl_quad_fshader[] =
@@ -67,14 +67,12 @@ const char _agl_quad_fshader[] =
 		""
 		"void main()"
 		"{"
-		"	gl_FragColor = vec4(texcoord, 0.0, 1.0);"
+		"	gl_FragColor = texture2D(aglTexture, texcoord);"
 		"}";
-		// TODO: should sample the texture
 
 GLint _agl_virtualWidth = 0;			// The width of the viewport in virtual coordinates
 GLint _agl_virtualHeight = 0;			// The height of the viewport in virtual coordinates
 Matrix _agl_virtualTransform;			// The transform from virtual coordinates to world coordinates
-Matrix _agl_projection;					// The transform from world coordinates to screen space ([0, 0] - [1, 1])
 ShaderAttachment *_agl_shaders = 0;		// Pairs each shader program with its attached vertex/fragment shaders, for cleanup purposes
 MatrixStack *_agl_modelview = 0;		// Emulates OpenGL 1.0's ModelView matrix stack
 FBOColorAttachment *_agl_fbo_color = 0;	// Pairs each FBO with its attached depth buffer, for cleanup purposes
@@ -105,12 +103,13 @@ GLint _agl_bound_shader = 0;			// The currently bound shader. Used to set aglPos
 
 void  aglInitialize2D(GLint w, GLint h)
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	// Supposedly GLUtils.glTexImage2D() produces premultiplied alpha results
+
 	_agl_modelview = matrix_stack_create();
 
 	aglSetVirtualDimensions(w, h);
 	aglComputeVirtualTransform();
-
-	matrix_ortho(&_agl_projection, 0.f, 1.f, 1.f, 0.f, -1.f, 1.f);
 
 	glGenBuffers(1, &_agl_quad_verts);
 	glBindBuffer(GL_ARRAY_BUFFER, _agl_quad_verts);
@@ -450,7 +449,6 @@ void  aglUseShader(GLint shader)
 
 	aglUniformMat4(shader, "aglModelview", matrix_stack_data_ptr(_agl_modelview));
 	aglUniformMat4(shader, "aglVirtualTransform", _agl_virtualTransform.data);
-	aglUniformMat4(shader, "aglProjection", _agl_projection.data);
 	aglUniformTexture(shader, "aglTexture", 0);	// For texture 0
 
 	_agl_bound_shader = shader;
@@ -458,13 +456,13 @@ void  aglUseShader(GLint shader)
 
 void  aglUseQuadShader()
 {
-	aglUseShader(_agl_quad_program);\
+	aglUseShader(_agl_quad_program);
 }
 
 void  aglClearShader()
 {
 	_agl_bound_shader = 0;
-	glUseProgram(0);\
+	glUseProgram(0);
 }
 
 void  aglDeleteShader(GLint shader)
@@ -514,7 +512,7 @@ GLint aglCreateEmptyTexture()
 
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -617,7 +615,9 @@ void  aglDrawBitmapWithShaderTransformed(GLint tex, GLfloat w, GLfloat h, GLint 
 	aglTranslatef(x, y, 0.f);
 	aglRotatef(rot);
 	aglScalef(xscale, yscale, 1.f);
+	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
+	glBindTexture(GL_TEXTURE_2D, tex);
 	aglUseShader(shader);
 	aglDrawBitmap(tex, w, h);
 }

@@ -89,7 +89,7 @@ GLint _agl_quad_program = 0;			// The program used to draw textured quads
 GLint _agl_bound_shader = 0;			// The currently bound shader. Used to set aglPosition in aglTexturedQuad() if applicable.
 
 // Maybe there are preprocessor hacks to make this prettier
-#define LOG_ENABLED 0
+#define LOG_ENABLED 1
 
 #if LOG_ENABLED
 #define logcat(a) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a);
@@ -211,19 +211,26 @@ void  aglSetVirtualTransform(GLfloat *m)
 
 void  aglComputeVirtualTransform()
 {
-	logcat("Computing virtual transforms ...");
-
 	matrix_identity(&_agl_virtualTransform);
 	float scalex, scaley;
-	GLint viewport[4];
+	GLint v[4];
+	GLint vw, vh, pw, ph;
 
-	glGetIntegerv(GL_VIEWPORT, viewport);
+	logcat("Computing virtual transforms ...");
 
-	scalex = (float)viewport[2] / (float)_agl_virtualWidth;
-	scaley = (float)viewport[3] / (float)_agl_virtualHeight;
+	glGetIntegerv(GL_VIEWPORT, v);
 
-	logfmt2("Physical dimensions: %dx%d", viewport[2], viewport[3]);
-	logfmt2("Virtual dimensions: %dx%d", _agl_virtualWidth, _agl_virtualHeight);
+	vw = _agl_virtualWidth;
+	vh = _agl_virtualHeight;
+
+	pw = v[2];
+	ph = v[3];
+
+	scalex = (float)pw / (float)vw;
+	scaley = (float)ph / (float)vh;
+
+	logfmt2("Physical dimensions: %dx%d", pw, ph);
+	logfmt2("Virtual dimensions: %dx%d", vw, vh);
 
 	// Read bottom-up to get a chronological view of transformations
 
@@ -235,26 +242,30 @@ void  aglComputeVirtualTransform()
 	matrix_scale(&_agl_virtualTransform, 2.f, 2.f, 1.f);
 
 	// Device coordinates to normalized device coordinates
-	matrix_scale(&_agl_virtualTransform, 1.f / viewport[2], 1.f / viewport[3], 1.f);
+	matrix_scale(&_agl_virtualTransform, 1.f / pw, 1.f / ph, 1.f);
 
 	if (scalex < scaley)
 	{
+		float delta = .5f * (ph - scalex * vh);
+
 		logcat("Top/bottom letterboxes");
 		logfmt("Scaling entire scene by a factor of %f", scalex);
-		logfmt("Translating by %f", .5f * (viewport[3] - scalex * _agl_virtualHeight));
+		logfmt("Translating by %f", .5f * delta);
 
 		// Virtual coordinates to device coordinates
-		matrix_translate(&_agl_virtualTransform, 0.f, .5f * (viewport[3] - scalex * _agl_virtualHeight), 0.f);
+		matrix_translate(&_agl_virtualTransform, 0.f, delta, 0.f);
 		matrix_scale(&_agl_virtualTransform, scalex, scalex, 1.f);
 	}
 	else
 	{
+		float delta = .5f * (pw - scaley * vw);
+
 		logcat("Left/right letterboxes");
 		logfmt("Scaling entire scene by a factor of %f", scaley);
-		logfmt("Translating by %f", .5f * (viewport[2] - scaley * _agl_virtualWidth));
+		logfmt("Translating by %f", delta);
 
 		// Virtual coordinates to device coordinates
-		matrix_translate(&_agl_virtualTransform, 0.f, .5f * (viewport[2] - scaley * _agl_virtualWidth), 0.f);
+		matrix_translate(&_agl_virtualTransform, delta, 0.f, 0.f);
 		matrix_scale(&_agl_virtualTransform, scaley, scaley, 1.f);
 	}
 }
@@ -542,7 +553,6 @@ void  aglTexturedQuad()
 		glEnableVertexAttribArray(pos);
 	}
 
-//	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, _agl_quad_edata);
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0);
 
 	if (pos >= 0)
@@ -1003,7 +1013,7 @@ void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderTransformed(JNIEnv *env, jobj
 	aglDrawBitmapWithShaderTransformed(tex, shader, x, y, rot, xscale, yscale);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jint shader, jfloatArray m)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jint shader, jfloatArray mat)
 {
 	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
 	aglDrawBitmapWithShaderMatrix(tex, shader, m);
@@ -1025,7 +1035,7 @@ void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTransformed(JNIEnv *env, j
 	aglDrawBitmapWithoutShaderTransformed(tex, x, y, rot, xscale, yscale);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderMatrix(JNIEnv *env, jobject *thiz, jin tex, floatArraoy mat)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloatArray mat)
 {
 	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
 	aglDrawBitmapWithoutShaderMatrix(tex, m);

@@ -31,8 +31,8 @@ public class MainActivity extends KernelActivity
 	@Override
 	protected void onKernelInitialized() 
 	{		
-		getKernel().getVirtualScreen().setWidth(480);
-		getKernel().getVirtualScreen().setHeight(640);
+		getKernel().getVirtualScreen().setWidth(480 * 16 / 9);
+		getKernel().getVirtualScreen().setHeight(480);
 		getKernel().getVirtualScreen().computeTransform(true);
 		getKernel().setTargetDrawsPerSecond(60);
 		getKernel().setTargetUpdatesPerSecond(60);

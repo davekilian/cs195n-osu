@@ -116,5 +116,8 @@ public class TexturedQuad implements Sprite
 		//		doesn't contain translation) is always zero.
 		//		Augh wait the agl implementation is expecting 4x4 matrices.
 		//		I guess hack up the AGL impl?
+		//
+		//      Actually fuck it, just make sprites translate/rotate/scale and do the transform
+		//      in C before sending to GPU
 	}
 }

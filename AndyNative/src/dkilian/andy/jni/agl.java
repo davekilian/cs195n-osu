@@ -203,8 +203,10 @@ public class agl
 	 * The current ModelView matrix will be used as the current transformation.
 	 * The currently bound shader will be used, if applicable.
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 */
-	public static native void DrawBitmap(int tex);
+	public static native void DrawBitmap(int tex, float w, float h);
 	
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
@@ -213,56 +215,68 @@ public class agl
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 */
-	public static native void DrawBitmapTranslated(int tex, float x, float y);
+	public static native void DrawBitmapTranslated(int tex, float w, float h, float x, float y);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The supplied transformations will be used, overwriting the current Modelview matrix.
 	 * The currently bound shader will be used, if applicable.
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates
 	 * @param rot The amount to rotate the sprite, in degrees
 	 * @param xscale The horizontal scale factor
 	 * @param yscale The vertical scale factor
 	 */
-	public static native void DrawBitmapTransformed(int tex, float x, float y, float rot, float xscale, float yscale);
+	public static native void DrawBitmapTransformed(int tex, float w, float h, float x, float y, float rot, float xscale, float yscale);
 
 	/** 
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The supplied transformations will be used, overwriting the current Modelview matrix.
 	 * The currently bound shader will be used, if applicable.
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 * @param mat The transformation matrix to apply to the quad before drawing it
 	 */
-	public static native void DrawBitmapMatrix(int tex, float[] mat);
+	public static native void DrawBitmapMatrix(int tex, float w, float h, float[] mat);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The current ModelView matrix will be used as the current transformation.
 	 * The given shader will be bound, in place of any previously bound shader (if applicable).
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 * @param shader The shader to use to render the sprite
 	 */
-	public static native void DrawBitmapWithShader(int tex, int shader);
+	public static native void DrawBitmapWithShader(int tex, float w, float h, int shader);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The supplied absolute translation will be used, overwriting the current Modelview matrix.
 	 * The given shader will be bound, in place of any previously bound shader (if applicable).
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 * @param shader The shader to use to render the sprite
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates
 	 */
-	public static native void DrawBitmapWithShaderTranslated(int tex, int shader, float x, float y);
+	public static native void DrawBitmapWithShaderTranslated(int tex, float w, float h, int shader, float x, float y);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The supplied transformations will be used, overwriting the current Modelview matrix.
 	 * The given shader will be bound, in place of any previously bound shader (if applicable).
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 * @param shader The shader to use to render the sprite
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates
@@ -270,57 +284,67 @@ public class agl
 	 * @param xscale The horizontal scale factor
 	 * @param yscale The vertical scale factor
 	 */
-	public static native void DrawBitmapWithShaderTransformed(int tex, int shader, float x, float y, float rot, float xscale, float yscale);
+	public static native void DrawBitmapWithShaderTransformed(int tex, float w, float h, int shader, float x, float y, float rot, float xscale, float yscale);
 
 	/** 
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The supplied transformations will be used, overwriting the current Modelview matrix.
 	 * The given shader will be bound, in place of any previously bound shader (if applicable).
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 * @param shader The shader to use to render the sprite
 	 * @param mat The transformation matrix to apply to the quad before drawing it
 	 */
-	public static native void DrawBitmapWithShaderMatrix(int tex, int shader, float[] mat);
+	public static native void DrawBitmapWithShaderMatrix(int tex, float w, float h, int shader, float[] mat);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The current ModelView matrix will be used as the current transformation.
 	 * Any currently bound shader will be unbound first, and AGL's built-in no-frills quad shader will be used to render the sprite.
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 */
-	public static native void DrawBitmapWithoutShader(int tex);
+	public static native void DrawBitmapWithoutShader(int tex, float w, float h);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The supplied absolute translation will be used, overwriting the current Modelview matrix.
 	 * Any currently bound shader will be unbound first, and AGL's built-in no-frills quad shader will be used to render the sprite.
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates
 	 */
-	public static native void DrawBitmapWithoutShaderTranslated(int tex, float x, float y);
+	public static native void DrawBitmapWithoutShaderTranslated(int tex, float w, float h, float x, float y);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The supplied transformations will be used, overwriting the current Modelview matrix.
 	 * Any currently bound shader will be unbound first, and AGL's built-in no-frills quad shader will be used to render the sprite.
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates
 	 * @param rot The amount to rotate the sprite, in degrees
 	 * @param xscale The horizontal scale factor
 	 * @param yscale The vertical scale factor
 	 */
-	public static native void DrawBitmapWithoutShaderTransformed(int tex, float x, float y, float rot, float xscale, float yscale);
+	public static native void DrawBitmapWithoutShaderTransformed(int tex, float w, float h, float x, float y, float rot, float xscale, float yscale);
 
 	/** 
 	 * Draws a bitmap sprite as a textured quad. 
 	 * The supplied transformations will be used, overwriting the current Modelview matrix.
 	 * Any currently bound shader will be unbound first, and AGL's built-in no-frills quad shader will be used to render the sprite.
 	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
 	 * @param mat The transformation matrix to apply to the quad before drawing it
 	 */
-	public static native void DrawBitmapWithoutShaderMatrix(int tex, float[] mat);
+	public static native void DrawBitmapWithoutShaderMatrix(int tex, float w, float h, float[] mat);
 	
 	/**
 	 * Sets the color the backbuffer is cleared to at the beginning of every frame

@@ -42,13 +42,17 @@ public class MainScreen implements Screen
 //		agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
 		agl.ClearColor(FloatMath.sin(_time / 5), FloatMath.sin(_time / 2), FloatMath.sin(_time / 3));
 		
-		agl.PushMatrix();
-		agl.Scalef(kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight(), 0.f);
+		float w = kernel.getVirtualScreen().getWidth();
+		float h = kernel.getVirtualScreen().getHeight();
+		float r = 100.f;
+		float x = .5f * (w - w * .25f) + r * FloatMath.cos(_time * 10.f);
+		float y = .5f * (h - h * .25f) + r * FloatMath.sin(_time * 10.f);
+		agl.DrawBitmapWithoutShaderTransformed(0, w, h, x, y, _time * 20.f, .25f, .25f);
 		
-		agl.UseQuadShader();
-		agl.TexturedQuad();
-		agl.ClearShader();
-		
-		agl.PopMatrix();
+//		agl.LoadIdentity();
+//		agl.Scalef(kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight(), 0.f);
+//		agl.UseQuadShader();
+//		agl.TexturedQuad();
+//		agl.ClearShader();
 	}
 }

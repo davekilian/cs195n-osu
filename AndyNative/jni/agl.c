@@ -562,76 +562,93 @@ void  aglTexturedQuad()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void  aglDrawBitmap(GLint tex)
+void  aglDrawBitmap(GLint tex, GLfloat w, GLfloat h)
 {
 	aglBindTexture(tex);
+	aglScalef(w, h, 1.f);
 	aglTexturedQuad();
 }
 
-void  aglDrawBitmapTranslated(GLint tex, GLfloat x, GLfloat y)
+void  aglDrawBitmapTranslated(GLint tex, GLfloat x, GLfloat y, GLfloat w, GLfloat h)
 {
 	aglLoadIdentity();
 	aglTranslatef(x, y, 0.f);
-	aglDrawBitmap(tex);
+	aglScalef(w, h, 1.f);
+	aglDrawBitmap(tex, w, h);
 }
 
-void  aglDrawBitmapTransformed(GLint tex, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
+void  aglDrawBitmapTransformed(GLint tex, GLfloat w, GLfloat h, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
 {
 	aglLoadIdentity();
 	aglTranslatef(x, y, 0.f);
 	aglRotatef(rot);
 	aglScalef(xscale, yscale, 1.f);
-	aglDrawBitmap(tex);
+	aglScalef(w, h, 1.f);
+	aglDrawBitmap(tex, w, h);
 }
 
-void  aglDrawBitmapMatrix(GLint tex, GLfloat *m)
+void  aglDrawBitmapMatrix(GLint tex, GLfloat w, GLfloat h, GLfloat *m)
 {
 	aglLoadMatrix(m);
-	aglDrawBitmap(tex);
+	aglScalef(w, h, 1.f);
+	aglDrawBitmap(tex, w, h);
 }
 
-void  aglDrawBitmapWithShader(GLint tex, GLint shader)
+void  aglDrawBitmapWithShader(GLint tex, GLfloat w, GLfloat h, GLint shader)
 {
+	aglBindTexture(tex);
+	aglScalef(w, h, 1.f);
 	aglUseShader(shader);
-	aglDrawBitmap(tex);
+	aglTexturedQuad();
 }
 
-void  aglDrawBitmapWithShaderTranslated(GLint tex, GLint shader, GLfloat x, GLfloat y)
+void  aglDrawBitmapWithShaderTranslated(GLint tex, GLfloat w, GLfloat h, GLint shader, GLfloat x, GLfloat y)
 {
+	aglLoadIdentity();
+	aglTranslatef(x, y, 0.f);
+	aglScalef(w, h, 1.f);
 	aglUseShader(shader);
-	aglDrawBitmapTranslated(tex, x, y);
+	aglDrawBitmap(tex, w, h);
 }
 
-void  aglDrawBitmapWithShaderTransformed(GLint tex, GLint shader, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
+void  aglDrawBitmapWithShaderTransformed(GLint tex, GLfloat w, GLfloat h, GLint shader, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
 {
+	aglLoadIdentity();
+	aglTranslatef(x, y, 0.f);
+	aglRotatef(rot);
+	aglScalef(xscale, yscale, 1.f);
+	aglScalef(w, h, 1.f);
 	aglUseShader(shader);
-	aglDrawBitmapTransformed(tex, x, y, rot, xscale, yscale);
+	aglDrawBitmap(tex, w, h);
 }
 
-void  aglDrawBitmapWithShaderMatrix(GLint tex, GLint shader, GLfloat *m)
+void  aglDrawBitmapWithShaderMatrix(GLint tex, GLfloat w, GLfloat h, GLint shader, GLfloat *m)
 {
+	aglLoadMatrix(m);
+	aglScalef(w, h, 1.f);
 	aglUseShader(shader);
-	aglDrawBitmapMatrix(tex, m);
+	aglDrawBitmap(tex, w, h);
 }
 
-void  aglDrawBitmapWithoutShader(GLint tex)
+void  aglDrawBitmapWithoutShader(GLint tex, GLfloat w, GLfloat h)
 {
-	aglDrawBitmapWithShader(tex, _agl_quad_program);
+	aglUseShader(_agl_quad_program);
+	aglDrawBitmapWithShader(tex, w, h, _agl_quad_program);
 }
 
-void  aglDrawBitmapWithoutShaderTranslated(GLint tex, GLfloat x, GLfloat y)
+void  aglDrawBitmapWithoutShaderTranslated(GLint tex, GLfloat w, GLfloat h, GLfloat x, GLfloat y)
 {
-	aglDrawBitmapWithShaderTranslated(tex, _agl_quad_program, x, y);
+	aglDrawBitmapWithShaderTranslated(tex, w, h, _agl_quad_program, x, y);
 }
 
-void  aglDrawBitmapWithoutShaderTransformed(GLint tex, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
+void  aglDrawBitmapWithoutShaderTransformed(GLint tex, GLfloat w, GLfloat h, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale)
 {
-	aglDrawBitmapWithShaderTransformed(tex, _agl_quad_program, x, y, rot, xscale, yscale);
+	aglDrawBitmapWithShaderTransformed(tex, w, h, _agl_quad_program, x, y, rot, xscale, yscale);
 }
 
-void  aglDrawBitmapWithoutShaderMatrix(GLint tex, GLfloat *m)
+void  aglDrawBitmapWithoutShaderMatrix(GLint tex, GLfloat w, GLfloat h, GLfloat *m)
 {
-	aglDrawBitmapWithShaderMatrix(tex, _agl_quad_program, m);
+	aglDrawBitmapWithShaderMatrix(tex, w, h, _agl_quad_program, m);
 }
 
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b)
@@ -976,69 +993,69 @@ void Java_dkilian_andy_jni_agl_TexturedQuad(JNIEnv *env, jobject *thiz)
 	aglTexturedQuad();
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmap(JNIEnv *env, jobject *thiz, jint tex)
+void Java_dkilian_andy_jni_agl_DrawBitmap(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h)
 {
-	aglDrawBitmap(tex);
+	aglDrawBitmap(tex, w, h);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapTranslated(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y)
+void Java_dkilian_andy_jni_agl_DrawBitmapTranslated(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y, jfloat w, jfloat h)
 {
-	aglDrawBitmapTranslated(tex, x, y);
+	aglDrawBitmapTranslated(tex, w, h, x, y);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapTransformed(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale)
+void Java_dkilian_andy_jni_agl_DrawBitmapTransformed(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale)
 {
-	aglDrawBitmapTransformed(tex, x, y, rot, xscale, yscale);
+	aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloatArray mat)
+void Java_dkilian_andy_jni_agl_DrawBitmapMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jfloatArray mat)
 {
 	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
-	aglDrawBitmapMatrix(tex, m);
+	aglDrawBitmapMatrix(tex, w, h, m);
 	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithShader(JNIEnv *env, jobject *thiz, jint tex, jint shader)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithShader(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jint shader)
 {
-	aglDrawBitmapWithShader(tex, shader);
+	aglDrawBitmapWithShader(tex, w, h, shader);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderTranslated(JNIEnv *env, jobject *thiz, jint tex, jint shader, jfloat x, jfloat y)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderTranslated(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jint shader, jfloat x, jfloat y)
 {
-	aglDrawBitmapWithShaderTranslated(tex, shader, x, y);
+	aglDrawBitmapWithShaderTranslated(tex, w, h, shader, x, y);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderTransformed(JNIEnv *env, jobject *thiz, jint tex, jint shader, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderTransformed(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jint shader, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale)
 {
-	aglDrawBitmapWithShaderTransformed(tex, shader, x, y, rot, xscale, yscale);
+	aglDrawBitmapWithShaderTransformed(tex, w, h, shader, x, y, rot, xscale, yscale);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jint shader, jfloatArray mat)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jint shader, jfloatArray mat)
 {
 	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
-	aglDrawBitmapWithShaderMatrix(tex, shader, m);
+	aglDrawBitmapWithShaderMatrix(tex, w, h, shader, m);
 	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShader(JNIEnv *env, jobject *thiz, jint tex)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShader(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h)
 {
-	aglDrawBitmapWithoutShader(tex);
+	aglDrawBitmapWithoutShader(tex, w, h);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTranslated(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTranslated(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jfloat x, jfloat y)
 {
-	aglDrawBitmapWithoutShaderTranslated(tex, x, y);
+	aglDrawBitmapWithoutShaderTranslated(tex, w, h, x, y);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTransformed(JNIEnv *env, jobject *thiz, jint tex, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTransformed(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale)
 {
-	aglDrawBitmapWithoutShaderTransformed(tex, x, y, rot, xscale, yscale);
+	aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale);
 }
 
-void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloatArray mat)
+void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jfloatArray mat)
 {
 	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
-	aglDrawBitmapWithoutShaderMatrix(tex, m);
+	aglDrawBitmapWithoutShaderMatrix(tex, w, h, m);
 	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
 }
 

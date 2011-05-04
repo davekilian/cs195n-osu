@@ -219,6 +219,8 @@ void matrix_multiply(Matrix *m, Matrix *other)
 								  m->data[i * 4 + 1] * other->data[1 * 4 + j] +
 								  m->data[i * 4 + 2] * other->data[2 * 4 + j] +
 								  m->data[i * 4 + 3] * other->data[3 * 4 + j];
+
+	matrix_copy(m, &tmp);
 }
 
 void matrix_copy(Matrix *m, Matrix *other)

@@ -118,6 +118,8 @@ public class TexturedQuad implements Sprite
 		//		I guess hack up the AGL impl?
 		//
 		//      Actually fuck it, just make sprites translate/rotate/scale and do the transform
-		//      in C before sending to GPU
+		//      in C before sending to GPU.
+		//      Besides, who *doesn't* like refactoring? :D
+		//      For now just do manual testing though
 	}
 }

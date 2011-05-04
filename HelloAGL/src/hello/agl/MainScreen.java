@@ -1,11 +1,8 @@
 package hello.agl;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
-import android.opengl.GLU;
 import android.opengl.GLUtils;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;

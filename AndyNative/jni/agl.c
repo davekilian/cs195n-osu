@@ -563,6 +563,7 @@ void  aglTexturedQuad()
 void  aglDrawBitmap(GLint tex, GLfloat w, GLfloat h)
 {
 	aglBindTexture(tex);
+	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
 	aglTexturedQuad();
 }
@@ -571,6 +572,7 @@ void  aglDrawBitmapTranslated(GLint tex, GLfloat x, GLfloat y, GLfloat w, GLfloa
 {
 	aglLoadIdentity();
 	aglTranslatef(x, y, 0.f);
+	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
 	aglDrawBitmap(tex, w, h);
 }
@@ -581,6 +583,7 @@ void  aglDrawBitmapTransformed(GLint tex, GLfloat w, GLfloat h, GLfloat x, GLflo
 	aglTranslatef(x, y, 0.f);
 	aglRotatef(rot);
 	aglScalef(xscale, yscale, 1.f);
+	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
 	aglDrawBitmap(tex, w, h);
 }
@@ -595,6 +598,7 @@ void  aglDrawBitmapMatrix(GLint tex, GLfloat w, GLfloat h, GLfloat *m)
 void  aglDrawBitmapWithShader(GLint tex, GLfloat w, GLfloat h, GLint shader)
 {
 	aglBindTexture(tex);
+	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
 	aglUseShader(shader);
 	aglTexturedQuad();
@@ -604,6 +608,7 @@ void  aglDrawBitmapWithShaderTranslated(GLint tex, GLfloat w, GLfloat h, GLint s
 {
 	aglLoadIdentity();
 	aglTranslatef(x, y, 0.f);
+	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
 	aglUseShader(shader);
 	aglDrawBitmap(tex, w, h);
@@ -625,6 +630,7 @@ void  aglDrawBitmapWithShaderTransformed(GLint tex, GLfloat w, GLfloat h, GLint 
 void  aglDrawBitmapWithShaderMatrix(GLint tex, GLfloat w, GLfloat h, GLint shader, GLfloat *m)
 {
 	aglLoadMatrix(m);
+	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
 	aglUseShader(shader);
 	aglDrawBitmap(tex, w, h);

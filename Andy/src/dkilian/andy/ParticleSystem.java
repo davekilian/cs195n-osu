@@ -17,6 +17,8 @@ public class ParticleSystem<T extends Particle>
 	private ArrayList<ParticleEmitter<T>> _emitters;
 	/** Every particle attractor in this system */
 	private ArrayList<ParticleAttractor<T>> _attractors;
+	/** Whether or not this system zeroes the acceleration of its particles at the beginning of every simulation step */
+	private boolean _resetsForces;
 	
 	/** Creates a new particle system */
 	public ParticleSystem()
@@ -24,6 +26,7 @@ public class ParticleSystem<T extends Particle>
 		_particles = new Pool<T>();
 		_emitters = new ArrayList<ParticleEmitter<T>>();
 		_attractors = new ArrayList<ParticleAttractor<T>>();
+		_resetsForces = false;
 	}
 	
 	/**
@@ -34,13 +37,20 @@ public class ParticleSystem<T extends Particle>
 	 */
 	public void update(Kernel kernel, float dt)
 	{
-		// bool resetsForces(), to decide whether accel is fixed or force-dependent
-		// if resetsForces(), resetForce() on each particle before running attractors
+		ArrayList<T> particles = _particles.getAll();
 		
-		// Emitters
-		// Particle force reset
-		// Attractors
-		// Particle update
+		for (int i = 0; i < _emitters.size(); ++i)
+			_emitters.get(i).update(kernel, dt);
+		
+		if (_resetsForces)
+			for (int i = 0; i < particles.size(); ++i)
+				particles.get(i).resetForce();
+		
+		for (int i = 0; i < _attractors.size(); ++i)
+			_attractors.get(i).update(kernel, dt);
+		
+		for (int i = 0; i < particles.size(); ++i)
+			particles.get(i).update(kernel, dt);
 	}
 	
 	/**
@@ -50,7 +60,21 @@ public class ParticleSystem<T extends Particle>
 	 */
 	public void draw(Kernel kernel, float dt)
 	{
-		
+		ArrayList<T> particles = _particles.getAll();		
+		for (int i = 0; i < particles.size(); ++i)
+			particles.get(i).update(kernel, dt);
+	}
+	
+	/** Gets a value indicating whether this system zeroes the acclerations on all of its particles at the beginning of each simulation step */
+	public boolean resetsForces()
+	{
+		return _resetsForces;
+	}
+
+	/** Sets a value indicating whether this system zeroes the acclerations on all of its particles at the beginning of each simulation step */
+	public void setResetsForces(boolean r)
+	{
+		_resetsForces = r;
 	}
 	
 	/** Gets a reference to this system's internal list of particles, both live and free */
@@ -83,15 +107,15 @@ public class ParticleSystem<T extends Particle>
 	/** Adds an emitter to this system */
 	public void add(ParticleEmitter<T> e)
 	{
-		//e.setSystem(this);
+		e.setSystem(this);
 		_emitters.add(e);
 	}
 	
 	/** Removes an emitter from this system */
 	public void remote(ParticleEmitter<T> e)
 	{
-		//if (e.getSystem() == this)
-		//    e.setSystem(null);
+		if (e.getSystem() == this)
+		    e.setSystem(null);
 		
 		_emitters.remove(e);
 	}
@@ -104,7 +128,7 @@ public class ParticleSystem<T extends Particle>
 	}
 	
 	/** Removes an attractor/repulsor from this styem */
-	public void remote(ParticleAttractor<T> a)
+	public void remove(ParticleAttractor<T> a)
 	{
 		if (a.getSystem() == this)
 			a.setSystem(null);

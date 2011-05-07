@@ -5,6 +5,7 @@ import android.graphics.Paint;
 import android.util.FloatMath;
 import android.util.Log;
 import dkilian.andy.Kernel;
+import dkilian.andy.Prerender;
 import dkilian.andy.Screen;
 import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
@@ -50,7 +51,7 @@ public class MainScreen implements Screen
 			p.setTextSize(40.f);
 			p.setAntiAlias(true);
 			
-			_quad = TexturedQuad.render("Hello world! Hello world!", p);
+			_quad = Prerender.string("Hello world! Hello world!", p);
 		}
 		
 		agl.ClearColor(FloatMath.sin(_time / 5), FloatMath.sin(_time / 2), FloatMath.sin(_time / 3));

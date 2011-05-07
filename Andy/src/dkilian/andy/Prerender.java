@@ -270,7 +270,7 @@ public class Prerender
 	 * @param p The paint with which to draw the rectangle
 	 * @return A textured quad containing the rectangle rendered
 	 */
-	public TexturedQuad rectangle(float w, float h, Paint p)
+	public static TexturedQuad rectangle(float w, float h, Paint p)
 	{
 		return rectangle(w, h, contextForRect(w, h, p));
 	}
@@ -282,7 +282,7 @@ public class Prerender
 	 * @param context A rendering context to use to hold intermediate data
 	 * @return A textured quad containing the rectangle rendered
 	 */
-	public TexturedQuad rectangle(float w, float h, PrerenderContext context)
+	public static TexturedQuad rectangle(float w, float h, PrerenderContext context)
 	{
 		context.clear();
 		context.getCanvas().drawRect(0, 0, w, h, context.getPaint());
@@ -299,7 +299,7 @@ public class Prerender
 	 *               same dimensions as the supplied context. Any existing data will be
 	 *               discarded
 	 */
-	public void rectangle(float w, float h, PrerenderContext context, TexturedQuad target)
+	public static void rectangle(float w, float h, PrerenderContext context, TexturedQuad target)
 	{
 		context.clear();
 		context.getCanvas().drawRect(0, 0, w, h, context.getPaint());
@@ -316,7 +316,7 @@ public class Prerender
 	 * @param p The paint with which to render the rounded rectangle
 	 * @return A texture containing the rounded rectangle
 	 */
-	public TexturedQuad roundedRectangle(float w, float h, float r, Paint p)
+	public static TexturedQuad roundedRectangle(float w, float h, float r, Paint p)
 	{
 		return roundedRectangle(w, h, r, contextForRoundedRect(w, h, p));
 	}
@@ -329,7 +329,7 @@ public class Prerender
 	 * @param context A rendering context to use to hold intermediate data
 	 * @return A texture containing the rounded rectangle
 	 */
-	public TexturedQuad roundedRectangle(float w, float h, float r, PrerenderContext context)
+	public static TexturedQuad roundedRectangle(float w, float h, float r, PrerenderContext context)
 	{	
 		_r.top = 0.f;
 		_r.left = 0.f;
@@ -350,7 +350,7 @@ public class Prerender
 	 * @param context A rendering context to use to hold intermediate data
 	 * @param target A texture containing the rounded rectangle
 	 */
-	public void roundedRectangle(float w, float h, float r, PrerenderContext context, TexturedQuad target)
+	public static void roundedRectangle(float w, float h, float r, PrerenderContext context, TexturedQuad target)
 	{
 		_r.top = 0.f;
 		_r.left = 0.f;

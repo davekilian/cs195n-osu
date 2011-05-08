@@ -36,5 +36,10 @@
 			<type>2</type>
 			<locationURI>_android_AndyNative_db7c3059/src</locationURI>
 		</link>
+		<link>
+			<name>Andy_src</name>
+			<type>2</type>
+			<locationURI>_android_Andy_1f35a2/src</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

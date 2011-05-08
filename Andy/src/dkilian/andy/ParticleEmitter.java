@@ -106,6 +106,8 @@ public class ParticleEmitter<T extends Particle>
 		_mass = new Range<Float>(0.f, 0.f);
 		_lifespan = new Range<Float>(0.f, 0.f);
 		_scale = new Range<Vector2>(Vector2.One(), Vector2.One());
+		
+		_random = new Random();
 	}
 	
 	/**
@@ -146,6 +148,7 @@ public class ParticleEmitter<T extends Particle>
 				
 				p.setMass(randf(_mass));
 				p.setLifespan(randf(_lifespan));
+				p.setLifetime(0.f);
 				
 				randv(_scale, p.getScale());
 			}

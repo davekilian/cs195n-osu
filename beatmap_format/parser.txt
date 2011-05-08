@@ -1,0 +1,11 @@
+--- File Parser Outline ---
+
+ABSTRACT:
+	- Check file format at top
+	- Parse headers
+		- Compare against list of headers
+		- Each header will have its own attributes
+	- Parse attributes to colon, compare against list.
+		- Store the information as necessary.
+
+	- Return "Game State" at the end with all the values of the possible attributes filled in, all other files are thrown out

@@ -62,7 +62,11 @@ public class ParticleSystem<T extends Particle>
 	{
 		ArrayList<T> particles = _particles.getAll();		
 		for (int i = 0; i < particles.size(); ++i)
-			particles.get(i).update(kernel, dt);
+		{
+			T p = particles.get(i);
+			if (p.isAlive())
+				p.draw(kernel, dt);
+		}
 	}
 	
 	/** Gets a value indicating whether this system zeroes the acclerations on all of its particles at the beginning of each simulation step */

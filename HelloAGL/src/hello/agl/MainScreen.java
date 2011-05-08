@@ -1,11 +1,10 @@
 package hello.agl;
 
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.util.FloatMath;
 import android.util.Log;
 import dkilian.andy.Kernel;
-import dkilian.andy.Prerender;
+import dkilian.andy.Particle;
+import dkilian.andy.ParticleEmitter;
+import dkilian.andy.ParticleSystem;
 import dkilian.andy.Screen;
 import dkilian.andy.TexturedQuad;
 import dkilian.andy.Vector2;
@@ -15,9 +14,9 @@ public class MainScreen implements Screen
 {
 	private boolean _loaded = false;
 	private float _time = 0;
-	private float _switchTimer = Float.MAX_VALUE;
-	private int _type = 0;
-	private TexturedQuad _quad;
+	private boolean _first = true;
+	private TexturedQuad _smoke;
+	private ParticleSystem<Particle> _ps;
 
 	@Override
 	public boolean isLoaded() 
@@ -29,6 +28,30 @@ public class MainScreen implements Screen
 	public void load(Kernel kernel) 
 	{
 		Log.v("MainScreen", "OpenGL: " + Integer.toString(kernel.getGLView().getGLVersion(), 16));
+		
+		float w = kernel.getVirtualScreen().getWidth();
+		float h = kernel.getVirtualScreen().getHeight();
+		
+		_ps = new ParticleSystem<Particle>();
+		
+		ParticleEmitter<Particle> emit = new ParticleEmitter<Particle>();
+		emit.setParticlesPerBatch(5, 10);
+		emit.setSpawnPoint(new Vector2(.45f * w, .45f * h), new Vector2(.55f * w, .55f * h));
+		emit.setSpawnInterval(0.1f, 0.5f);
+		emit.setSpeed(0.f, 0.f);
+		emit.setSpeed(10.f, 75.f);
+		emit.setDirection(0.f, (float)(2.0 * Math.PI));
+		emit.setAcceleration(0.f, 0.f);
+		emit.setAcceleration(-2.5f, .25f * -50.f);
+		emit.setAccelerationDirection(0.f, (float)(2.0 * Math.PI));
+		emit.setRotation(0.f, 360.f);
+		emit.setAngularVelocity(-90.f, 90.f);
+		emit.setAngularAcceleration(0.f, 0.f);
+		emit.setMass(.5f, 1.f);
+		emit.setLifespan(1.f, 5.f);
+		emit.setScale(Vector2.One(), Vector2.One().multiply(1.25f));
+		_ps.add(emit);
+		
 		_loaded = true;
 	}
 
@@ -42,56 +65,27 @@ public class MainScreen implements Screen
 	public void update(Kernel kernel, float dt) 
 	{
 		_time += dt;
-		_switchTimer += dt;
+		_ps.update(kernel, dt);
 	}
+	
 
 	@Override
 	public void draw(Kernel kernel, float dt) 
 	{
-		if (_switchTimer > 1.f)
+		if (_first)
 		{
-			Paint p = new Paint();
-			p.setColor(Color.WHITE);
-			p.setTextSize(40.f);
-			p.setAntiAlias(true);
+			_first = false;
+			agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
 			
-			switch (_type)
+			_smoke = TexturedQuad.fromResource(kernel, R.drawable.smoke);
+			for (int i = 0; i < 50; ++i)
 			{
-			case 0:
-				_quad = Prerender.string("Hello world!", p);
-				break;
-			case 1:
-				_quad = Prerender.circle(100.f, p);
-				break;
-			case 2:
-				_quad = Prerender.line(Vector2.Zero(), new Vector2(50.f, 100.f), p);
-				break;
-			case 3:
-				_quad = Prerender.rectangle(50.f, 100.f, p);
-				break;
-			case 4:
-				_quad = Prerender.roundedRectangle(100.f, 50.f, 20.f, p);
-				break;
+				Particle p = new Particle();
+				p.setSprite(_smoke);
+				_ps.add(p);
 			}
-			
-			_switchTimer = 0;
-			_type = (_type + 1) % 5;
 		}
 		
-		agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
-		
-		float w = kernel.getVirtualScreen().getWidth();
-		float h = kernel.getVirtualScreen().getHeight();
-		float r = 100.f;
-		_quad.getTranslation().x = .5f * (w - _quad.getWidth()) + r * FloatMath.cos(_time * 2.f);
-		_quad.getTranslation().y = .5f * (h - _quad.getHeight()) + r * FloatMath.sin(_time * 2.f);
-		
-		_quad.setRotation(_time * 16.f);
-		
-		float scale = 5 * (FloatMath.sin(_time * 5f) * .5f + .5f);
-		_quad.getScale().x = scale;
-		_quad.getScale().y = scale;
-
-		_quad.draw(kernel);
+		_ps.draw(kernel, dt);
 	}
 }

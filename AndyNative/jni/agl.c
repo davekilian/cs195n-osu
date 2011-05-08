@@ -274,7 +274,7 @@ void aglBlendNone()
 	glDisable(GL_BLEND);
 }
 
-void glBlendAdditive()
+void aglBlendAdditive()
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);

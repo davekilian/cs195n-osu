@@ -58,6 +58,39 @@ public class agl
 	public static native void ComputeVirtualTransform();
 	
 	/**
+	 * Disables blending. Any pixels drawn by one sprite will overwrite all other pixels in
+	 * the framebuffer, regardless of alpha values.
+	 * 
+	 * out = src
+	 */
+	public static native void BlendNone();
+	
+	/**
+	 * Enables blending in additive mode. Any pixels drawn by one sprite will be added to
+	 * all other pixels in the framebuffer, regardless of alpha values.
+	 * 
+	 * out = src + dst
+	 */
+	public static native void BlendAdditive();
+	
+	/**
+	 * Enables alpha blending. The alpha values in pixels drawn will be used to determine 
+	 * the opacity of each pixel, used when mixing the pixels with those in the framebuffer
+	 * 
+	 * out = (src.alpha) * src + (1 - src.alpha) * dst
+	 */
+	public static native void BlendAlpha();
+	
+	/**
+	 * Enables premultiplied alpha blending. The alpha values in pixels are used only to determine
+	 * how much of the framebuffer pixel is blended into the final result; the alpha value is
+	 * premultiplied into the original pixel color (thus the original value is used).
+	 * 
+	 * out = src + (1 - src.alpha) * dst
+	 */
+	public static native void BlendPremultiplied();
+	
+	/**
 	 * Compiles a shader program
 	 * @param vertex The source code of the vertex shader
 	 * @param fragment The source code of the fragment shader

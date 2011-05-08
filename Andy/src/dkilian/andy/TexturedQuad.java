@@ -1,6 +1,7 @@
 package dkilian.andy;
 
 import dkilian.andy.jni.agl;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -52,6 +53,25 @@ public class TexturedQuad implements Sprite
 	}
 	
 	/**
+	 * Loads a textured quad using an image from a resource store
+	 * @param res The resource store to read the image data from
+	 * @param id The ID of the resource (in the resource store) containing the image data to load
+	 * @return A textured quad containing the given resource image as its texture
+	 */
+	public static TexturedQuad fromResources(Resources res, int id)
+	{
+		BitmapFactory.Options opt = new BitmapFactory.Options();
+		opt.inTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
+		
+		Bitmap b = BitmapFactory.decodeResource(res, id);
+		
+		int tex = agl.CreateEmptyTexture();
+		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, b, 0);
+		
+		return new TexturedQuad(tex, b.getWidth(), b.getHeight());
+	}
+	
+	/**
 	 * Creates a new textured quad from an existing texture
 	 * @param tex A handle to this quad's texture in graphics memory
 	 * @param w The width of this sprite's texture in texels
@@ -86,6 +106,25 @@ public class TexturedQuad implements Sprite
 
 		_texture = agl.CreateTexture(_width, _height);
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, b, 0);
+	}
+	
+	/** Gets a handle to the texture this quad renders */
+	public int getTexture()
+	{
+		return _texture;
+	}
+	
+	/**
+	 * Sets this quad's texture
+	 * @param texture A handle to the texture to set
+	 * @param w The width of the texture, in pixels
+	 * @param h The height of the texture, in pixels
+	 */
+	public void setTexture(int texture, int w, int h)
+	{
+		_texture = texture;
+		_width = w;
+		_height = h;
 	}
 	
 	/** Gets the shader that is used to render this sprite if using a custom shader */

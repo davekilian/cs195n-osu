@@ -18,6 +18,10 @@ void  aglSetVirtualDimensions(GLint w, GLint h);
 void  aglGetVirtualTransform(GLfloat *m);
 void  aglSetVirtualTransform(GLfloat *m);
 void  aglComputeVirtualTransform();
+void  aglBlendNone();
+void  aglBlendAdditive();
+void  aglBlendAlpha();
+void  aglBlendPremultiplied();
 GLint aglLoadShader(const char* vertex, const char* fragment);
 void  aglUniform(GLint shader, const char* param, GLfloat v);
 void  aglUniform2(GLint shader, const char* param, GLfloat v1, GLfloat v2);
@@ -66,19 +70,6 @@ void  aglTranslatef(GLfloat tx, GLfloat ty, GLfloat tz);
 void  aglRotatef(GLfloat angle);
 void  aglAxisAngle(GLfloat x, GLfloat y, GLfloat z, GLfloat angle);
 void  aglScalef(GLfloat sx, GLfloat sy, GLfloat sz);
-// TODO: particle system acceleration. Efficient data marshaling could be tricky.
-/*
- * One possible (but friggin impossible to program)
- * - Create a gigantic float array
- * - Put each particle's parameters in the array
- * 	 - So the particle stores its position, velocity etc
- * 	 - A stride tells once how many floats to jump over to get to the next item
- * - Send the entire friggin array to OpenGL and tell it to render using the same
- *   usage, with some stride to skip over irrelevant data
- * Unpacking/freeing the array every call sucks. But it might suck less than making lots of
- * JNI calls. In the end, the only way to know is to implement both and choose the one that
- * performs better under stress.
- */
 
 void Java_dkilian_andy_jni_agl_Initialize2D(JNIEnv *env, jobject *thiz, jint w, jint h);
 void Java_dkilian_andy_jni_agl_Cleanup2D(JNIEnv *env, jobject *thiz);
@@ -86,6 +77,10 @@ void Java_dkilian_andy_jni_agl_SetVirtualDimensions(JNIEnv *env, jobject *thiz, 
 void Java_dkilian_andy_jni_agl_GetVirtualTransform(JNIEnv *env, jobject *thiz, jfloatArray m);
 void Java_dkilian_andy_jni_agl_SetVirtualTransfrom(JNIEnv *env, jobject *thiz, jfloatArray m);
 void Java_dkilian_andy_jni_agl_ComputeVirtualTransform(JNIEnv *env, jobject *thiz);
+void Java_dkilian_andy_jni_agl_BlendNone(JNIEnv *env, jobject *thiz);
+void Java_dkilian_andy_jni_agl_BlendAdditive(JNIEnv *env, jobject *thiz);
+void Java_dkilian_andy_jni_agl_BlendAlpha(JNIEnv *env, jobject *thiz);
+void Java_dkilian_andy_jni_agl_BlendPremultiplied(JNIEnv *env, jobject *thiz);
 jint Java_dkilian_andy_jni_agl_LoadShader(JNIEnv *env, jobject *thiz, jstring vertex, jstring fragment);
 void Java_dkilian_andy_jni_agl_Uniform(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloat v);
 void Java_dkilian_andy_jni_agl_Uniform2(JNIEnv *env, jobject *thiz, jint shader, jstring param, jfloat v1, jfloat v2);

@@ -87,7 +87,7 @@ GLint _agl_quad_program = 0;			// The program used to draw textured quads
 GLint _agl_bound_shader = 0;			// The currently bound shader. Used to set aglPosition in aglTexturedQuad() if applicable.
 
 // Maybe there are preprocessor hacks to make this prettier
-#define LOG_ENABLED 1
+#define LOG_ENABLED 0
 
 #if LOG_ENABLED
 #define logcat(a) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a);
@@ -267,6 +267,29 @@ void  aglComputeVirtualTransform()
 		matrix_translate(&_agl_virtualTransform, delta, 0.f, 0.f);
 		matrix_scale(&_agl_virtualTransform, scaley, scaley, 1.f);
 	}
+}
+
+void aglBlendNone()
+{
+	glDisable(GL_BLEND);
+}
+
+void glBlendAdditive()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+}
+
+void aglBlendAlpha()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void aglBlendPremultiplied()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 GLint aglLoadShader(const char* vertex, const char* fragment)
@@ -870,6 +893,26 @@ void Java_dkilian_andy_jni_agl_SetVirtualTransfrom(JNIEnv *env, jobject *thiz, j
 void Java_dkilian_andy_jni_agl_ComputeVirtualTransform(JNIEnv *env, jobject *thiz)
 {
 	aglComputeVirtualTransform();
+}
+
+void Java_dkilian_andy_jni_agl_BlendNone(JNIEnv *env, jobject *thiz)
+{
+	aglBlendNone();
+}
+
+void Java_dkilian_andy_jni_agl_BlendAdditive(JNIEnv *env, jobject *thiz)
+{
+	aglBlendAdditive();
+}
+
+void Java_dkilian_andy_jni_agl_BlendAlpha(JNIEnv *env, jobject *thiz)
+{
+	aglBlendAlpha();
+}
+
+void Java_dkilian_andy_jni_agl_BlendPremultiplied(JNIEnv *env, jobject *thiz)
+{
+	aglBlendPremultiplied();
 }
 
 jint Java_dkilian_andy_jni_agl_LoadShader(JNIEnv *env, jobject *thiz, jstring vertex, jstring fragment)

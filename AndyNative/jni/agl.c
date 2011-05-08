@@ -269,6 +269,29 @@ void  aglComputeVirtualTransform()
 	}
 }
 
+void aglBlendNone()
+{
+	glDisable(GL_BLEND);
+}
+
+void glBlendAdditive()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+}
+
+void aglBlendAlpha()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void aglBlendPremultiplied()
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 GLint aglLoadShader(const char* vertex, const char* fragment)
 {
 	logcat("Compiling a shader ...");
@@ -870,6 +893,26 @@ void Java_dkilian_andy_jni_agl_SetVirtualTransfrom(JNIEnv *env, jobject *thiz, j
 void Java_dkilian_andy_jni_agl_ComputeVirtualTransform(JNIEnv *env, jobject *thiz)
 {
 	aglComputeVirtualTransform();
+}
+
+void Java_dkilian_andy_jni_agl_BlendNone(JNIEnv *env, jobject *thiz)
+{
+	aglBlendNone();
+}
+
+void Java_dkilian_andy_jni_agl_BlendAdditive(JNIEnv *env, jobject *thiz)
+{
+	aglBlendAdditive();
+}
+
+void Java_dkilian_andy_jni_agl_BlendAlpha(JNIEnv *env, jobject *thiz)
+{
+	aglBlendAlpha();
+}
+
+void Java_dkilian_andy_jni_agl_BlendPremultiplied(JNIEnv *env, jobject *thiz)
+{
+	aglBlendPremultiplied();
 }
 
 jint Java_dkilian_andy_jni_agl_LoadShader(JNIEnv *env, jobject *thiz, jstring vertex, jstring fragment)

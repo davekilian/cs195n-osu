@@ -100,7 +100,7 @@ RGB: color values 0-255
 
 Offset: Offset to start timing (millis)
 
-BPM: bpm in some weird format - so 363.636363636364=165; first is val, next seem to be multipliers ([E] says for slider velocity), -100 means no change, -133.3(repeating) is 75% & -66.6(repeating) is 150% - no visible change in game
+BPM: bpm in some weird format - so 363.636363636364=165, 1000=60 BPM, 500=120BPM, etc.; first is val, next seem to be multipliers ([E] says for slider velocity), -100 means no change, -133.3(repeating) is 75% & -66.6(repeating) is 150% - no visible change in game
 
 Time Signature: 3, 4, 5, 6, 7 over 4 - don't know how this impacts the game
 

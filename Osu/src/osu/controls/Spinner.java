@@ -81,17 +81,17 @@ public class Spinner implements Control
 	}
 
 	@Override
-	public void interact(float x, float y) 
+	public void interact(float x, float y, float t) 
 	{
 	}
 
 	@Override
-	public void update(Kernel kernel, float dt) 
+	public void update(Kernel kernel, float t, float dt) 
 	{
 	}
 
 	@Override
-	public void draw(Kernel kernel, float dt) 
+	public void draw(Kernel kernel, float t, float dt) 
 	{
 	}
 }

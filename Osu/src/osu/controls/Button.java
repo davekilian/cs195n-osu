@@ -1,7 +1,10 @@
 package osu.controls;
 
+import java.util.ArrayList;
+
 import graphics.BitmapTint;
 import osu.game.ComboColor;
+import osu.game.HOButton;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -16,6 +19,15 @@ import dkilian.andy.Sprite;
  */
 public class Button implements Control
 {
+	/** The amount of time it takes for a button to fade in, in partial seconds */
+	public static final float FADE_IN_TIME  = .2f;
+	/** The amount of time it takes for a button to fade out, in partial seconds */
+	public static final float FADE_OUT_TIME = .2f;
+	/** The amount of time, after fading in, the button appears before its event timing, in partial seconds */
+	public static final float WAIT_TIME = 1.f;
+	/** The amount of time, in partial seconds, the button fades to white after being interacted with */
+	public static final float INTERACTED_FADE_OUT_TIME = .5f;
+	
 	/** The X coordinate of this button's center in virtual space */
 	private float _x;
 	/** The Y coordinate of this button's center in virtual space */
@@ -30,6 +42,12 @@ public class Button implements Control
 	private Sprite _up;
 	/** The image this button displays when pressed */
 	private Sprite _down;
+	/** The event this button wraps */
+	private HOButton _event;
+	/** Callbacks to invoke when interacted with */
+	private ArrayList<ButtonCallback> _callbacks;
+	/** Whether or not the user has pressed this button */
+	private boolean _pressed;
 	
 	/**
 	 * Renders a button from its components. All components should have the same pixel dimensions.
@@ -81,24 +99,75 @@ public class Button implements Control
 		return render(button, shadow, chrome);
 	}
 	
-	public Button()
+	/** Updates the boundaries of this control using its image */
+	private void calcBounds()
 	{
-		_x = 0.f;
-		_y = 0.f;
-		_tbeg = 0.f;
-		_tend = 0.f;
-		_bounds = new Rect();
+		int w = 0, h = 0;
+		
+		if (_up != null)
+		{
+			w = _up.getWidth();
+			h = _up.getHeight();
+		}
+		else if (_down != null)
+		{
+			w = _down.getWidth();
+			h = _down.getHeight();
+		}
+		
+		_bounds.left   = (int)(_x - w * .5f);
+		_bounds.right  = (int)(_x + w * .5f);
+		_bounds.top    = (int)(_y - h * .5f);
+		_bounds.bottom = (int)(_y + h * .5f);
 	}
 	
-	public Button(Sprite up, Sprite down)
+	/** Creates a new button with no image */
+	public Button(HOButton event)
 	{
-		_x = 0.f;
-		_y = 0.f;
-		_tbeg = 0.f;
-		_tend = 0.f;
+		_x = event.getX();
+		_y = event.getY();
+		_tbeg = event.getTiming() / 1000.f - FADE_IN_TIME - WAIT_TIME;
+		_tend = event.getTiming() / 1000.f + FADE_OUT_TIME;
+		_bounds = new Rect();
+		_event = event;
+		_callbacks = new ArrayList<ButtonCallback>();
+		_pressed = false;
+	}
+	
+	/** Creates a new button consisting of the given images */
+	public Button(HOButton event, Sprite up, Sprite down)
+	{
+		_x = event.getX();
+		_y = event.getY();
+		_tbeg = event.getTiming() / 1000.f - FADE_IN_TIME - WAIT_TIME;
+		_tend = event.getTiming() / 1000.f + FADE_OUT_TIME;
 		_bounds = new Rect();
 		_up = up;
 		_down = down;
+		_event = event;
+		_callbacks = new ArrayList<ButtonCallback>();
+		_pressed = false;
+		calcBounds();
+	}
+	
+	public void register(ButtonCallback callback)
+	{
+		_callbacks.add(callback);
+	}
+	
+	public void unregister(ButtonCallback callback)
+	{
+		_callbacks.remove(callback);
+	}
+	
+	public HOButton getEvent()
+	{
+		return _event;
+	}
+	
+	public void setEvent(HOButton event)
+	{
+		_event = event;
 	}
 	
 	public Sprite getUpImage()
@@ -109,6 +178,7 @@ public class Button implements Control
 	public void setUpImage(Sprite up)
 	{
 		_up = up;
+		calcBounds();
 	}
 	
 	public Sprite getDownImage()
@@ -119,6 +189,7 @@ public class Button implements Control
 	public void setDownImage(Sprite down)
 	{
 		_down = down;
+		calcBounds();
 	}
 
 	@Override
@@ -182,17 +253,34 @@ public class Button implements Control
 	}
 
 	@Override
-	public void interact(float x, float y) 
+	public void interact(float x, float y, float t) 
 	{
+		if (isVisible(t))
+		{
+			if (x >= _bounds.left && x <= _bounds.right && y >= _bounds.top && y <= _bounds.bottom)
+			{
+				_pressed = true;
+				
+				for (int i = 0; i < _callbacks.size(); ++i)
+					_callbacks.get(i).buttonEvent(this, _event);
+			}
+		}
 	}
 
 	@Override
-	public void update(Kernel kernel, float dt) 
-	{
-	}
+	public void update(Kernel kernel, float t, float dt) {}
 
 	@Override
-	public void draw(Kernel kernel, float dt) 
+	public void draw(Kernel kernel, float t, float dt) 
 	{
+		if (isVisible(t))
+		{
+			// TODO: fade using alpha tinting, needs engine support
+			
+			Sprite s = _pressed ? _down : _up;
+			s.getTranslation().x = _x;
+			s.getTranslation().y = _y;
+			s.draw(kernel);
+		}
 	}
 }

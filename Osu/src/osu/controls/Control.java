@@ -50,12 +50,23 @@ public interface Control
 	 * 
 	 * @param x The virtual space X coordinate of the user's touch
 	 * @param y The virtual space Y coordinate of the user's touch
+	 * @param t The game clock time at which the interaction occurred
 	 */
-	public void interact(float x, float y);
+	public void interact(float x, float y, float t);
 	
-	/** Does any per-frame maintainence on this control that is not related to receiving touch events */
-	public void update(Kernel kernel, float dt);
-	
-	/** Renders this control */
-	public void draw(Kernel kernel, float dt);
+	/**
+	 * Does any per-frame maintenance on this control that is not related to receiving touch events
+	 * @param kernel The currently executing kernel
+	 * @param t The current game clock, in partial seconds
+	 * @param dt The amount of time that passed between the previous and current frame, in partial seconds 
+	 */
+	public void update(Kernel kernel, float t, float dt);
+
+	/**
+	 * Renders this control
+	 * @param kernel The currently executing kernel
+	 * @param t The current game clock, in partial seconds
+	 * @param dt The amount of time that passed between the previous and current frame, in partial seconds 
+	 */
+	public void draw(Kernel kernel, float t, float dt);
 }

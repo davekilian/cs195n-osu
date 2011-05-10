@@ -1,10 +1,15 @@
 package osu.parser;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.StringTokenizer;
+
+import osu.game.*;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
@@ -15,9 +20,6 @@ public class Parser {
 	// Resource Accessors
 	private final AssetManager asset_manager;
 	
-	private InputStream input_stream;
-	private BufferedReader reader;
-	
 	// Storage
 	HashMap<Subsections, HashMap<String, String>> dict;
 	
@@ -27,13 +29,14 @@ public class Parser {
 	{
 		asset_manager = act.getAssets();
 		
-		input_stream = null;
-		
 		initDict();
 	}
 	
 	
 	// *** INIT METHODS *** //
+	/**
+	 * Initializes the HashMap we store all of our information in as we are parsing.
+	 */
 	private void initDict()
 	{
 		dict = new HashMap<Subsections, HashMap<String, String>>();
@@ -88,58 +91,97 @@ public class Parser {
 	
 	
 	// *** ACTION *** //
-	public void parse(String path) throws ParseException, IOException
+	/**
+	 * Parses an osu file and returns data to the given data structures.
+	 * Opens the path given (should be a vaild Android file location).
+	 * 
+	 * @param path The path to the desired Android file to be read.
+	 * @throws ParseException If anything unexpected happens in the file, causing parsing errors.
+	 * @throws IOException For any problems with java IO (BufferedReader).
+	 */
+	public void parseAndroidResource(String path, ParserContainer pc) throws ParseException, IOException
+	{
+		// Open resources
+		InputStream input_stream = asset_manager.open(path, AssetManager.ACCESS_BUFFER);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(input_stream));
+		
+		// Parse!
+		parse(reader, pc);
+		
+		// Close all used resources
+		reader.close();
+		input_stream.close();
+	}
+	
+	
+	/**
+	 * TEST FUNCTION: Parses an osu file and returns data to the given data structures.
+	 * Opens the path given (should be a vaild desktop file location).
+	 * 
+	 * @param path The path to the desired desktop resource to be read.
+	 * @throws ParseException If anything unexpected happens in the file, causing parsing errors.
+	 * @throws IOException For any problems with java IO (BufferedReader).
+	 */
+	public void parseDesktopResource(String path, ParserContainer pc) throws ParseException, IOException
+	{
+		// Open Resources
+		File file = new File(path);
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		
+		// Parse!
+		parse(reader, pc);
+		
+		// Close all used resources
+		reader.close();
+	}
+	
+	
+	/**
+	 * Parses an osu file and returns data to the given data structures based on the BufferedReader sent to it.
+	 * 
+	 * @param reader The BufferedReader to read the file from.
+	 * @throws ParseException If anything unexpected happens in the file, causing parsing errors.
+	 * @throws IOException For any problems with java IO (BufferedReader).
+	 */
+	private void parse(BufferedReader reader, ParserContainer pc) throws ParseException, IOException
 	{
 		/*
 		 * TODO:
-		 *  - Check for nulls in reader.readLine()
+		 *  - (DONE) Check for nulls in reader.readLine()
 		 *  - Deal with all necessary subsections not being found
 		 *  - List-Based
 		 *  - Special Case
 		 *  - Return HashMaps to game Objects
+		 *  	- What are the game objects - how do we store and represent them?
 		 */
 		
-		try {
-			// File IO
-			input_stream = asset_manager.open(path, AssetManager.ACCESS_BUFFER);
-			InputStreamReader isr = new InputStreamReader(input_stream);
-			reader = new BufferedReader(isr);
-			
-			// Check file format header
-			if (!confirmFileFormat())
-				throw new ParseException("Invalid file format.");
-			
-			// Iterate through sub-sections and parse their attributes
-			String output = getFirstHeader();
-			
-			while (output != null) // Loop until the end of the file (null)
-				output = manageSubsection(output);
-			
-			// Close all used resources
-			reader.close();
-			reader = null;
-			
-			isr.close();
-			isr = null;
-			
-			input_stream.close();
-			input_stream = null;
-		} catch (IOException ex) {
-			// Null all values so the garbage collector doesn't get in the way post parse
-			nullify();
-			throw ex;
-		}
+		// Error Checking
+		if (reader == null) // Null Reader
+			throw new ParseException("BufferedReader is null");
+		
+		
+		if (!confirmFileFormat(reader)) // Invalid file header
+			throw new ParseException("Invalid file format.");
+		
+		// Iterate through sub-sections and parse their attributes
+		String output = getFirstHeader(reader);
+		
+		while (output != null) // Loop on subsections until the end of the file (null)
+			output = manageSubsection(reader, output, pc);
+		
+		// TODO: Convert to game objects
 	}
 	
 	
 	/**
 	 * Parses the subsection following the current given header (String in) and handles the attributes accordingly.
+	 * 
 	 * @param in The current subsection header String read off from the BufferedReader.
 	 * @return The first non-attribute String found. Returns null if the end of the current file has been reached.
 	 * @throws IOException 
 	 * @throws ParseException 
 	 */
-	private String manageSubsection(String in) throws IOException, ParseException
+	private String manageSubsection(BufferedReader reader, String in, ParserContainer pc) throws IOException, ParseException
 	{
 		String section_name = in.substring(in.indexOf('[') + 1, in.lastIndexOf(']')).toUpperCase();
 		
@@ -154,22 +196,22 @@ public class Parser {
 			case EDITOR:
 			case METADATA:
 			case DIFFICULTY:
-				return handleAttributeBased(section_enum);
+				return handleAttributeBased(reader, section_enum);
 				
 			// List-Based
 			case TIMINGPOINTS:
-				return handleTimingPoints();
+				return handleTimingPoints(reader, pc);
 			case COLOURS:
-				return handleColours();
+				return handleColours(reader, pc);
 			case HITOBJECTS:
-				return handleHitObjects();
+				return handleHitObjects(reader, pc);
 				
 			// Special-Case
 			case EVENTS:
-				return handleEvents();
+				return handleEvents(reader, pc);
 				
 			default:
-				throw new ParseException("Coder error in manageSubsection: missed a header title.");
+				throw new ParseException("Coder error in manageSubsection: missed  header title.");
 			}
 		} catch (IllegalArgumentException ex) {
 			throw new ParseException("Unknown section header.");
@@ -183,7 +225,7 @@ public class Parser {
 	 * @return True if the header is vaild, false otherwise
 	 * @throws IOException If the act of reading the file's input stream throws an Exception.
 	 */
-	private boolean confirmFileFormat() throws IOException
+	private boolean confirmFileFormat(BufferedReader reader) throws IOException
 	{
 		String output = reader.readLine();
 		
@@ -203,7 +245,7 @@ public class Parser {
 	}
 	
 	
-	private String getFirstHeader() throws IOException, ParseException
+	private String getFirstHeader(BufferedReader reader) throws IOException, ParseException
 	{
 		String output = "";
 		while (!isHeader(output))
@@ -220,7 +262,7 @@ public class Parser {
 	
 	// *** HANDLE SUBSECTIONS *** //
 	// Attribute-Based //
-	private String handleAttributeBased(Subsections header) throws IOException
+	private String handleAttributeBased(BufferedReader reader, Subsections header) throws IOException
 	{
 		HashMap<String, String> subsect = dict.get(header); // Current subsection we are working in
 		
@@ -254,34 +296,208 @@ public class Parser {
 	
 	
 	// List-Based //
-	private String handleTimingPoints()
+	private String handleTimingPoints(BufferedReader reader, ParserContainer pc) throws IOException
 	{
 		// List-based
+		String line;
+		while (true)
+		{
+			line = reader.readLine();
+			
+			if (lineCheck(line)) // Return at end of file or next header
+				break;
+			if (line.length() == 0) // Skip over blank lines
+				continue;
+			
+			line = removeSpaces(line); // Remove spaces
+			
+			// Get our TimingPoints
+			TimingPoint tp = new TimingPoint();
+			
+			StringTokenizer tokenizer = new StringTokenizer(line, ",", false);
+			// Offset, BPM, Time, SampleSet, CustomSampleSet, Vol, Inheritance, KIAI
+			tp.setOffset(Long.parseLong(tokenizer.nextToken()));
+			tp.setBPM(Double.parseDouble(tokenizer.nextToken()));
+			tp.setTimeSignature(Integer.parseInt(tokenizer.nextToken()));
+			tp.setSampleSet(Integer.parseInt(tokenizer.nextToken()));
+			tp.setCustomSampleSet(Integer.parseInt(tokenizer.nextToken()));
+			tp.setVolume(Integer.parseInt(tokenizer.nextToken()));
+			tp.setInheritance(Integer.parseInt(tokenizer.nextToken()) == 1 ? true : false);
+			tp.setKiai(Integer.parseInt(tokenizer.nextToken()) == 1 ? true : false);
+			
+			pc.timing_points.add(tp);
+		}
+		
 		return null;
 	}
 	
-	private String handleColours()
+	private String handleColours(BufferedReader reader, ParserContainer pc) throws IOException
 	{
 		// List-Based
-		return null;
+		String line;
+		while (true)
+		{
+			line = reader.readLine();
+			
+			if (lineCheck(line)) // Return at end of file or next header
+				break;
+			if (line.length() == 0) // Skip over blank lines
+				continue;
+			
+			if (!line.substring(0, 5).toLowerCase().equals("combo")) // Make sure we have a combo
+			{
+				Log.e("handleColours", "Unidentifiable line in \"Colours\" header - " + line);
+				continue;
+			}
+			
+			line = line.substring(line.indexOf(":") + 1); // Get the string past the colon
+			line = removeSpaces(line); // Remove the spaces
+			
+			// Get our colors
+			// ComboX : r, g, b
+			int r, g, b;
+			StringTokenizer tokenizer = new StringTokenizer(line, ",", false);
+			r = Integer.parseInt(tokenizer.nextToken());
+			g = Integer.parseInt(tokenizer.nextToken());
+			b = Integer.parseInt(tokenizer.nextToken());
+			
+			if (r < 0 || r > 255 ||
+					g < 0 || g > 255 ||
+					b < 0 || b > 255) // Bounds checking
+			{
+				Log.e("handleColours", "Color values are too large - " + r + ", " + b + ", " + g + ".");
+				continue;
+			}
+			
+			ComboColor cc = new ComboColor(r, g, b);
+			pc.combo_colors.add(cc);
+		}
+		
+		return line;
 	}
 	
-	private String handleHitObjects()
+	private String handleHitObjects(BufferedReader reader, ParserContainer pc) throws IOException
 	{
 		// List-based
-		return null;
+		String line;
+		while (true)
+		{
+			line = reader.readLine();
+			
+			if (lineCheck(line)) // Null or next header, break
+				break;
+			if (line.length() == 0) // Skip empty lines
+				continue;
+			
+			// General Hit Object Information
+			line = removeSpaces(line);
+			
+			// x, y, timing, piece_type, sound_type, SPECIAL
+			StringTokenizer tokenizer = new StringTokenizer(line, ",", false);
+			int x = Integer.parseInt(tokenizer.nextToken());
+			int y = Integer.parseInt(tokenizer.nextToken());
+			long timing = Long.parseLong(tokenizer.nextToken());
+			int piece_type = Integer.parseInt(tokenizer.nextToken());
+			int sound_type = Integer.parseInt(tokenizer.nextToken());
+			
+			// Specific Hit Object Information
+			HitObject ho = null;
+			switch (piece_type)
+			{
+			case 1: // Button
+				ho = new HOButton(x, y, timing, false, sound_type);
+				break;
+			case 5: // Button (new combo)
+				ho = new HOButton(x, y, timing, true, sound_type);
+				break;
+				
+			case 2: // Slider
+				ho = new HOSlider(x, y, timing, false, sound_type);
+				
+				if (!handleSlider(ho, line, tokenizer))
+					continue;
+				break;
+			case 6: // Slider (new combo)
+				ho = new HOSlider(x, y, timing, true, sound_type);
+				
+				if (!handleSlider(ho, line, tokenizer))
+					continue;
+				break;
+				
+			case 12: // Spinner
+				ho = new HOSpinner(x, y, timing, false, sound_type);
+				
+				if (!handleSpinner(ho, line, tokenizer))
+					continue;
+				break;
+				
+			default: // Uh oh!
+				Log.e("handleHitObjects", "Unknown hit object type: " + piece_type);
+				break;
+			}
+			
+			pc.hit_objects.add(ho); // Add to ParserContainer list
+		}
+		
+		return line;
 	}
 	
 	
 	// Special-Case //
-	private String handleEvents()
+	private String handleEvents(BufferedReader reader, ParserContainer pc) throws IOException
 	{
 		// Special case
-		return null;
+		String line;
+		while (true)
+		{
+			line = reader.readLine();
+			
+			if (lineCheck(line)) // Null or next header, break
+				break;
+			if (line.length() == 0) // Skip empty lines
+				continue;
+			
+			// TODO: Handle event objects
+		}
+		
+		return line;
+	}
+	
+	
+	// *** SUBFUNCTIONS *** //
+	private boolean handleSlider(HitObject ho, String line, StringTokenizer tokenizer)
+	{
+		if (ho.getClass() != HOSlider.class)
+			return false;
+		
+		HOSlider slider = (HOSlider)ho;
+		
+		// TODO: Parse for sliders
+		
+		return true;
+	}
+	
+	
+	private boolean handleSpinner(HitObject ho, String line, StringTokenizer tokenizer)
+	{
+		if (ho.getClass() != HOSpinner.class)
+			return false;
+		
+		HOSpinner spinner = (HOSpinner)ho;
+		
+		// TODO: Parse for spinners
+		
+		return true;
 	}
 	
 	
 	// *** HELPER METHODS *** //
+	/**
+	 * Checks if a line is null (EOF) or the next header in the list.
+	 */
+	private boolean lineCheck(String s) { return s == null || isHeader(s); }
+	
+	
 	/**
 	 * Returns true if the given int array contains the given int, false otherwise.
 	 */
@@ -333,16 +549,6 @@ public class Parser {
 		}
 		
 		return s;
-	}
-	
-	
-	// *** MISCELLANEOUS *** //
-	public void nullify()
-	{
-		input_stream = null;
-		reader = null;
-		
-		dict = null;
 	}
 
 }

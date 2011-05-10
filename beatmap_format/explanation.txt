@@ -61,7 +61,7 @@ OverallDifficulty: [E] The harshness of the timing window; The difficulty of the
 
 ApproachRate: How quickly the hitboxes appear on the screen - 10 is max, 0 is min, the larger, the faster they come - affects outer timing circles as well
 
-SliderMultiplier: Changes the rate of speed of a given slider... O_o The higher it is, the faster the ball moves across the screen - 0 is lowest, 10 is hightest
+SliderMultiplier: Changes the rate of speed of a given slider... O_o The higher it is, the faster the ball moves across the screen - 0 is lowest, 10 is hightest, game expects values between 0.5 or so and 3.4 or so
 
 SliderTickRate: Divides sliders into this many components - points are awarded as you transition from one side to the other - 10 is max, 1 is lowest, anything else exhibits the properties of the values before hand
 
@@ -154,3 +154,6 @@ TYPE-SPECIFIC:
 	Button - none
 	Spinner - End time
 	Sliders - B|x:y (for each part)|end_x:end_y,times repeated,SliderDistance,SoundTypeOnHit|Hit2|Hit3...
+		SliderDistance - one beat is 100, anything less is less - not dependent on BPM - perhaps related to Bezier curves; slider velocity will increase this value (150 will be multiplier of 1.5 for 1 beat) - distance travelled in 1 beat, perhaps? NOTE: SLIDER AUTO-ADJUSTS POSITION BASED UPON BEATS - two different positions can have the same end result for the slider (bezier related?)
+		SoundTypeOnHit seems to be the same format as above
+		SoundType ignored for sliders

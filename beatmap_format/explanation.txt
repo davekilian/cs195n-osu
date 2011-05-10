@@ -100,7 +100,7 @@ RGB: color values 0-255
 
 Offset: Offset to start timing (millis)
 
-BPM: bpm in some weird format - so 363.636363636364=165, 1000=60 BPM, 500=120BPM, etc.; first is val, next seem to be multipliers ([E] says for slider velocity), -100 means no change, -133.3(repeating) is 75% & -66.6(repeating) is 150% - no visible change in game
+BPM: bpm in some weird format - so 363.636363636364=165, 1000=60 BPM, 500=120BPM, etc.; non-inherited timings are this val, inherited seem to be multipliers ([E] says for slider velocity), -100 means no change, -133.3(repeating) is 75% & -66.6(repeating) is 150%
 
 Time Signature: 3, 4, 5, 6, 7 over 4 - don't know how this impacts the game
 
@@ -124,7 +124,7 @@ Entire field and header disappears if custom colors are not enabled (get a defau
 
 
 [HitObjects] ------------
-[X, Y, Timing, PieceType, ?, TYPE-SPECIFIC]
+[X, Y, Timing, PieceType, SoundType, TYPE-SPECIFIC]
 
 X: x-position; 0-512, LR, anything more or less takes edge cases
 
@@ -140,9 +140,17 @@ PieceType:
 	6 - Slider (New Combo)
 	12 - Spinner
 
-?: 0 or 2? Don't know why - applies to all buttons (I think I meant pieces)
+SoundType: Determines what sound should be played as this piece is activated
+	0 - None
+	2 - Whistle
+	4 - Finish (bass & cymbol)
+	8 - Clap
+	6 - Whistle & finish
+	12 - Finish & clap
+	10 - Whistle & clap
+	14 - Whistle, clap, & finish
 
 TYPE-SPECIFIC:
 	Button - none
 	Spinner - End time
-	Sliders - B|x:y (for each part)|end_x:end_y,times repeated,?velocity?,?|?
+	Sliders - B|x:y (for each part)|end_x:end_y,times repeated,SliderDistance,SoundTypeOnHit|Hit2|Hit3...

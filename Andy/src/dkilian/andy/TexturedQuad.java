@@ -32,6 +32,8 @@ public class TexturedQuad implements Sprite
 	private boolean _overrideShader;
 	/** The shader to use to render the quad instead of AGL's built-in quad shader if applicable */
 	private int _shader;
+	/** The alpha value to tint this sprite, for fading */
+	private float _alpha;
 	
 	/**
 	 * Loads a textured quad from an image in the apk's resource storage
@@ -87,6 +89,7 @@ public class TexturedQuad implements Sprite
 		_scale = Vector2.One();
 		_overrideShader = false;
 		_shader = 0;
+		_alpha = 1.f;
 	}
 	
 	/**
@@ -137,6 +140,18 @@ public class TexturedQuad implements Sprite
 	public void setShader(int shader)
 	{
 		_shader = shader;
+	}
+	
+	/** Gets this sprite's alpha tint value */
+	public float getAlpha()
+	{
+		return _alpha;
+	}
+	
+	/** Sets this sprite's alpha tint value */
+	public void setAlpha(float a)
+	{
+		_alpha = a;
 	}
 	
 	/** Gets a value indicating whether this sprite's custom shader is used for rendering rather than AGL's built-in quad renderer */
@@ -228,8 +243,8 @@ public class TexturedQuad implements Sprite
 	public void draw(Kernel kernel) 
 	{
 		if (_overrideShader)
-			agl.DrawBitmapWithShaderTransformed(_texture, _width, _height, _shader, _translation.x, _translation.y, _rotation, _scale.x, _scale.y);
+			agl.DrawBitmapWithShaderTransformed(_texture, _width, _height, _shader, _translation.x, _translation.y, _rotation, _scale.x, _scale.y, _alpha);
 		else
-			agl.DrawBitmapWithoutShaderTransformed(_texture, _width, _height, _translation.x, _translation.y, _rotation, _scale.x, _scale.y);
+			agl.DrawBitmapWithoutShaderTransformed(_texture, _width, _height, _translation.x, _translation.y, _rotation, _scale.x, _scale.y, _alpha);
 	}
 }

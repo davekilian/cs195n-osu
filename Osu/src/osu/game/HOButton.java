@@ -7,6 +7,7 @@ package osu.game;
  */
 public class HOButton extends HitObject {
 	
+	// *** CONSTRUCTOR *** //
 	public HOButton(int x_pos, int y_pos, long time_millis, boolean is_new_combo, int sound)
 	{
 		x = x_pos;

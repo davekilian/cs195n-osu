@@ -5,7 +5,7 @@ package dkilian.andy;
  * 
  * @author dkilian
  */
-public enum Loop 
+public enum Loop
 {
 	/** Play through; do not repeat */
 	None,

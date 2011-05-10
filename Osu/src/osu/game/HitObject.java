@@ -1,5 +1,10 @@
 package osu.game;
 
+/**
+ * Abstract representation of an ingame HitObject.
+ * Contains all the information that is available to be parsed from a
+ * given beatmap file.
+ */
 public abstract class HitObject {
 	
 	int x, y;

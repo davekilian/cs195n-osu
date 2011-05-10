@@ -7,12 +7,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.StringTokenizer;
 
 import osu.game.*;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
+import android.graphics.Point;
 import android.util.Log;
 
 public class Parser {
@@ -169,7 +171,7 @@ public class Parser {
 		while (output != null) // Loop on subsections until the end of the file (null)
 			output = manageSubsection(reader, output, pc);
 		
-		// TODO: Convert to game objects
+		// TODO: Convert to game objects (just the dict?)
 	}
 	
 	
@@ -245,6 +247,15 @@ public class Parser {
 	}
 	
 	
+	/**
+	 * Finds the first header in the file (as defined by "[HEADER_NAME]").
+	 * Helps deal with unnecessary newlines.
+	 * 
+	 * @param reader The BufferedReader we are using to read in from the file.
+	 * @return The String of the first header we find.
+	 * @throws IOException If any Java IO-related issues occur
+	 * @throws ParseException If any parsing errors occur
+	 */
 	private String getFirstHeader(BufferedReader reader) throws IOException, ParseException
 	{
 		String output = "";
@@ -288,7 +299,7 @@ public class Parser {
 			if (subsect.containsKey(attrib))
 				subsect.put(attrib, val);
 			else // Invalid attribute
-				Log.e("Parser.handleAttributeBased", "Invalid Attribute, \"" + attrib + "\" in subsection, \"" + header.toString() + "\".");
+				printError("Parser.handleAttributeBased", "Invalid Attribute, \"" + attrib + "\" in subsection, \"" + header.toString() + "\".");
 		}
 		
 		return line;
@@ -346,7 +357,7 @@ public class Parser {
 			
 			if (!line.substring(0, 5).toLowerCase().equals("combo")) // Make sure we have a combo
 			{
-				Log.e("handleColours", "Unidentifiable line in \"Colours\" header - " + line);
+				printError("Parser.handleColours", "Unidentifiable line in \"Colours\" header - " + line);
 				continue;
 			}
 			
@@ -365,7 +376,7 @@ public class Parser {
 					g < 0 || g > 255 ||
 					b < 0 || b > 255) // Bounds checking
 			{
-				Log.e("handleColours", "Color values are too large - " + r + ", " + b + ", " + g + ".");
+				printError("Parser.handleColours", "Color values are too large - " + r + ", " + b + ", " + g + ".");
 				continue;
 			}
 			
@@ -432,7 +443,7 @@ public class Parser {
 				break;
 				
 			default: // Uh oh!
-				Log.e("handleHitObjects", "Unknown hit object type: " + piece_type);
+				printError("Parser.handleHitObjects", "Unknown hit object type: " + piece_type);
 				break;
 			}
 			
@@ -472,7 +483,52 @@ public class Parser {
 		
 		HOSlider slider = (HOSlider)ho;
 		
-		// TODO: Parse for sliders
+		// Parse the remaining slider components:
+		// Points, repeats, path length, [sounds]
+		StringTokenizer points = new StringTokenizer(tokenizer.nextToken(), "|", false);
+		
+		// Get slider type
+		try {
+			String slider_type = points.nextToken();
+			if (slider_type.equals("B"))
+				slider.setSliderType(HOSliderType.BEZIER);
+			else if (slider_type.equals("L"))
+				slider.setSliderType(HOSliderType.LINEAR);
+			else if (slider_type.equals("C"))
+				slider.setSliderType(HOSliderType.CATMULL);
+			else
+			{
+				printError("Parser.handleSlider", "Unknown slider type: \"" + slider_type + "\".");
+				return false;
+			}
+		} catch (UnsupportedOperationException ex) {
+			printError("Parser.handleSlider", ex.toString());
+			return false;
+		}
+		
+		// Parse the points on the path
+		LinkedList<Point> path_points = slider.getPathPoints();
+		while (points.hasMoreTokens())
+		{
+			String part = points.nextToken();
+			int breakpoint = part.indexOf(":");
+			path_points.add(new Point(Integer.parseInt(part.substring(0, breakpoint)),
+					Integer.parseInt(part.substring(breakpoint + 1))));
+		}
+		
+		slider.setRepeats(Integer.parseInt(tokenizer.nextToken()));
+		slider.setPathLength(Float.parseFloat(tokenizer.nextToken()));
+		
+		// Parse the sounds (if they exist)
+		if (tokenizer.hasMoreTokens()) // Sound is not a required attribute
+		{
+			LinkedList<Integer> sound_points = slider.getSoundPoints();
+			
+			String sound_str = tokenizer.nextToken();
+			StringTokenizer sound_tokenizer = new StringTokenizer(sound_str, "|", false);
+			while (sound_tokenizer.hasMoreTokens())
+				sound_points.add(Integer.parseInt(sound_tokenizer.nextToken()));
+		}
 		
 		return true;
 	}
@@ -552,4 +608,16 @@ public class Parser {
 		return s;
 	}
 
+	
+	/**
+	 * Prints any non-thrown parse errors to the command line (Logcat and stdout).
+	 * @param tag The tag to put in (LogCat - used in stdout as start entry)
+	 * @param s The message to print
+	 */
+	private void printError(String tag, String s)
+	{
+		Log.e(tag, s);
+		System.err.println(tag + " - " + s);
+	}
+	
 }

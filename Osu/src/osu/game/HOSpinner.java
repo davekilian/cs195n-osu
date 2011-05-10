@@ -1,5 +1,10 @@
 package osu.game;
 
+/**
+ * HOSpinner is one of the HitObject representations.
+ * This is an object you need to spin around in a circle as
+ * many times as possible in the given duration to pass it.
+ */
 public class HOSpinner extends HitObject {
 	
 	private long end_time;

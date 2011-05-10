@@ -238,8 +238,9 @@ public class agl
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param w The width of the sprite in virtual coordinates
 	 * @param h The height of the sprite in virtual coordinates
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmap(int tex, float w, float h);
+	public static native void DrawBitmap(int tex, float w, float h, float alpha);
 	
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
@@ -250,8 +251,9 @@ public class agl
 	 * @param y The amount to translate the sprite, in virtual coordinates
 	 * @param w The width of the sprite in virtual coordinates
 	 * @param h The height of the sprite in virtual coordinates
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapTranslated(int tex, float w, float h, float x, float y);
+	public static native void DrawBitmapTranslated(int tex, float w, float h, float x, float y, float alpha);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
@@ -265,8 +267,9 @@ public class agl
 	 * @param rot The amount to rotate the sprite, in degrees
 	 * @param xscale The horizontal scale factor
 	 * @param yscale The vertical scale factor
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapTransformed(int tex, float w, float h, float x, float y, float rot, float xscale, float yscale);
+	public static native void DrawBitmapTransformed(int tex, float w, float h, float x, float y, float rot, float xscale, float yscale, float alpha);
 
 	/** 
 	 * Draws a bitmap sprite as a textured quad. 
@@ -276,8 +279,9 @@ public class agl
 	 * @param w The width of the sprite in virtual coordinates
 	 * @param h The height of the sprite in virtual coordinates
 	 * @param mat The transformation matrix to apply to the quad before drawing it
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapMatrix(int tex, float w, float h, float[] mat);
+	public static native void DrawBitmapMatrix(int tex, float w, float h, float[] mat, float alpha);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
@@ -287,8 +291,9 @@ public class agl
 	 * @param w The width of the sprite in virtual coordinates
 	 * @param h The height of the sprite in virtual coordinates
 	 * @param shader The shader to use to render the sprite
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapWithShader(int tex, float w, float h, int shader);
+	public static native void DrawBitmapWithShader(int tex, float w, float h, int shader, float alpha);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
@@ -300,8 +305,9 @@ public class agl
 	 * @param shader The shader to use to render the sprite
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapWithShaderTranslated(int tex, float w, float h, int shader, float x, float y);
+	public static native void DrawBitmapWithShaderTranslated(int tex, float w, float h, int shader, float x, float y, float alpha);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
@@ -316,8 +322,9 @@ public class agl
 	 * @param rot The amount to rotate the sprite, in degrees
 	 * @param xscale The horizontal scale factor
 	 * @param yscale The vertical scale factor
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapWithShaderTransformed(int tex, float w, float h, int shader, float x, float y, float rot, float xscale, float yscale);
+	public static native void DrawBitmapWithShaderTransformed(int tex, float w, float h, int shader, float x, float y, float rot, float xscale, float yscale, float alpha);
 
 	/** 
 	 * Draws a bitmap sprite as a textured quad. 
@@ -328,8 +335,9 @@ public class agl
 	 * @param h The height of the sprite in virtual coordinates
 	 * @param shader The shader to use to render the sprite
 	 * @param mat The transformation matrix to apply to the quad before drawing it
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapWithShaderMatrix(int tex, float w, float h, int shader, float[] mat);
+	public static native void DrawBitmapWithShaderMatrix(int tex, float w, float h, int shader, float[] mat, float alpha);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
@@ -338,8 +346,9 @@ public class agl
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param w The width of the sprite in virtual coordinates
 	 * @param h The height of the sprite in virtual coordinates
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapWithoutShader(int tex, float w, float h);
+	public static native void DrawBitmapWithoutShader(int tex, float w, float h, float alpha);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
@@ -350,8 +359,9 @@ public class agl
 	 * @param h The height of the sprite in virtual coordinates
 	 * @param x The amount to translate the sprite, in virtual coordinates
 	 * @param y The amount to translate the sprite, in virtual coordinates
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapWithoutShaderTranslated(int tex, float w, float h, float x, float y);
+	public static native void DrawBitmapWithoutShaderTranslated(int tex, float w, float h, float x, float y, float alpha);
 
 	/**
 	 * Draws a bitmap sprite as a textured quad. 
@@ -365,8 +375,9 @@ public class agl
 	 * @param rot The amount to rotate the sprite, in degrees
 	 * @param xscale The horizontal scale factor
 	 * @param yscale The vertical scale factor
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapWithoutShaderTransformed(int tex, float w, float h, float x, float y, float rot, float xscale, float yscale);
+	public static native void DrawBitmapWithoutShaderTransformed(int tex, float w, float h, float x, float y, float rot, float xscale, float yscale, float alpha);
 
 	/** 
 	 * Draws a bitmap sprite as a textured quad. 
@@ -376,8 +387,9 @@ public class agl
 	 * @param w The width of the sprite in virtual coordinates
 	 * @param h The height of the sprite in virtual coordinates
 	 * @param mat The transformation matrix to apply to the quad before drawing it
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void DrawBitmapWithoutShaderMatrix(int tex, float w, float h, float[] mat);
+	public static native void DrawBitmapWithoutShaderMatrix(int tex, float w, float h, float[] mat, float alpha);
 	
 	/**
 	 * Sets the color the backbuffer is cleared to at the beginning of every frame

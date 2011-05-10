@@ -465,7 +465,7 @@ public class Parser {
 	
 	
 	// *** SUBFUNCTIONS *** //
-	private boolean handleSlider(HitObject ho, String line, StringTokenizer tokenizer)
+	private boolean handleSlider(HitObject ho, String line, StringTokenizer tokenizer) throws IOException
 	{
 		if (ho.getClass() != HOSlider.class)
 			return false;
@@ -478,14 +478,15 @@ public class Parser {
 	}
 	
 	
-	private boolean handleSpinner(HitObject ho, String line, StringTokenizer tokenizer)
+	private boolean handleSpinner(HitObject ho, String line, StringTokenizer tokenizer) throws IOException
 	{
 		if (ho.getClass() != HOSpinner.class)
 			return false;
 		
 		HOSpinner spinner = (HOSpinner)ho;
 		
-		// TODO: Parse for spinners
+		// Parse for end timing
+		spinner.setEndTiming(Long.parseLong(tokenizer.nextToken()));
 		
 		return true;
 	}

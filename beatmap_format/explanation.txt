@@ -7,7 +7,7 @@ AudioFilename: Name of the file in the song file directory
 
 AudioLeadIn: Millis before the music starts playing - does not affect hitbox timings
 
-PreviewTime: ?
+PreviewTime: ? (The point into the song that gets played in the menu? -Dave)
 
 Countdown: Sets the timing of the countdown animation and sound before the first hitboxes appear - timing seems to be slower for 0 (off) to 2, with mod operations taking place for higher values
 
@@ -23,7 +23,7 @@ SkinPreference: Overwrites the osu skin preferences - "Default" to use default o
 
 CountdownOffset: [E] The timing offset of the countdown. 0 to 2 - Not sure how it changes the values (think it's by the number of beats early according to E text?)
 
-StoryFireInFront: [E] Have yet to see - Some animation that puts the storyboard with fire in front (0 if true, not in file if false)
+StoryFireInFront: [E] Have yet to see - Some animation that puts the storyboard with fire in front (0 if true, not in file if false) (Tsugaru does this? -Dave)
 
 EpilepsyWarning: [E] Puts a warning before the song starts for flashing backgrounds (1 is on, not in file if false) - does not delay song, displays over intro
 

@@ -10,7 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import dkilian.andy.Kernel;
-import dkilian.andy.Sprite;
+import dkilian.andy.TexturedQuad;
 
 /**
  * Handles button interactions, wrapping a button hit-object.
@@ -39,9 +39,9 @@ public class Button implements Control
 	/** The bounds of this button in virtual coordinates */
 	private Rect _bounds;
 	/** The image this button displays when raised */
-	private Sprite _up;
+	private TexturedQuad _up;
 	/** The image this button displays when pressed */
-	private Sprite _down;
+	private TexturedQuad _down;
 	/** The event this button wraps */
 	private HOButton _event;
 	/** Callbacks to invoke when interacted with */
@@ -56,7 +56,7 @@ public class Button implements Control
 	 * @param chrome The chrome on top of the button
 	 * @return A textured quad containing the drop shadow rendered under the button and the chrome rendered over the button
 	 */
-	public static Sprite render(Bitmap button, Bitmap shadow, Bitmap chrome)
+	public static TexturedQuad render(Bitmap button, Bitmap shadow, Bitmap chrome)
 	{
 		Bitmap target = Bitmap.createBitmap(button.getWidth(), button.getHeight(), Bitmap.Config.ARGB_4444);
 		Canvas c = new Canvas(target);
@@ -66,7 +66,7 @@ public class Button implements Control
 		c.drawBitmap(button, 0.f, 0.f, p);
 		c.drawBitmap(chrome, 0.f, 0.f, p);
 		
-		return null;
+		return new TexturedQuad(target);
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public class Button implements Control
 	 * @param color The color to tint the button's fill componenet
 	 * @return A textured quad containing the final, tinted button
 	 */
-	public static Sprite render(Bitmap button, Bitmap shadow, Bitmap chrome, int color)
+	public static TexturedQuad render(Bitmap button, Bitmap shadow, Bitmap chrome, int color)
 	{
 		BitmapTint.apply(button, color);
 		return render(button, shadow, chrome);
@@ -93,7 +93,7 @@ public class Button implements Control
 	 * @param color The color to tint the button's fill componenet
 	 * @return A textured quad containing the final, tinted button
 	 */
-	public static Sprite render(Bitmap button, Bitmap shadow, Bitmap chrome, ComboColor color)
+	public static TexturedQuad render(Bitmap button, Bitmap shadow, Bitmap chrome, ComboColor color)
 	{
 		BitmapTint.apply(button, color);
 		return render(button, shadow, chrome);
@@ -135,7 +135,7 @@ public class Button implements Control
 	}
 	
 	/** Creates a new button consisting of the given images */
-	public Button(HOButton event, Sprite up, Sprite down)
+	public Button(HOButton event, TexturedQuad up, TexturedQuad down)
 	{
 		_x = event.getX();
 		_y = event.getY();
@@ -170,23 +170,23 @@ public class Button implements Control
 		_event = event;
 	}
 	
-	public Sprite getUpImage()
+	public TexturedQuad getUpImage()
 	{
 		return _up;
 	}
 	
-	public void setUpImage(Sprite up)
+	public void setUpImage(TexturedQuad up)
 	{
 		_up = up;
 		calcBounds();
 	}
 	
-	public Sprite getDownImage()
+	public TexturedQuad getDownImage()
 	{
 		return _down;
 	}
 	
-	public void setDownImage(Sprite down)
+	public void setDownImage(TexturedQuad down)
 	{
 		_down = down;
 		calcBounds();
@@ -275,11 +275,17 @@ public class Button implements Control
 	{
 		if (isVisible(t))
 		{
-			// TODO: fade using alpha tinting, needs engine support
+			float alpha = 1.f;
 			
-			Sprite s = _pressed ? _down : _up;
+			if (t >= _tbeg && t <= _tbeg + FADE_IN_TIME)
+				alpha = (t - _tbeg) / FADE_IN_TIME;
+			else if (t <= _tend && t >= _tend - FADE_OUT_TIME)
+				alpha = (_tend - t) / FADE_OUT_TIME;
+			
+			TexturedQuad s = _pressed ? _down : _up;
 			s.getTranslation().x = _x;
 			s.getTranslation().y = _y;
+			s.setAlpha(alpha);
 			s.draw(kernel);
 		}
 	}

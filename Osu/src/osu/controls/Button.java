@@ -2,9 +2,9 @@ package osu.controls;
 
 import java.util.ArrayList;
 
-import graphics.BitmapTint;
 import osu.game.ComboColor;
 import osu.game.HOButton;
+import osu.graphics.BitmapTint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;

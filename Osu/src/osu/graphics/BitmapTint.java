@@ -1,4 +1,4 @@
-package graphics;
+package osu.graphics;
 
 import osu.game.ComboColor;
 import android.graphics.Bitmap;

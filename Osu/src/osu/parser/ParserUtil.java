@@ -3,14 +3,12 @@ package osu.parser;
 import java.util.HashMap;
 
 import osu.beatmap.*;
-import osu.game.Background;
-import osu.game.ComboColor;
 
 /**
  * A variety of static parsing related utilities.
  */
 public class ParserUtil {
-
+	
 	
 	// *** PARSER CONTAINER TO BEATMAP *** //
 	/**
@@ -19,29 +17,65 @@ public class ParserUtil {
 	 * @param pc The ParserContainer into which all the information was stored
 	 * @return A Beatmap representing a game
 	 */
-	public static Beatmap parserContainerToBeatmap(ParserContainer pc)
+	public static Beatmap parserContainerToBeatmap(ParserContainer pc) throws ParseException
 	{
-		Beatmap beatmap = new Beatmap();
-		
-		setGeneral(pc, beatmap);
-		setEditor(pc, beatmap);
-		setMetadata(pc, beatmap);
-		setDifficulty(pc, beatmap);
-		setEvents(pc, beatmap);
-		setTimingPoints(pc, beatmap);
-		setColours(pc, beatmap);
-		setHitObjects(pc, beatmap);
-		
-		return beatmap;
+		try {
+			Beatmap beatmap = new Beatmap();
+			
+			setGeneral(pc, beatmap);
+			setEditor(pc, beatmap);
+			setMetadata(pc, beatmap);
+			setDifficulty(pc, beatmap);
+			setEvents(pc, beatmap);
+			setTimingPoints(pc, beatmap);
+			setColours(pc, beatmap);
+			setHitObjects(pc, beatmap);
+			
+			return beatmap;
+		} catch (Exception ex) {
+			throw new ParseException("The conversion to Beatmap could not be completed: " + ex.toString());
+		}
 	}
 	
 	
-	private static void setGeneral(ParserContainer pc, Beatmap beatmap)
+	private static void setGeneral(ParserContainer pc, Beatmap beatmap) throws NumberFormatException, NullPointerException
 	{
-		// TODO: FILL ME IN
+		HashMap<String, String> map = pc.dict.get(Subsections.GENERAL);
+		
+		beatmap.setAudioFilename(map.get("audiofilename"));
+		beatmap.setAudioLeadIn(Long.parseLong(map.get("audioleadin")));
+		beatmap.setPreviewTime(Long.parseLong(map.get("previewtime")));
+		beatmap.setCountdownStyle(Integer.parseInt(map.get("countdown")));
+		beatmap.setSampleSet(map.get("sampleset"));
+		beatmap.setStackLeniency(Integer.parseInt(map.get("stackleniency")));
+		beatmap.setPlayMode(Integer.parseInt(map.get("mode")));
+		beatmap.setLetterboxInBreaks(Integer.parseInt(map.get("letterboxinbreaks")) == 1 ? true : false);
+		
+		// The following attributes don't necessarily show up everytime
+		String temp;
+		
+		beatmap.setSkinPreference(map.get("skinpreference"));
+		
+		temp = map.get("countdownoffset");
+		if (temp != null)
+			beatmap.setCountdownOffset(Integer.parseInt(temp));
+		else
+			beatmap.setCountdownOffset(0);
+		
+		temp = map.get("storyfireinfront");
+		if (temp != null)
+			beatmap.setStoryFireInFront(Integer.parseInt(temp) == 1 ? true : false);
+		else
+			beatmap.setStoryFireInFront(false);
+		
+		temp = map.get("epilepsywarning");
+		if (temp != null)
+			beatmap.setEpilepsyWarning(Integer.parseInt(temp) == 1 ? true : false);
+		else
+			beatmap.setEpilepsyWarning(false);
 	}
 	
-	private static void setEditor(ParserContainer pc, Beatmap beatmap)
+	private static void setEditor(ParserContainer pc, Beatmap beatmap) throws NumberFormatException, NullPointerException
 	{
 		HashMap<String, String> map = pc.dict.get(Subsections.EDITOR);
 		
@@ -68,9 +102,16 @@ public class ParserUtil {
 		beatmap.setMetadata(metadata);
 	}
 	
-	private static void setDifficulty(ParserContainer pc, Beatmap beatmap)
+	private static void setDifficulty(ParserContainer pc, Beatmap beatmap) throws NumberFormatException, NullPointerException
 	{
-		// TODO: FILL ME IN
+		HashMap<String, String> map = pc.dict.get(Subsections.DIFFICULTY);
+		
+		beatmap.setHPDrainRate(Integer.parseInt(map.get("hpdrainrate")));
+		beatmap.setCircleSize(Integer.parseInt(map.get("circlesize")));
+		beatmap.setOverallDifficulty(Integer.parseInt(map.get("overalldifficulty")));
+		beatmap.setApproachRate(Integer.parseInt(map.get("approachrate")));
+		beatmap.setSliderMultiplier(Float.parseFloat(map.get("slidermultiplier")));
+		beatmap.setSliderTickRate(Integer.parseInt(map.get("slidertickrate")));
 	}
 	
 	private static void setEvents(ParserContainer pc, Beatmap beatmap)

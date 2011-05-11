@@ -413,14 +413,15 @@ public class agl
 	 * @param tex The texture containing the bitmap data to draw
 	 * @param w The width of the sprite in virtual coordinates
 	 * @param h The height of the sprite in virtual coordinates
-	 * @param controlPoints A set of three Bezier control points, packed in the format [x1 y1 x2 y2 x3 y3]
+	 * @param controlPoints A set of at least two Bezier control points, packed in the format [x1 y1 x2 y2 ... xn yn]
+	 * @param numPoints The number of control point locations contained in the controlPoints array.
 	 * @param numSteps The number of sprites to draw along the path
 	 * @param rot The rotation to apply to each sprite, in degrees
 	 * @param xscale The factor by which to horizontally scale each sprite
 	 * @param yscale The factor by which to vertically scale each sprite
 	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
-	public static native void InstanceBitmapBezier(int tex, int w, int h, float[] controlPoints, int numSteps, float rot, float xscale, float yscale, float alpha);
+	public static native void InstanceBitmapBezier(int tex, int w, int h, float[] controlPoints, int numPoints, int numSteps, float rot, float xscale, float yscale, float alpha);
 
 	/**
 	 * Draws several copies of a sprite by interpolating along a Catmull-Rom path

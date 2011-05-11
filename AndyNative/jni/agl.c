@@ -703,6 +703,30 @@ void  aglDrawBitmapWithoutShaderMatrix(GLint tex, GLfloat w, GLfloat h, GLfloat 
 	aglDrawBitmapWithShaderMatrix(tex, w, h, _agl_quad_program, m, alpha);
 }
 
+void  aglEvalBezier(GLfloat *controlPoints, GLint numPoints, GLfloat t, GLfloat *outx, GLfloat *outy)
+{
+	// This is a variation of http://www.cgafaq.info/wiki/Bezier_curve_evaluation
+	// I'm manipulating the original control points directly to avoid extraneous memory
+	// (de)allocation activity. The caller needs to copy their original control point
+	// buffer if they wish to retain it. aglInstanceBitmapBezier does this with only
+	// one allocation, which is worth moving allocation out of this function.
+
+	GLfloat oneMinusT = 1.f - t;
+	GLint i = 0, j = 0, degree = numPoints - 1;
+
+	for (i = 0; i < degree; ++i)
+	{
+		for (j = 0; j < degree - i; ++j)
+		{
+			controlPoints[2*j+0] = oneMinusT * controlPoints[2*j+0] + t * controlPoints[2*(j+1)+0];
+			controlPoints[2*j+1] = oneMinusT * controlPoints[2*j+1] + t * controlPoints[2*(j+1)+1];
+		}
+	}
+
+	*outx = controlPoints[0];
+	*outy = controlPoints[1];
+}
+
 void  aglInstanceBitmapLinear(GLint tex, GLint w, GLint h, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
 {
 	GLint i;
@@ -716,23 +740,21 @@ void  aglInstanceBitmapLinear(GLint tex, GLint w, GLint h, GLfloat x1, GLfloat y
 	}
 }
 
-void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
+void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
 {
-	GLint i;
-	GLfloat t = 0.f, oneMinusT = 1.f, dt = 1.f / numSteps, x = 0.f, y = 0.f,
-			P0x = controlPoints[0], P0y = controlPoints[1],
-			P1x = controlPoints[2], P1y = controlPoints[3],
-			P2x = controlPoints[4], P2y = controlPoints[5];
+	GLfloat t = 0.f, dt = 1.f / numSteps, x = 0.f, y = 0.f;
+	GLint i = 0, cplen = 2 * numPoints * sizeof(GLfloat);
+	GLfloat *cp = (GLfloat*)malloc(cplen);
 
 	for (i = 0; i <= numSteps; ++i)
 	{
-		x = P0x * oneMinusT * oneMinusT + 2.f * oneMinusT * t * P1x + t * t + P2x;
-		y = P0y * oneMinusT * oneMinusT + 2.f * oneMinusT * t * P1y + t * t + P2y;
-
+		memcpy(cp, controlPoints, cplen);
+		aglEvalBezier(cp, numPoints, t, &x, &y);
 		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
 		t += dt;
-		oneMinusT -= dt;
 	}
+
+	free(cp);
 }
 
 void  aglInstanceBitmapCatmull(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
@@ -1187,10 +1209,10 @@ void Java_dkilian_andy_jni_agl_InstanceBitmapLinear(JNIEnv *env, jobject *thiz, 
 	aglInstanceBitmapLinear(tex, w, h, x1, y1, x2, y2, numSteps, rot, xscale, yscale, alpha);
 }
 
-void Java_dkilian_andy_jni_agl_InstanceBitmapBezier(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha)
+void Java_dkilian_andy_jni_agl_InstanceBitmapBezier(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numPoints, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha)
 {
 	float *c = (*env)->GetFloatArrayElements(env, controlPoints, NULL);
-	aglInstanceBitmapBezier(tex, w, h, c, numSteps, rot, xscale, yscale, alpha);
+	aglInstanceBitmapBezier(tex, w, h, c, numPoints, numSteps, rot, xscale, yscale, alpha);
 	(*env)->ReleaseFloatArrayElements(env, controlPoints, c, JNI_ABORT);
 }
 

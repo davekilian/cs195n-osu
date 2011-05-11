@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
 import dkilian.andy.jni.agl;
@@ -44,6 +43,12 @@ public class TestScreen implements Screen
 		
 		if (kernel.getTouch().isDown() && _button != null)
 			_button.interact(kernel.getTouch().getX(), kernel.getTouch().getY(), _time);
+		
+		// TODO: change this demo
+		// - Load the button bitmap directly
+		// - Whenever the user clicks, add a bezier control point there
+		// - When we have enough points, draw the curve by instancing the button bitmap
+		// - Then get to work on sliders.
 	}
 
 	@Override

@@ -203,6 +203,7 @@ public class Button implements Control
 	public void setX(float x) 
 	{		
 		_x = x;
+		calcBounds();
 	}
 
 	@Override
@@ -215,6 +216,7 @@ public class Button implements Control
 	public void setY(float y) 
 	{
 		_y = y;
+		calcBounds();
 	}
 
 	@Override

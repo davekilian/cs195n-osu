@@ -151,8 +151,8 @@ public class Parser {
 		 * TODO:
 		 *  - (DONE) Check for nulls in reader.readLine()
 		 *  - Deal with all necessary subsections not being found
-		 *  - List-Based
-		 *  - Special Case
+		 *  - (DONE) List-Based
+		 *  - (DONE) Special Case
 		 *  - Return HashMaps to game Objects
 		 *  	- What are the game objects - how do we store and represent them?
 		 */
@@ -458,17 +458,86 @@ public class Parser {
 	private String handleEvents(BufferedReader reader, ParserContainer pc) throws IOException
 	{
 		// Special case
-		String line;
+		String line = reader.readLine().toLowerCase(); // NOTE: I never check to make sure that this line is an event header.
+		while (line.length() == 0)
+			line = reader.readLine().toLowerCase(); // Skip all blank lines
+		
 		while (true)
 		{
-			line = reader.readLine();
-			
 			if (lineCheck(line)) // Null or next header, break
 				break;
 			if (line.length() == 0) // Skip empty lines
 				continue;
 			
-			// TODO: Handle event objects
+			if (line.equals("//background and video events"))
+			{
+				line = reader.readLine();
+				if (line.length() == 0 || line.charAt(0) != '0') // Error checking
+				{
+					line = getNextEventHeader(reader, line);
+					continue;
+				}
+					
+				Background background = pc.background;
+				
+				// Get background image
+				StringTokenizer tokenizer = new StringTokenizer(line, ",", false);
+				background.setBveUn1(Float.parseFloat(tokenizer.nextToken()));
+				background.setBveUn2(Float.parseFloat(tokenizer.nextToken()));
+				
+				String filename = tokenizer.nextToken();
+				background.setImagePath(filename.substring(1, filename.lastIndexOf('"'))); // Remove quotations
+				
+				// Does not deal with videos
+			}
+			
+			else if (line.equals("//break periods"))
+			{
+				LinkedList<BreakTiming> break_timings = pc.break_timings;
+				
+				line = reader.readLine();
+				while (!isEventHeader(line))
+				{
+					if (line.length() == 0) // Error checking!
+						continue;
+					
+					StringTokenizer tokenizer = new StringTokenizer(line, ",", false);
+					int unknown = Integer.parseInt(tokenizer.nextToken());
+					long start_time = Long.parseLong(tokenizer.nextToken());
+					long end_time = Long.parseLong(tokenizer.nextToken());
+					
+					break_timings.add(new BreakTiming(unknown, start_time, end_time));
+					
+					line = reader.readLine(); // Next line
+				}
+			}
+			
+			else if (line.equals("//background colour transformations"))
+			{
+				line = reader.readLine();
+				if (line.length() == 0) // Error checking (be more thorough?)
+				{
+					line = getNextEventHeader(reader, line);
+					continue;
+				}
+				
+				Background background = pc.background;
+				
+				// Get background transformation colors
+				StringTokenizer tokenizer = new StringTokenizer(line, ",", false);
+				background.setBctUn1(Float.parseFloat(tokenizer.nextToken()));
+				background.setBctUn2(Float.parseFloat(tokenizer.nextToken()));
+				
+				background.setR(Integer.parseInt(tokenizer.nextToken()));
+				background.setG(Integer.parseInt(tokenizer.nextToken()));
+				background.setB(Integer.parseInt(tokenizer.nextToken()));
+			}
+			
+			else // Unknown result
+				printError("Parser.handleEvents", "Unknown event header: " + line);
+			
+			// Get next event header (or null or section header)
+			line = getNextEventHeader(reader, line);
 		}
 		
 		return line;
@@ -580,10 +649,47 @@ public class Parser {
 	 */
 	private boolean isHeader(String s)
 	{
+		if (s.length() == 0)
+			return false;
+		
 		if (s.charAt(0) == '[' && s.contains("]"))
 			return true;
 		
 		return false;
+	}
+	
+	
+	/**
+	 * Returns true if the specified string is an event header.
+	 * This is notated by the beginning "//". 
+	 * 
+	 * @param s The String to check
+	 * @return True if the header is an event header, false otherwise.
+	 */
+	private boolean isEventHeader(String s)
+	{
+		if (s.length() < 2)
+			return false;
+		
+		return s.charAt(0) == '/' && s.charAt(1) == '/';
+	}
+	
+	
+	/**
+	 * Reads lines from the BufferedReader until the next event header is found, the stream is null,
+	 * or a new section header file is found.
+	 * 
+	 * @param reader The BufferedReader we are reading from
+	 * @return The next event header, if applicable
+	 * @throws IOException If there is some Java IO error
+	 */
+	private String getNextEventHeader(BufferedReader reader, String cur) throws IOException
+	{
+		String line = cur;
+		while (line != null || !isEventHeader(line) || !isHeader(line))
+			line = reader.readLine();
+		
+		return line;
 	}
 	
 	

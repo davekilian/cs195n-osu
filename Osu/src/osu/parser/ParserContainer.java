@@ -11,19 +11,51 @@ import osu.game.*;
  */
 public class ParserContainer {
 
-	// Intentionally set public - to be used as a struct-like object
-	public Vector<ComboColor> combo_colors;
+	// NOTE: Intentionally left public - to be used as a struct-like object //
+	// General
+	
+	// Editor
+	
+	// Metadata
+	
+	// Difficulty
+	
+	// Events
+	public Background background;
+	public LinkedList<BreakTiming> break_timings;
+	
+	// Timing Points
 	public LinkedList<TimingPoint> timing_points;
 	
+	// Colours
+	public Vector<ComboColor> combo_colors;
+	
+	// Hit Objects	
 	public LinkedList<HitObject> hit_objects; 
 	
 	
 	// *** CONSTRUCTOR *** //
 	public ParserContainer()
 	{
-		combo_colors = new Vector<ComboColor>();
+		// General
+		
+		// Editor
+		
+		// Metadata
+		
+		// Difficulty
+		
+		// Events
+		background = new Background();
+		break_timings = new LinkedList<BreakTiming>();
+		
+		// Timing Points
 		timing_points = new LinkedList<TimingPoint>();
 		
+		// Colours
+		combo_colors = new Vector<ComboColor>();
+
+		// Hit Objects
 		hit_objects = new LinkedList<HitObject>();
 	}
 	

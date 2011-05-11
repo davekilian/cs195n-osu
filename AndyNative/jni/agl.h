@@ -53,6 +53,9 @@ void  aglDrawBitmapWithoutShader(GLint tex, GLfloat w, GLfloat h, GLfloat alpha)
 void  aglDrawBitmapWithoutShaderTranslated(GLint tex, GLfloat w, GLfloat h, GLfloat x, GLfloat y, GLfloat alpha);
 void  aglDrawBitmapWithoutShaderTransformed(GLint tex, GLfloat w, GLfloat h, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha);
 void  aglDrawBitmapWithoutShaderMatrix(GLint tex, GLfloat w, GLfloat h, GLfloat *m, GLfloat alpha);
+void  aglInstanceBitmapLinear(GLint tex, GLint w, GLint h, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha);
+void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha);
+void  aglInstanceBitmapCatmull(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha);
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b);
 void  aglBeginFrame();
 void  aglEndFrame();
@@ -112,6 +115,9 @@ void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShader(JNIEnv *env, jobject *thi
 void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTranslated(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jfloat x, jfloat y, jfloat alpha);
 void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderTransformed(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jfloat x, jfloat y, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha);
 void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderMatrix(JNIEnv *env, jobject *thiz, jint tex, jfloat w, jfloat h, jfloatArray mat, jfloat alpha);
+void Java_dkilian_andy_jni_agl_InstanceBitmapLinear(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloat x1, jfloat y1, jfloat x2, jfloat y2, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha);
+void Java_dkilian_andy_jni_agl_InstanceBitmapBezier(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha);
+void Java_dkilian_andy_jni_agl_InstanceBitmapCatmull(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha);
 void Java_dkilian_andy_jni_agl_ClearColor(JNIEnv *env, jobject *thiz, jfloat r, jfloat g, jfloat b);
 void Java_dkilian_andy_jni_agl_BeginFrame(JNIEnv *env, jobject *thiz);
 void Java_dkilian_andy_jni_agl_EndFrame(JNIEnv *env, jobject *thiz);

@@ -688,6 +688,57 @@ void  aglDrawBitmapWithoutShaderMatrix(GLint tex, GLfloat w, GLfloat h, GLfloat 
 	aglDrawBitmapWithShaderMatrix(tex, w, h, _agl_quad_program, m, alpha);
 }
 
+void  aglInstanceBitmapLinear(GLint tex, GLint w, GLint h, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
+{
+	GLint i;
+	GLfloat x = x1, y = y1, dx = (x2 - x1) / numSteps, dy = (y2 - y1) / numSteps;
+
+	for (i = 0; i <= numSteps; ++i)
+	{
+		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+		x += dx;
+		y += dy;
+	}
+}
+
+void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
+{
+	GLint i;
+	GLfloat t = 0.f, oneMinusT = 1.f, dt = 1.f / numSteps, x = 0.f, y = 0.f,
+			P0x = controlPoints[0], P0y = controlPoints[1],
+			P1x = controlPoints[2], P1y = controlPoints[3],
+			P2x = controlPoints[4], P2y = controlPoints[5];
+
+	for (i = 0; i <= numSteps; ++i)
+	{
+		x = P0x * oneMinusT * oneMinusT + 2.f * oneMinusT * t * P1x + t * t + P2x;
+		y = P0y * oneMinusT * oneMinusT + 2.f * oneMinusT * t * P1y + t * t + P2y;
+
+		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+		t += dt;
+		oneMinusT -= dt;
+	}
+}
+
+void  aglInstanceBitmapCatmull(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
+{
+	GLint i;
+	GLfloat t = 0.f, dt = 1.f / numSteps, x = 0.f, y = 0.f,
+			P0x = controlPoints[0], P0y = controlPoints[1],
+			P1x = controlPoints[2], P1y = controlPoints[3],
+			P2x = controlPoints[4], P2y = controlPoints[5],
+			P3x = controlPoints[6], P3y = controlPoints[7];
+
+	for (i = 0; i <= numSteps; ++i)
+	{
+		x = .5f * (2 * P1x + (-P0x + P2x) * t + (2 * P0x - 5 * P1x + 4 * P2x - P3x) * t * t + (-P0x + 3 * P1x - 3 * P2x + P3x) * t * t * t);
+		y = .5f * (2 * P1y + (-P0y + P2y) * t + (2 * P0y - 5 * P1y + 4 * P2y - P3y) * t * t + (-P0y + 3 * P1y - 3 * P2y + P3y) * t * t * t);
+
+		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+		t += dt;
+	}
+}
+
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b)
 {
 	glClearColor(r, g, b, 1.f);
@@ -1114,6 +1165,25 @@ void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderMatrix(JNIEnv *env, jobjec
 	float *m = (*env)->GetFloatArrayElements(env, mat, NULL);
 	aglDrawBitmapWithoutShaderMatrix(tex, w, h, m, alpha);
 	(*env)->ReleaseFloatArrayElements(env, mat, m, JNI_ABORT);
+}
+
+void Java_dkilian_andy_jni_agl_InstanceBitmapLinear(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloat x1, jfloat y1, jfloat x2, jfloat y2, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha)
+{
+	aglInstanceBitmapLinear(tex, w, h, x1, y1, x2, y2, numSteps, rot, xscale, yscale, alpha);
+}
+
+void Java_dkilian_andy_jni_agl_InstanceBitmapBezier(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha)
+{
+	float *c = (*env)->GetFloatArrayElements(env, controlPoints, NULL);
+	aglInstanceBitmapBezier(tex, w, h, c, numSteps, rot, xscale, yscale, alpha);
+	(*env)->ReleaseFloatArrayElements(env, controlPoints, c, JNI_ABORT);
+}
+
+void Java_dkilian_andy_jni_agl_InstanceBitmapCatmull(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha)
+{
+	float *c = (*env)->GetFloatArrayElements(env, controlPoints, NULL);
+	aglInstanceBitmapCatmull(tex, w, h, c, numSteps, rot, xscale, yscale, alpha);
+	(*env)->ReleaseFloatArrayElements(env, controlPoints, c, JNI_ABORT);
 }
 
 void Java_dkilian_andy_jni_agl_ClearColor(JNIEnv *env, jobject *thiz, jfloat r, jfloat g, jfloat b)

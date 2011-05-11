@@ -390,6 +390,51 @@ public class agl
 	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
 	public static native void DrawBitmapWithoutShaderMatrix(int tex, float w, float h, float[] mat, float alpha);
+
+	/**
+	 * Draws several copies of a sprite by interpolating along a linear path
+	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
+	 * @param x1 The world-space X coordinate of the original sprite
+	 * @param y1 The world-space Y coordinate of the original sprite
+	 * @param x2 The world-space X coordinate of the final sprite
+	 * @param y2 The world-space Y coordinate of the final sprite
+	 * @param numSteps The number of sprites to draw along the path
+	 * @param rot The rotation to apply to each sprite, in degrees
+	 * @param xscale The factor by which to horizontally scale each sprite
+	 * @param yscale The factor by which to vertically scale each sprite
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
+	 */
+	public static native void InstanceBitmapLinear(int tex, int w, int h, float x1, float y1, float x2, float y2, int numSteps, float rot, float xscale, float yscale, float alpha);
+
+	/**
+	 * Draws several copies of a sprite by interpolating along a Bezier path
+	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
+	 * @param controlPoints A set of three Bezier control points, packed in the format [x1 y1 x2 y2 x3 y3]
+	 * @param numSteps The number of sprites to draw along the path
+	 * @param rot The rotation to apply to each sprite, in degrees
+	 * @param xscale The factor by which to horizontally scale each sprite
+	 * @param yscale The factor by which to vertically scale each sprite
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
+	 */
+	public static native void InstanceBitmapBezier(int tex, int w, int h, float[] controlPoints, int numSteps, float rot, float xscale, float yscale, float alpha);
+
+	/**
+	 * Draws several copies of a sprite by interpolating along a Catmull-Rom path
+	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
+	 * @param controlPoints A set of four Catmull-Rom control points, packed in the format [x1 y1 x2 y2 x3 y3 x4 y4]
+	 * @param numSteps The number of sprites to draw along the path
+	 * @param rot The rotation to apply to each sprite, in degrees
+	 * @param xscale The factor by which to horizontally scale each sprite
+	 * @param yscale The factor by which to vertically scale each sprite
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
+	 */
+	public static native void InstanceBitmapCatmull(int tex, int w, int h, float[] controlPoints, int numSteps, float rot, float xscale, float yscale, float alpha);
 	
 	/**
 	 * Sets the color the backbuffer is cleared to at the beginning of every frame

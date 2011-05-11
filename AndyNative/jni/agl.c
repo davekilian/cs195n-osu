@@ -62,14 +62,14 @@ const char _agl_quad_vshader[] =
 
 const char _agl_quad_fshader[] =
 		"uniform sampler2D aglTexture;"
-		"uniform float aglAlpha;"
+		"uniform lowp float aglAlpha;"
 		""
 		"varying lowp vec2 texcoord;"
 		""
 		"void main()"
 		"{"
 		"	gl_FragColor = texture2D(aglTexture, texcoord);"
-		"   gl_FragColor.a *= aglAlpha;"
+		"   gl_FragColor *= aglAlpha;"
 		"}";
 
 GLint _agl_virtualWidth = 0;			// The width of the viewport in virtual coordinates
@@ -471,7 +471,16 @@ void  aglUniformTexture(GLint program, const char* param, GLint t)
 
 void  aglUseShader(GLint shader)
 {
+	logfmt("Binding shader %d", shader);
+
 	glUseProgram(shader);
+
+#if LOG_ENABLED
+	if (glGetError())
+		logcat("Binding failed.");
+#endif
+
+	logfmt("aglUseShader: Alpha: %f", _agl_alpha);
 
 	aglUniformMat4(shader, "aglModelview", matrix_stack_data_ptr(_agl_modelview));
 	aglUniformMat4(shader, "aglVirtualTransform", _agl_virtualTransform.data);
@@ -592,9 +601,7 @@ void  aglDrawBitmap(GLint tex, GLfloat w, GLfloat h, GLfloat alpha)
 	aglBindTexture(tex);
 	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
-	_agl_alpha = alpha;
 	aglTexturedQuad();
-	_agl_alpha = 1.f;
 }
 
 void  aglDrawBitmapTranslated(GLint tex, GLfloat x, GLfloat y, GLfloat w, GLfloat h, GLfloat alpha)
@@ -629,8 +636,8 @@ void  aglDrawBitmapWithShader(GLint tex, GLfloat w, GLfloat h, GLint shader, GLf
 	aglBindTexture(tex);
 	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
-	aglUseShader(shader);
 	_agl_alpha = alpha;
+	aglUseShader(shader);
 	aglTexturedQuad();
 	_agl_alpha = 1.f;
 }
@@ -641,8 +648,10 @@ void  aglDrawBitmapWithShaderTranslated(GLint tex, GLfloat w, GLfloat h, GLint s
 	aglTranslatef(x, y, 0.f);
 	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
+	_agl_alpha = alpha;
 	aglUseShader(shader);
 	aglDrawBitmap(tex, w, h, alpha);
+	_agl_alpha = 1.f;
 }
 
 void  aglDrawBitmapWithShaderTransformed(GLint tex, GLfloat w, GLfloat h, GLint shader, GLfloat x, GLfloat y, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
@@ -654,8 +663,10 @@ void  aglDrawBitmapWithShaderTransformed(GLint tex, GLfloat w, GLfloat h, GLint 
 	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
 	glBindTexture(GL_TEXTURE_2D, tex);
+	_agl_alpha = alpha;
 	aglUseShader(shader);
 	aglDrawBitmap(tex, w, h, alpha);
+	_agl_alpha = 1.f;
 }
 
 void  aglDrawBitmapWithShaderMatrix(GLint tex, GLfloat w, GLfloat h, GLint shader, GLfloat *m, GLfloat alpha)
@@ -663,13 +674,17 @@ void  aglDrawBitmapWithShaderMatrix(GLint tex, GLfloat w, GLfloat h, GLint shade
 	aglLoadMatrix(m);
 	aglTranslatef(-.5f * w, -.5f * h, 0.f);
 	aglScalef(w, h, 1.f);
+	_agl_alpha = alpha;
 	aglUseShader(shader);
 	aglDrawBitmap(tex, w, h, alpha);
+	_agl_alpha = 1.f;
 }
 
 void  aglDrawBitmapWithoutShader(GLint tex, GLfloat w, GLfloat h, GLfloat alpha)
 {
+	_agl_alpha = alpha;
 	aglUseShader(_agl_quad_program);
+	_agl_alpha = 1.f;
 	aglDrawBitmapWithShader(tex, w, h, _agl_quad_program, alpha);
 }
 

@@ -20,9 +20,9 @@ import dkilian.andy.TexturedQuad;
 public class Button implements Control
 {
 	/** The amount of time it takes for a button to fade in, in partial seconds */
-	public static final float FADE_IN_TIME  = .2f;
+	public static final float FADE_IN_TIME  = .3f;
 	/** The amount of time it takes for a button to fade out, in partial seconds */
-	public static final float FADE_OUT_TIME = .2f;
+	public static final float FADE_OUT_TIME = .1f;
 	/** The amount of time, after fading in, the button appears before its event timing, in partial seconds */
 	public static final float WAIT_TIME = 1.f;
 	/** The amount of time, in partial seconds, the button fades to white after being interacted with */
@@ -58,8 +58,9 @@ public class Button implements Control
 	 */
 	public static TexturedQuad render(Bitmap button, Bitmap shadow, Bitmap chrome)
 	{
-		Bitmap target = Bitmap.createBitmap(button.getWidth(), button.getHeight(), Bitmap.Config.ARGB_4444);
+		Bitmap target = Bitmap.createBitmap(button.getWidth(), button.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas c = new Canvas(target);
+		c.setDensity(button.getDensity());
 		Paint p = new Paint();
 		
 		c.drawBitmap(shadow, 0.f, 0.f, p);
@@ -80,7 +81,7 @@ public class Button implements Control
 	 */
 	public static TexturedQuad render(Bitmap button, Bitmap shadow, Bitmap chrome, int color)
 	{
-		BitmapTint.apply(button, color);
+		button = BitmapTint.apply(button, color);
 		return render(button, shadow, chrome);
 	}
 
@@ -95,7 +96,7 @@ public class Button implements Control
 	 */
 	public static TexturedQuad render(Bitmap button, Bitmap shadow, Bitmap chrome, ComboColor color)
 	{
-		BitmapTint.apply(button, color);
+		button = BitmapTint.apply(button, color);
 		return render(button, shadow, chrome);
 	}
 	

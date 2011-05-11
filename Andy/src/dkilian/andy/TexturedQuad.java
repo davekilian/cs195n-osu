@@ -46,7 +46,7 @@ public class TexturedQuad implements Sprite
 		BitmapFactory.Options opt = new BitmapFactory.Options();
 		opt.inTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
 		
-		Bitmap b = BitmapFactory.decodeResource(kernel.getActivity().getResources(), resource);
+		Bitmap b = BitmapFactory.decodeResource(kernel.getActivity().getResources(), resource, opt);
 		
 		int tex = agl.CreateEmptyTexture();
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, b, 0);
@@ -65,7 +65,7 @@ public class TexturedQuad implements Sprite
 		BitmapFactory.Options opt = new BitmapFactory.Options();
 		opt.inTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
 		
-		Bitmap b = BitmapFactory.decodeResource(res, id);
+		Bitmap b = BitmapFactory.decodeResource(res, id, opt);
 		
 		int tex = agl.CreateEmptyTexture();
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, b, 0);
@@ -81,15 +81,16 @@ public class TexturedQuad implements Sprite
 	 */
 	public TexturedQuad(int tex, int w, int h)
 	{
-		_texture = tex;
-		_width = w;
-		_height = h;
 		_translation = Vector2.Zero();
 		_rotation = 0.f;
 		_scale = Vector2.One();
 		_overrideShader = false;
 		_shader = 0;
 		_alpha = 1.f;
+
+		_texture = tex;
+		_width = w;
+		_height = h;
 	}
 	
 	/**
@@ -98,17 +99,17 @@ public class TexturedQuad implements Sprite
 	 */
 	public TexturedQuad(Bitmap b)
 	{
-		_width = b.getWidth();
-		_height = b.getHeight();
-		
 		_translation = Vector2.Zero();
 		_rotation = 0.f;
 		_scale = Vector2.One();
 		_overrideShader = false;
 		_shader = 0;
+		_alpha = 1.f;
 
-		_texture = agl.CreateTexture(_width, _height);
+		_texture = agl.CreateEmptyTexture();
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, b, 0);
+		_width = b.getWidth();
+		_height = b.getHeight();
 	}
 	
 	/** Gets a handle to the texture this quad renders */

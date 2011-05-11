@@ -27,7 +27,7 @@ public class SplashScreen implements Screen
 
 	@Override
 	public void update(Kernel kernel, float dt) 
-	{	
+	{
 		// Testing in-game controls
 		kernel.swapScreen(new TestScreen());
 	}

@@ -1,5 +1,6 @@
 package hello.agl;
 
+import android.util.FloatMath;
 import android.util.Log;
 import dkilian.andy.Kernel;
 import dkilian.andy.Particle;
@@ -84,8 +85,15 @@ public class MainScreen implements Screen
 				p.setSprite(_smoke);
 				_ps.add(p);
 			}
+			
+			agl.BlendPremultiplied();
 		}
 		
 		_ps.draw(kernel, dt);
+		_smoke.getTranslation().x = _smoke.getTranslation().y = 0.f;
+		_smoke.setRotation(0.f);
+		_smoke.getScale().x = _smoke.getScale().y = 1.f;
+		_smoke.setAlpha(.5f + .5f * FloatMath.sin(_time));
+		_smoke.draw(kernel);
 	}
 }

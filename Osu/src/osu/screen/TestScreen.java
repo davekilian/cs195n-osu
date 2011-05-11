@@ -1,7 +1,7 @@
 package osu.screen;
 
 import osu.controls.Button;
-import osu.game.HOButton;
+import osu.graphics.BitmapTint;
 import osu.main.R;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.util.DisplayMetrics;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
+import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
 public class TestScreen implements Screen
@@ -16,7 +17,9 @@ public class TestScreen implements Screen
 	private boolean _loaded = false;
 	private boolean _first = true;
 	private float _time = 0;
-	private Button _button = null;
+	private TexturedQuad _fill, _cap;
+	private float[] _points = new float[0];
+	private boolean _plotting = false;
 
 	@Override
 	public boolean isLoaded() 
@@ -41,14 +44,23 @@ public class TestScreen implements Screen
 	{	
 		_time += dt;
 		
-		if (kernel.getTouch().isDown() && _button != null)
-			_button.interact(kernel.getTouch().getX(), kernel.getTouch().getY(), _time);
-		
-		// TODO: change this demo
-		// - Load the button bitmap directly
-		// - Whenever the user clicks, add a bezier control point there
-		// - When we have enough points, draw the curve by instancing the button bitmap
-		// - Then get to work on sliders.
+		if (kernel.getTouch().isDown())
+		{
+			if (!_plotting)
+			{
+				_plotting = true;
+				float[] tmp = new float[_points.length + 2];
+				for (int i = 0; i < _points.length; ++i)
+					tmp[i] = _points[i];
+				tmp[_points.length] = kernel.getTouch().getX();
+				tmp[_points.length + 1] = kernel.getTouch().getY();
+				_points = tmp;
+			}
+		}
+		else if (_plotting)
+		{
+			_plotting = false;
+		}
 	}
 
 	@Override
@@ -69,13 +81,16 @@ public class TestScreen implements Screen
 			Bitmap down = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_down, opt);
 			Bitmap chrome = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_chrome, opt);
 			
-			HOButton event = new HOButton((kernel.getVirtualScreen().getWidth() - up.getWidth()) / 2,
-					                      (kernel.getVirtualScreen().getHeight() - up.getHeight()) / 2,
-					                      3000, false, 0);
-			
-			_button = new Button(event, Button.render(up, shadow, chrome, Color.MAGENTA), Button.render(down, shadow, chrome, Color.MAGENTA));
+			up = BitmapTint.apply(up, Color.BLUE);
+			_fill = Button.render(up, shadow, up);
+			_cap = Button.render(up, shadow, chrome);
 		}
 		
-		_button.draw(kernel, _time, dt);
+		if (_points.length >= 4)
+		{
+			agl.InstanceBitmapBezier(_fill.getTexture(), _fill.getWidth(), _fill.getHeight(), _points, _points.length / 2, 3 * _points.length, 0.f, 1.f, 1.f, 1.f);
+			agl.DrawBitmapWithoutShaderTranslated(_cap.getTexture(), _cap.getWidth(), _cap.getHeight(), _points[0], _points[1], 1.f);
+			agl.DrawBitmapWithoutShaderTranslated(_cap.getTexture(), _cap.getWidth(), _cap.getHeight(), _points[_points.length - 2], _points[_points.length - 1], 1.f);
+		}
 	}
 }

@@ -734,7 +734,7 @@ void  aglInstanceBitmapLinear(GLint tex, GLint w, GLint h, GLfloat x1, GLfloat y
 
 	for (i = 0; i <= numSteps; ++i)
 	{
-		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+		aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
 		x += dx;
 		y += dy;
 	}
@@ -746,12 +746,24 @@ void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoint
 	GLint i = 0, cplen = 2 * numPoints * sizeof(GLfloat);
 	GLfloat *cp = (GLfloat*)malloc(cplen);
 
+	logcat("Instancing bitmap using Bezier interpolation");
+	logfmt("%d control points", numPoints);
+	logfmt("%d steps", numSteps);
+
+#if LOG_ENABLED
+	for (i = 0; i < numPoints; ++i)
+	{
+		logfmt3("Control point %d: (%f, %f)", i, controlPoints[2*i], controlPoints[2*i+1]);
+	}
+#endif
+
 	for (i = 0; i <= numSteps; ++i)
 	{
 		memcpy(cp, controlPoints, cplen);
-		aglEvalBezier(cp, numPoints, t, &x, &y);
-		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+		aglEvalBezier(cp, numPoints, 1.f - t, &x, &y);
+		aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
 		t += dt;
+		logfmt3("Step %d evaluated to (%f,%f)", i, x, y);
 	}
 
 	free(cp);
@@ -771,7 +783,7 @@ void  aglInstanceBitmapCatmull(GLint tex, GLint w, GLint h, GLfloat *controlPoin
 		x = .5f * (2 * P1x + (-P0x + P2x) * t + (2 * P0x - 5 * P1x + 4 * P2x - P3x) * t * t + (-P0x + 3 * P1x - 3 * P2x + P3x) * t * t * t);
 		y = .5f * (2 * P1y + (-P0y + P2y) * t + (2 * P0y - 5 * P1y + 4 * P2y - P3y) * t * t + (-P0y + 3 * P1y - 3 * P2y + P3y) * t * t * t);
 
-		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+		aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
 		t += dt;
 	}
 }

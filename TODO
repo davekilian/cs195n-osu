@@ -5,4 +5,7 @@
 
 Mike ---
 - Parser
+	- Test that shit!
+- Beatmap Format
+	- Check that arbitrary input (Editor section, for example) is ints and floats where they should be
 - Generic game code and structure

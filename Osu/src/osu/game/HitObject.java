@@ -16,10 +16,6 @@ public abstract class HitObject {
 	int sound_type; // Sound this object makes when hit
 	
 	
-	// *** ABSTRACT METHODS *** //
-	// TODO: Abstracting away the "touch" hit event for each type
-	
-	
 	// *** ACCESSORS *** //
 	public int getX() { return x; }
 	public int getY() { return y; }

@@ -147,20 +147,11 @@ public class Parser {
 	 */
 	private void parse(BufferedReader reader, ParserContainer pc) throws ParseException, IOException
 	{
-		/*
-		 * TODO:
-		 *  - (DONE) Check for nulls in reader.readLine()
-		 *  - Deal with all necessary subsections not being found
-		 *  - (DONE) List-Based
-		 *  - (DONE) Special Case
-		 *  - Return HashMaps to game Objects
-		 *  	- What are the game objects - how do we store and represent them?
-		 */
+		// NOTE: I do not check to make sure all the necessary subsections are found. Perhaps we want to do this.
 		
 		// Error Checking
 		if (reader == null) // Null Reader
 			throw new ParseException("BufferedReader is null");
-		
 		
 		if (!confirmFileFormat(reader)) // Invalid file header
 			throw new ParseException("Invalid file format.");
@@ -171,7 +162,7 @@ public class Parser {
 		while (output != null) // Loop on subsections until the end of the file (null)
 			output = manageSubsection(reader, output, pc);
 		
-		// TODO: Convert to game objects (just the dict?)
+		pc.dict = dict; // Return dict
 	}
 	
 	
@@ -218,7 +209,6 @@ public class Parser {
 		} catch (IllegalArgumentException ex) {
 			throw new ParseException("Unknown section header.");
 		}
-		
 	}
 	
 	
@@ -282,7 +272,7 @@ public class Parser {
 		{
 			line = reader.readLine();
 			
-			if (line == null || isHeader(line)) // Return at end of file or next header
+			if (lineCheck(line)) // Return at end of file or next header
 				break;
 			if (line.length() == 0) // Skip over blank lines
 				continue;
@@ -339,7 +329,7 @@ public class Parser {
 			pc.timing_points.add(tp);
 		}
 		
-		return null;
+		return line;
 	}
 	
 	private String handleColours(BufferedReader reader, ParserContainer pc) throws IOException

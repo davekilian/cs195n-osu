@@ -1,5 +1,6 @@
 package osu.parser;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Vector;
 
@@ -12,13 +13,8 @@ import osu.game.*;
 public class ParserContainer {
 
 	// NOTE: Intentionally left public - to be used as a struct-like object //
-	// General
-	
-	// Editor
-	
-	// Metadata
-	
-	// Difficulty
+	// General/Editor/Metadata/Difficulty
+	public HashMap<Subsections, HashMap<String, String>> dict;
 	
 	// Events
 	public Background background;
@@ -31,19 +27,14 @@ public class ParserContainer {
 	public Vector<ComboColor> combo_colors;
 	
 	// Hit Objects	
-	public LinkedList<HitObject> hit_objects; 
+	public LinkedList<HitObject> hit_objects;
 	
 	
 	// *** CONSTRUCTOR *** //
 	public ParserContainer()
 	{
-		// General
-		
-		// Editor
-		
-		// Metadata
-		
-		// Difficulty
+		// General/Editor/Metadata/Difficulty
+		dict = null;
 		
 		// Events
 		background = new Background();

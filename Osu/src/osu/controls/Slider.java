@@ -8,6 +8,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import dkilian.andy.Kernel;
+import dkilian.andy.PrerenderCache;
 import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
@@ -59,13 +60,19 @@ public class Slider implements Control
 	private PointF _nubPoint;
 	/** This slider's approach ring */
 	private Ring _approach;
+	/** The cache used to lookup / render text on-the-fly */
+	private PrerenderCache _textCache;
+	/** The text to render centered in this slider's initial cap; null if none desired */
+	private String _text;
 	
 	/**
 	 * Creates a new slider with no graphics
 	 * @param event The event this slider corresponds to
 	 * @param approach This slider's (optional) approach ring
+	 * @param textCache Caches pre-rendered text sprites
+	 * @param text The text to render centered in this slider's initial cap. May be null if none desired.
 	 */
-	public Slider(HOSlider event, Ring approach)
+	public Slider(HOSlider event, Ring approach, PrerenderCache textCache, String text)
 	{
 		_event = event;
 		_velocity = .5f;
@@ -80,6 +87,8 @@ public class Slider implements Control
 		_pressed = false;
 		_nubPoint = new PointF();
 		_approach = approach;
+		_textCache = textCache;
+		_text = text;
 		
 		_bezier = new float[_event.getPathPoints().size() * 2];
 		int i = 0;
@@ -98,8 +107,10 @@ public class Slider implements Control
 	 * @param nubUp The graphic drawn when the nub is not being pressed
 	 * @param nubDown The graphic drawn when the nub is being pressed
 	 * @param approach This slider's (optional) approach ring
+	 * @param textCache Caches pre-rendered text sprites
+	 * @param text The text to render centered in this slider's initial cap. May be null if none desired.
 	 */
-	public Slider(HOSlider event, TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown, Ring approach)
+	public Slider(HOSlider event, TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown, Ring approach, PrerenderCache textCache, String text)
 	{
 		_event = event;
 		_velocity = .5f;
@@ -118,6 +129,8 @@ public class Slider implements Control
 		_pressed = false;
 		_nubPoint = new PointF();
 		_approach = approach;
+		_textCache = textCache;
+		_text = text;
 		
 		_bezier = new float[_event.getPathPoints().size() * 2];
 		int i = 0;
@@ -126,6 +139,18 @@ public class Slider implements Control
 			_bezier[i++] = p.x;
 			_bezier[i++] = p.y;
 		}
+	}
+	
+	/** Gets the text centered in this slider's initial cap. May be null if none desired. */
+	public String getText()
+	{
+		return _text;
+	}
+	
+	/** Sets the text centered in this slider's initial cap. May be null if none desired */
+	public void setText(String text)
+	{
+		_text = text;
 	}
 	
 	/** Gets this slider's approach ring. May be null. */
@@ -394,6 +419,15 @@ public class Slider implements Control
 			{
 				TexturedQuad nub = _pressed ? _nubDown : _nubUp;	
 				agl.DrawAlongBezierPath(nub.getTexture(), nub.getWidth(), nub.getHeight(), _bezier, _bezier.length / 2, _t, 0.f, scale, scale, alpha);
+			}
+			
+			if (_text != null && t * 1000.f < _event.getTiming())
+			{
+				TexturedQuad s = _textCache.string(_text);
+				s.getTranslation().x = _bezier[0];
+				s.getTranslation().y = _bezier[1];
+				s.setAlpha(alpha);
+				s.draw(kernel);
 			}
 		}
 

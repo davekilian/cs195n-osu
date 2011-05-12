@@ -3,7 +3,9 @@ package osu.controls;
 import java.util.ArrayList;
 
 import osu.game.HOSlider;
+import osu.math.Bezier;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import dkilian.andy.Kernel;
 import dkilian.andy.TexturedQuad;
@@ -26,6 +28,8 @@ public class Slider implements Control
 	public static final float WAIT_TIME = 1.f;
 	/** The amount of time, in partial seconds, the button fades to white after being interacted with */
 	public static final float INTERACTED_FADE_OUT_TIME = .5f;
+	/** The scale ratio between the bounding box of the graphic and the interaction bounding box. Also controls the scale factor of the nub when pressed. */
+	public static final float INPUT_FUDGE_FACTOR = 1.35f;
 	
 	/** The X coordinate of the initial cap in virtual space */
 	private float _x;
@@ -51,6 +55,10 @@ public class Slider implements Control
 	private float _velocity;
 	/** The current position along this slider, between 0 and 1 */
 	private float _t;
+	/** True iff the nub is being pressed by the user */
+	private boolean _pressed;
+	/** The current location of the nub */
+	private PointF _nubPoint;
 	
 	/**
 	 * Creates a new slider with no graphics
@@ -68,6 +76,8 @@ public class Slider implements Control
 		_callbacks = new ArrayList<SliderCallback>();
 		_repeatIteration = 0;
 		_t = 0;
+		_pressed = false;
+		_nubPoint = new PointF();
 		
 		_bezier = new float[_event.getPathPoints().size() * 2];
 		int i = 0;
@@ -102,6 +112,8 @@ public class Slider implements Control
 		_nubDown = nubDown;
 		_repeatIteration = 0;
 		_t = 0;
+		_pressed = false;
+		_nubPoint = new PointF();
 		
 		_bezier = new float[_event.getPathPoints().size() * 2];
 		int i = 0;
@@ -281,14 +293,29 @@ public class Slider implements Control
 	@Override
 	public void interact(float x, float y, float t) 
 	{
-		// Nub/finger interaction logic
+		if (_pressed)
+			for (int i = 0; i < _callbacks.size(); ++i)
+				_callbacks.get(i).sliderEvent(this, _event);
 	}
 
 	/** Does per-frame updating required by this slider */
 	@Override
 	public void update(Kernel kernel, float t, float dt) 
 	{
-		// Move bounds based on nub position
+		_t += _velocity * dt;
+		Bezier.evaluate2d(_bezier, _t, _nubPoint);
+		
+		int dw = (int)(.5f * _nubUp.getWidth() * INPUT_FUDGE_FACTOR);
+		int dh = (int)(.5f * _nubUp.getHeight() * INPUT_FUDGE_FACTOR);
+		
+		_bounds.left   = (int)(_nubPoint.x - dw);
+		_bounds.top    = (int)(_nubPoint.y - dh);
+		_bounds.right  = (int)(_nubPoint.x + dw);
+		_bounds.bottom = (int)(_nubPoint.y + dh);
+		
+		_pressed = kernel.getTouch().isDown() && 
+		           Math.abs(kernel.getTouch().getX() - _nubPoint.x) < dw &&
+		           Math.abs(kernel.getTouch().getY() - _nubPoint.y) < dh;
 	}
 
 	/** Renders this slider */
@@ -305,8 +332,16 @@ public class Slider implements Control
 			_cap.getTranslation().y = _bezier[_bezier.length - 1];
 			_cap.draw(kernel);
 			
-			TexturedQuad nub = _nubUp;
-			agl.DrawAlongBezierPath(nub.getTexture(), nub.getWidth(), nub.getHeight(), _bezier, _bezier.length / 2, _t, 0.f, 1.f, 1.f, 1.f);
+			TexturedQuad nub = _pressed ? _nubDown : _nubUp;
+			float scale = _pressed ? INPUT_FUDGE_FACTOR : 1.f;
+			float alpha = 1.f;
+			
+			if (t >= _tbeg && t <= _tbeg + FADE_IN_TIME)
+				alpha = (t - _tbeg) / FADE_IN_TIME;
+			else if (t <= _tend && t >= _tend - FADE_OUT_TIME)
+				alpha = (_tend - t) / FADE_OUT_TIME;
+			
+			agl.DrawAlongBezierPath(nub.getTexture(), nub.getWidth(), nub.getHeight(), _bezier, _bezier.length / 2, _t, 0.f, scale, scale, alpha);
 		}
 	}
 }

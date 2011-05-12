@@ -15,7 +15,6 @@ import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
-import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
 public class TestScreen implements Screen
@@ -85,8 +84,9 @@ public class TestScreen implements Screen
 			_event.setPathPoints(points);
 			
 			up = BitmapTint.apply(up, Color.RED);
+			down = BitmapTint.apply(down, Color.RED);
 			
-			_slider = new Slider(_event, Button.render(up, shadow, chrome), Button.render(up, shadow, up), Button.render(up, shadow, chrome), Button.render(down, shadow, chrome));
+			_slider = new Slider(_event, Button.render(up, shadow, chrome), Button.render(up, shadow, up), Button.render(up, shadow, chrome), Button.render(down, shadow, down));
 		}
 		
 		_slider.draw(kernel, _time, dt);

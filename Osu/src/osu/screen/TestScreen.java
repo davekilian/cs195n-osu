@@ -1,19 +1,11 @@
 package osu.screen;
 
-import java.util.LinkedList;
-
-import osu.controls.Button;
-import osu.controls.Slider;
-import osu.game.HOSlider;
-import osu.graphics.BitmapTint;
+import osu.controls.Spinner;
+import osu.game.HOSpinner;
 import osu.main.R;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.util.DisplayMetrics;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
+import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
 public class TestScreen implements Screen
@@ -21,8 +13,8 @@ public class TestScreen implements Screen
 	private boolean _loaded = false;
 	private boolean _first = true;
 	private float _time = 0;
-	private Slider _slider;
-	private HOSlider _event;
+	private Spinner _spinner;
+	private HOSpinner _event;
 
 	@Override
 	public boolean isLoaded() 
@@ -47,8 +39,8 @@ public class TestScreen implements Screen
 	{	
 		_time += dt;
 		
-		if (_slider != null)
-			_slider.update(kernel, _time, dt);
+		if (_spinner != null)
+			_spinner.update(kernel, _time, dt);
 	}
 
 	@Override
@@ -61,33 +53,16 @@ public class TestScreen implements Screen
 			agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
 			agl.BlendPremultiplied();
 			
-			BitmapFactory.Options opt = new BitmapFactory.Options();
-			opt.inTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
+			TexturedQuad spinner = TexturedQuad.fromResource(kernel, R.drawable.spinner_spiral);
+			TexturedQuad fill = TexturedQuad.fromResource(kernel, R.drawable.spinner_fill);
+			TexturedQuad nofill = TexturedQuad.fromResource(kernel, R.drawable.spinner_nofill);
+			TexturedQuad mask = TexturedQuad.fromResource(kernel, R.drawable.spinner_mask);
 			
-			Bitmap shadow = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_shadow, opt);
-			Bitmap up = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_up, opt);
-			Bitmap down = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_down, opt);
-			Bitmap chrome = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_chrome, opt);
-			
-			LinkedList<Point> points = new LinkedList<Point>();
-			points.add(new Point(                                          64,                                         64));
-			points.add(new Point(kernel.getVirtualScreen().getWidth() * 1 / 3, kernel.getVirtualScreen().getHeight() - 64));
-			points.add(new Point(kernel.getVirtualScreen().getWidth() * 2 / 3,                                         64));
-			points.add(new Point(   kernel.getVirtualScreen().getWidth() - 64, kernel.getVirtualScreen().getHeight() - 64));
-			
-			_event = new HOSlider(15, 15, 3000, true, 0);
-			_event.setRepeats(4);
-			_event.setPathPoints(points);
-			
-			up = BitmapTint.apply(up, Color.RED);
-			down = BitmapTint.apply(down, Color.RED);
-			
-			_slider = new Slider(_event, Button.render(up, shadow, chrome), Button.render(up, shadow, up), Button.render(up, shadow, chrome), Button.render(down, shadow, down));
+			_event = new HOSpinner(0, 0, 3000, false, 0);
+			_event.setEndTiming(13000);
+			_spinner = new Spinner(_event, spinner, nofill, fill, mask);
 		}
 		
-		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), (int)(kernel.getVirtualScreen().getHeight() * (.5 + .5 * Math.sin(_time * 4))));
-		// No effect - bwuh?
-		
-		_slider.draw(kernel, _time, dt);
+		_spinner.draw(kernel, _time, dt);
 	}
 }

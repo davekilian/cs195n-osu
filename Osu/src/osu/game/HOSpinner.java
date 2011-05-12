@@ -9,6 +9,7 @@ public class HOSpinner extends HitObject {
 	
 	private long end_time;
 	// Do we need # of spins and such?
+	// -> nope! <3 Dave
 	
 	
 	// *** CONSTRUCTOR *** //

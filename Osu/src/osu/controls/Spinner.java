@@ -1,5 +1,7 @@
 package osu.controls;
 
+import java.util.ArrayList;
+
 import osu.game.HOSpinner;
 import android.graphics.Rect;
 import dkilian.andy.Kernel;
@@ -16,7 +18,7 @@ public class Spinner implements Control
 	/** The amount of time it takes for a spinner to fade in, in partial seconds */
 	public static final float FADE_IN_TIME  = .3f;
 	/** The amount of time it takes for a spinner to fade out, in partial seconds */
-	public static final float FADE_OUT_TIME = .1f;
+	public static final float FADE_OUT_TIME = .7f;
 	
 	/** Unused */
 	private float _x;
@@ -40,6 +42,10 @@ public class Spinner implements Control
 	private HOSpinner _event;
 	/** The charge level gained by this spinner per full CCW rotation */
 	private float _chargePerRotation;
+	/** The power in the power meter, between 0 and 1 */
+	private float _power;
+	/** The callbacks to notify upon interaction with this spinner */
+	private ArrayList<SpinnerCallback> _callbacks;
 	
 	/**
 	 * Creates a new spinner
@@ -50,12 +56,15 @@ public class Spinner implements Control
 		_event = event;
 		_x = event.getX();
 		_y = event.getY();
-		_tbeg = 0.f;
-		_tend = 0.f;
+		_tbeg = event.getTiming() / 1000.f - FADE_IN_TIME;
+		_tend = event.getEndTiming() / 1000.f + FADE_OUT_TIME;
 		_bounds = new Rect();
 		_prevX = _prevY = 0.f;
 		_isDown = false;
 		_rotation = 0.f;
+		_chargePerRotation = .1f;
+		_power = 0.f;
+		_callbacks = new ArrayList<SpinnerCallback>();
 	}
 	
 	/**
@@ -77,11 +86,50 @@ public class Spinner implements Control
 		_prevX = _prevY = 0.f;
 		_isDown = false;
 		_rotation = 0.f;
+		_chargePerRotation = .025f;
+		_power = 0.f;
+		_callbacks = new ArrayList<SpinnerCallback>();
 		
 		_spinner = spinner;
 		_noFill = noFill;
 		_fill = fill;
 		_mask = mask;
+	}
+	
+	/** Registers an object to receive notifications from this spinner */
+	public void register(SpinnerCallback callback)
+	{
+		_callbacks.add(callback);
+	}
+	
+	/** Unregisters this object from receiving notifications from this spinner */
+	public void unregister(SpinnerCallback callback)
+	{
+		_callbacks.remove(callback);
+	}
+	
+	/** Gets the angle by which this spinner is rotated, in degrees */
+	public float getRotation()
+	{
+		return _rotation;
+	}
+	
+	/** Sets the angle by which this spinner is rotated, in degrees */
+	public void setRotation(float rot)
+	{
+		_rotation = rot;
+	}
+	
+	/** Gets the power in this spinner's power meter, in [0, 1] */
+	public float getPower()
+	{
+		return _power;
+	}
+
+	/** Sets the power in this spinner's power meter, in [0, 1] */
+	public void setPower(float power)
+	{
+		_power = power;
 	}
 
 	/** Unused */
@@ -158,12 +206,47 @@ public class Spinner implements Control
 	@Override
 	public void interact(float x, float y, float t) 
 	{
+		if (_isDown)
+			for (int i = 0; i < _callbacks.size(); ++i)
+				_callbacks.get(i).spinnerEvent(this, _event);
 	}
 
 	/** Does required per-frame updating of this spinner */
 	@Override
 	public void update(Kernel kernel, float t, float dt) 
 	{
+		if (isVisible(t) && kernel.getTouch().isDown())
+		{
+			if (!_isDown)
+			{
+				_isDown = true;
+				_prevX = kernel.getTouch().getX();
+				_prevY = kernel.getTouch().getY();
+			}
+			else
+			{
+				float x = kernel.getTouch().getX();
+				float y = kernel.getTouch().getY();
+				
+				float cx = .5f * kernel.getVirtualScreen().getWidth();
+				float cy = .5f * kernel.getVirtualScreen().getHeight();
+				
+				double theta0 = Math.atan2(_prevY - cy, _prevX - cx);
+				double theta  = Math.atan2(y - cy, x - cx);
+				
+				float delta = (float)((theta - theta0) * 180.0 / Math.PI);
+				_rotation -= delta;
+				_power += Math.abs(delta / 360.f * _chargePerRotation);
+				if (_power > 1.f) _power = 1.f;
+				
+				_prevX = x;
+				_prevY = y;
+			}
+		}
+		else
+		{
+			_isDown = false;
+		}
 	}
 
 	/** Draws this spinner */
@@ -171,9 +254,7 @@ public class Spinner implements Control
 	public void draw(Kernel kernel, float t, float dt) 
 	{
 		if (isVisible(t))
-		{
-			float power = _rotation / 360.f * _chargePerRotation;
-			
+		{			
 			float alpha = 1.f;
 			
 			if (t >= _tbeg && t <= _tbeg + FADE_IN_TIME)
@@ -195,7 +276,7 @@ public class Spinner implements Control
 			_fill.setAlpha(alpha);
 			_fill.draw(kernel);
 			
-			agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), (int)(((1.f - power) * kernel.getVirtualScreen().getHeight())));
+			agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), (int)(((1.f - _power) * kernel.getVirtualScreen().getHeight())));
 			_noFill.getTranslation().x = cx;
 			_noFill.getTranslation().y = cy;
 			_noFill.setAlpha(alpha);

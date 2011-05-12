@@ -91,7 +91,7 @@ public class Beatmap {
 	}
 	
 	
-	// *** ACCESSORS - SET *** //
+	// *** ACCESSORS - SET *** // ('mutators' -Dave)
 	public void setAudioFilename(String s) { audio_filename = s; }
 	public void setAudioLeadIn(long l) { audio_lead_in = l; }
 	public void setPreviewTime(long l) { preview_time = l; }

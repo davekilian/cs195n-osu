@@ -26,8 +26,6 @@ public class Slider implements Control
 	public static final float FADE_OUT_TIME = .1f;
 	/** The amount of time, after fading in, the button appears before its event timing, in partial seconds */
 	public static final float WAIT_TIME = 1.f;
-	/** The amount of time, in partial seconds, the button fades to white after being interacted with */
-	public static final float INTERACTED_FADE_OUT_TIME = .5f;
 	/** The scale ratio between the bounding box of the graphic and the interaction bounding box. Also controls the scale factor of the nub when pressed. */
 	public static final float INPUT_FUDGE_FACTOR = 1.35f;
 	
@@ -67,7 +65,7 @@ public class Slider implements Control
 	public Slider(HOSlider event)
 	{
 		_event = event;
-		_velocity = .25f;
+		_velocity = .5f;
 		_x = event.getPathPoints().getFirst().x;
 		_y = event.getPathPoints().getFirst().y;
 		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);
@@ -99,7 +97,7 @@ public class Slider implements Control
 	public Slider(HOSlider event, TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown)
 	{
 		_event = event;
-		_velocity = .25f;
+		_velocity = .5f;
 		_x = event.getPathPoints().getFirst().x;
 		_y = event.getPathPoints().getFirst().y;
 		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);

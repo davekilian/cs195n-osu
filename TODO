@@ -1,18 +1,17 @@
-- Spinner graphics
+- Clip rectangles
 - Spinner rendering
 - Spinner behavior
-- Ring graphics
 - Ring rendering
 - Ring behavior
 - Ring/button integration
 - Ring/slider integration
 - Ring/spinner integration
-- NO graphic
 - NO rendering
 - NO behavior
 - Figure out this slider/beatmap bullshit
 - Core gameplay engine
 - Load up a beatmap and play it (implicit no-fail mode :D)
+- Touch input calibration (e.g. lead slider input because droid does a running average)
 - Health / losing
 - Scoring
 - Lotsa constant-tweaking

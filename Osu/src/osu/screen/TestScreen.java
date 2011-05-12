@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.util.DisplayMetrics;
-import android.util.FloatMath;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
 import dkilian.andy.jni.agl;

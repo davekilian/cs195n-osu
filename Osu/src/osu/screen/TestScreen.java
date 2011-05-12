@@ -1,11 +1,15 @@
 package osu.screen;
 
-import osu.controls.Spinner;
-import osu.game.HOSpinner;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.util.DisplayMetrics;
+import osu.controls.Button;
+import osu.controls.Ring;
+import osu.game.HOButton;
 import osu.main.R;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
-import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
 public class TestScreen implements Screen
@@ -13,8 +17,8 @@ public class TestScreen implements Screen
 	private boolean _loaded = false;
 	private boolean _first = true;
 	private float _time = 0;
-	private Spinner _spinner;
-	private HOSpinner _event;
+	private Button _button;
+	private Ring _ring;
 
 	@Override
 	public boolean isLoaded() 
@@ -39,8 +43,10 @@ public class TestScreen implements Screen
 	{	
 		_time += dt;
 		
-		if (_spinner != null)
-			_spinner.update(kernel, _time, dt);
+		if (_button != null)
+			_button.update(kernel, _time, dt);
+		if (_ring != null)
+			_ring.update(kernel, _time, dt);
 	}
 
 	@Override
@@ -52,17 +58,23 @@ public class TestScreen implements Screen
 
 			agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
 			agl.BlendPremultiplied();
+
+			BitmapFactory.Options opt = new BitmapFactory.Options();
+			opt.inTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
+
+			Bitmap up = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_up, opt);
+			Bitmap down = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_down, opt);
+			Bitmap chrome = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_chrome, opt);
+			Bitmap shadow = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_shadow, opt);
+			Bitmap ring = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.ring);
+			Bitmap ringshadow = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.ring_shadow);
 			
-			TexturedQuad spinner = TexturedQuad.fromResource(kernel, R.drawable.spinner_spiral);
-			TexturedQuad fill = TexturedQuad.fromResource(kernel, R.drawable.spinner_fill);
-			TexturedQuad nofill = TexturedQuad.fromResource(kernel, R.drawable.spinner_nofill);
-			TexturedQuad mask = TexturedQuad.fromResource(kernel, R.drawable.spinner_mask);
-			
-			_event = new HOSpinner(0, 0, 3000, false, 0);
-			_event.setEndTiming(13000);
-			_spinner = new Spinner(_event, spinner, nofill, fill, mask);
+			HOButton event = new HOButton(kernel.getVirtualScreen().getWidth() / 2, kernel.getVirtualScreen().getHeight() / 2, 3000, false, 0);
+			_button = new Button(event, Button.render(up, shadow, chrome, Color.GREEN), Button.render(down, shadow, down, Color.GREEN));
+			_ring = new Ring(Ring.render(ring, ringshadow, Color.GREEN), _button.getX(), _button.getY(), 0.f, 1.f, 4.f, .75f, _button.getStartTime(), 3.f);
 		}
-		
-		_spinner.draw(kernel, _time, dt);
+
+		_button.draw(kernel, _time, dt);
+		_ring.draw(kernel, _time, dt);
 	}
 }

@@ -1,13 +1,11 @@
-- Cut the edges out of the spinner graphic (reboots yay)
-- Ring rendering
-- Ring behavior
 - Ring/button integration
-- Ring/slider integration
-- Ring/spinner integration
 - NO rendering
 - NO behavior
+- Ring/slider integration
+- Ring/spinner integration
 - Button/slider numbering
 - Combo paths (those little white circles that lead you from button to button)
+- Figure out relative Z orderings (i.e. different buttons and approach rings)
 - Figure out this slider/beatmap bullshit
 - Core gameplay engine
 - Load up a beatmap and play it (implicit no-fail mode :D)

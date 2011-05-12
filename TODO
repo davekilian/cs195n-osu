@@ -1,7 +1,30 @@
-- Textured quads
-- Implement bitmaps
-- Add bitmaps to HelloAGL demo
-- Start adding graphics code to Andy 
+- Slider nub rendering
+- Slider nub behavior
+- Spinner graphics
+- Spinner rendering
+- Spinner behavior
+- Ring graphics
+- Ring rendering
+- Ring behavior
+- Ring/button integration
+- Ring/slider integration
+- Ring/spinner integration
+- NO graphic
+- NO rendering
+- NO behavior
+- Figure out this slider/beatmap bullshit
+- Core gameplay engine
+- Load up a beatmap and play it (implicit no-fail mode :D)
+- Health / losing
+- Scoring
+- Music playback
+- Music seeking
+- Music skipping
+- Main meniu
+- Beatmap menu
+- Pause menu
+- Find interaction sfx
+- Implement interaction sfx
 
 Mike ---
 - Parser

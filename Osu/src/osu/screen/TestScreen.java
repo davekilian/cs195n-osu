@@ -85,6 +85,9 @@ public class TestScreen implements Screen
 			_slider = new Slider(_event, Button.render(up, shadow, chrome), Button.render(up, shadow, up), Button.render(up, shadow, chrome), Button.render(down, shadow, down));
 		}
 		
+		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), (int)(kernel.getVirtualScreen().getHeight() * (.5 + .5 * Math.sin(_time * 4))));
+		// No effect - bwuh?
+		
 		_slider.draw(kernel, _time, dt);
 	}
 }

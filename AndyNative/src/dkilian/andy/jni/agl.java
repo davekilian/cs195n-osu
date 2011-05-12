@@ -91,6 +91,16 @@ public class agl
 	public static native void BlendPremultiplied();
 	
 	/**
+	 * Sets the current clip rectangle. Any pixels outside of the clip rectangle will be left
+	 * unmodified by drawing operations that would normally modify them.
+	 * @param x The X coordinate of the clip rectangle's top-left corner, in virtual space
+	 * @param y The Y coordinate of the clip rectangle's top-left corner, in virtual space
+	 * @param w The width of the clip rectangle in virtual coordinates
+	 * @param h The height of the clip rectangle in virtual coordinates
+	 */
+	public static native void Clip(int x, int y, int w, int h);
+	
+	/**
 	 * Compiles a shader program
 	 * @param vertex The source code of the vertex shader
 	 * @param fragment The source code of the fragment shader

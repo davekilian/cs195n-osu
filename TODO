@@ -1,4 +1,3 @@
-- Ring/slider integration
 - Ring/spinner integration
 - Pre-rendered text caching service (Andy)
 - Button/slider numbering
@@ -11,7 +10,7 @@
 - Health / losing
 - Scoring
 - Lotsa constant-tweaking
-- Fancified graphics (shaders, graphics)
+- Fancified graphics (shaders, particles)
 - Music playback
 - Music seeking
 - Music skipping

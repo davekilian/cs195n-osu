@@ -57,12 +57,15 @@ public class Slider implements Control
 	private boolean _pressed;
 	/** The current location of the nub */
 	private PointF _nubPoint;
+	/** This slider's approach ring */
+	private Ring _approach;
 	
 	/**
 	 * Creates a new slider with no graphics
 	 * @param event The event this slider corresponds to
+	 * @param approach This slider's (optional) approach ring
 	 */
-	public Slider(HOSlider event)
+	public Slider(HOSlider event, Ring approach)
 	{
 		_event = event;
 		_velocity = .5f;
@@ -76,6 +79,7 @@ public class Slider implements Control
 		_t = 0;
 		_pressed = false;
 		_nubPoint = new PointF();
+		_approach = approach;
 		
 		_bezier = new float[_event.getPathPoints().size() * 2];
 		int i = 0;
@@ -93,8 +97,9 @@ public class Slider implements Control
 	 * @param fill The graphic drawn across the entire slider
 	 * @param nubUp The graphic drawn when the nub is not being pressed
 	 * @param nubDown The graphic drawn when the nub is being pressed
+	 * @param approach This slider's (optional) approach ring
 	 */
-	public Slider(HOSlider event, TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown)
+	public Slider(HOSlider event, TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown, Ring approach)
 	{
 		_event = event;
 		_velocity = .5f;
@@ -112,6 +117,7 @@ public class Slider implements Control
 		_t = 0;
 		_pressed = false;
 		_nubPoint = new PointF();
+		_approach = approach;
 		
 		_bezier = new float[_event.getPathPoints().size() * 2];
 		int i = 0;
@@ -119,6 +125,30 @@ public class Slider implements Control
 		{
 			_bezier[i++] = p.x;
 			_bezier[i++] = p.y;
+		}
+	}
+	
+	/** Gets this slider's approach ring. May be null. */
+	public Ring getApproachRing()
+	{
+		return _approach;
+	}
+	
+	/** Sets this slider's approach ring. May be null. */
+	public void setApproachRing(Ring approach)
+	{
+		_approach = approach;
+		if (_approach != null)
+		{
+			_approach.setAnimated(true);
+			_approach.setX(_bezier[0]);
+			_approach.setY(_bezier[1]);
+			_approach.setStartAlpha(0.f);
+			_approach.setEndAlpha(1.f);
+			_approach.setStartScale(4.f);
+			_approach.setEndScale(.75f);
+			_approach.setStartTime(_tbeg);
+			_approach.setEndTime(_event.getTiming() / 1000.f);
 		}
 	}
 	
@@ -327,13 +357,21 @@ public class Slider implements Control
 			_pressed = kernel.getTouch().isDown() && 
 			           Math.abs(kernel.getTouch().getX() - _nubPoint.x) < dw &&
 			           Math.abs(kernel.getTouch().getY() - _nubPoint.y) < dh;
+			
+			if (_approach != null)
+			{
+				_approach.setAnimated(false);
+				_approach.setScale(2.f);
+				_approach.setX(_nubPoint.x);
+				_approach.setY(_nubPoint.y);
+			}
 		}
 	}
 
 	/** Renders this slider */
 	@Override
 	public void draw(Kernel kernel, float t, float dt) 
-	{
+	{		
 		if (isVisible(t))
 		{	
 			float scale = _pressed ? INPUT_FUDGE_FACTOR : 1.f;
@@ -358,6 +396,9 @@ public class Slider implements Control
 				agl.DrawAlongBezierPath(nub.getTexture(), nub.getWidth(), nub.getHeight(), _bezier, _bezier.length / 2, _t, 0.f, scale, scale, alpha);
 			}
 		}
+
+		if (_approach != null && t <= _tend - FADE_OUT_TIME)
+			_approach.draw(kernel, t, dt);
 	}
 }
 

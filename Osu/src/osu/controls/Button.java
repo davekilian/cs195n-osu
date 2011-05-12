@@ -22,7 +22,7 @@ public class Button implements Control
 	/** The amount of time it takes for a button to fade in, in partial seconds */
 	public static final float FADE_IN_TIME  = .3f;
 	/** The amount of time it takes for a button to fade out, in partial seconds */
-	public static final float FADE_OUT_TIME = .1f;
+	public static final float FADE_OUT_TIME = .3f;
 	/** The amount of time, after fading in, the button appears before its event timing, in partial seconds */
 	public static final float WAIT_TIME = 1.f;
 	/** The amount of time, in partial seconds, the button fades to white after being interacted with */
@@ -165,7 +165,7 @@ public class Button implements Control
 	public void setApproachRing(Ring approach)
 	{
 		_approach = approach;
-		if (_approach.isAnimated())
+		if (_approach != null && _approach.isAnimated())
 		{
 			_approach.setX(getX());
 			_approach.setY(getY());

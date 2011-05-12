@@ -57,6 +57,7 @@ void  aglEvalBezier(GLfloat *controlPoints, GLint numPoints, GLfloat t, GLfloat 
 void  aglInstanceBitmapLinear(GLint tex, GLint w, GLint h, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha);
 void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha);
 void  aglInstanceBitmapCatmull(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha);
+void  aglDrawAlongBezierPath(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numPoints ,GLfloat t, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha);
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b);
 void  aglBeginFrame();
 void  aglEndFrame();
@@ -119,6 +120,7 @@ void Java_dkilian_andy_jni_agl_DrawBitmapWithoutShaderMatrix(JNIEnv *env, jobjec
 void Java_dkilian_andy_jni_agl_InstanceBitmapLinear(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloat x1, jfloat y1, jfloat x2, jfloat y2, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha);
 void Java_dkilian_andy_jni_agl_InstanceBitmapBezier(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numPoints, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha);
 void Java_dkilian_andy_jni_agl_InstanceBitmapCatmull(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha);
+void Java_dkilian_andy_jni_agl_DrawAlongBezierPath(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numPoints, jfloat t, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha);
 void Java_dkilian_andy_jni_agl_ClearColor(JNIEnv *env, jobject *thiz, jfloat r, jfloat g, jfloat b);
 void Java_dkilian_andy_jni_agl_BeginFrame(JNIEnv *env, jobject *thiz);
 void Java_dkilian_andy_jni_agl_EndFrame(JNIEnv *env, jobject *thiz);

@@ -788,6 +788,19 @@ void  aglInstanceBitmapCatmull(GLint tex, GLint w, GLint h, GLfloat *controlPoin
 	}
 }
 
+void  aglDrawAlongBezierPath(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numPoints ,GLfloat t, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
+{
+	GLfloat x, y;
+	GLint cplen = 2 * numPoints * sizeof(GLfloat);
+	GLfloat *cp = (GLfloat*)malloc(cplen);
+	memcpy(cp, controlPoints, cplen);
+
+	aglEvalBezier(cp, numPoints, t, &x, &y);
+	aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+
+	free(cp);
+}
+
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b)
 {
 	glClearColor(r, g, b, 1.f);
@@ -1232,6 +1245,13 @@ void Java_dkilian_andy_jni_agl_InstanceBitmapCatmull(JNIEnv *env, jobject *thiz,
 {
 	float *c = (*env)->GetFloatArrayElements(env, controlPoints, NULL);
 	aglInstanceBitmapCatmull(tex, w, h, c, numSteps, rot, xscale, yscale, alpha);
+	(*env)->ReleaseFloatArrayElements(env, controlPoints, c, JNI_ABORT);
+}
+
+void Java_dkilian_andy_jni_agl_DrawAlongBezierPath(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numPoints, jfloat t, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha)
+{
+	float *c = (*env)->GetFloatArrayElements(env, controlPoints, NULL);
+	aglDrawAlongBezierPath(tex, w, h, c, numPoints, t, rot, xscale, yscale, alpha);
 	(*env)->ReleaseFloatArrayElements(env, controlPoints, c, JNI_ABORT);
 }
 

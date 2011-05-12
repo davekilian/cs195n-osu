@@ -1,12 +1,18 @@
 package osu.screen;
 
+import java.util.LinkedList;
+
 import osu.controls.Button;
+import osu.controls.Slider;
+import osu.game.HOSlider;
 import osu.graphics.BitmapTint;
 import osu.main.R;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.util.DisplayMetrics;
+import android.util.FloatMath;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
 import dkilian.andy.TexturedQuad;
@@ -17,9 +23,8 @@ public class TestScreen implements Screen
 	private boolean _loaded = false;
 	private boolean _first = true;
 	private float _time = 0;
-	private TexturedQuad _fill, _cap;
-	private float[] _points = new float[0];
-	private boolean _plotting = false;
+	private Slider _slider;
+	private HOSlider _event;
 
 	@Override
 	public boolean isLoaded() 
@@ -44,22 +49,10 @@ public class TestScreen implements Screen
 	{	
 		_time += dt;
 		
-		if (kernel.getTouch().isDown())
+		if (_slider != null)
 		{
-			if (!_plotting)
-			{
-				_plotting = true;
-				float[] tmp = new float[_points.length + 2];
-				for (int i = 0; i < _points.length; ++i)
-					tmp[i] = _points[i];
-				tmp[_points.length] = kernel.getTouch().getX();
-				tmp[_points.length + 1] = kernel.getTouch().getY();
-				_points = tmp;
-			}
-		}
-		else if (_plotting)
-		{
-			_plotting = false;
+			_slider.update(kernel, _time, dt);
+			_slider.setNubPosition(.5f + .5f * FloatMath.sin(_time));
 		}
 	}
 
@@ -81,16 +74,21 @@ public class TestScreen implements Screen
 			Bitmap down = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_down, opt);
 			Bitmap chrome = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_chrome, opt);
 			
-			up = BitmapTint.apply(up, Color.BLUE);
-			_fill = Button.render(up, shadow, up);
-			_cap = Button.render(up, shadow, chrome);
+			LinkedList<Point> points = new LinkedList<Point>();
+			points.add(new Point(                                          64,                                         64));
+			points.add(new Point(kernel.getVirtualScreen().getWidth() * 1 / 3, kernel.getVirtualScreen().getHeight() - 64));
+			points.add(new Point(kernel.getVirtualScreen().getWidth() * 2 / 3,                                         64));
+			points.add(new Point(   kernel.getVirtualScreen().getWidth() - 64, kernel.getVirtualScreen().getHeight() - 64));
+			
+			_event = new HOSlider(15, 15, 0, true, 0);
+			_event.setRepeats(Integer.MAX_VALUE);
+			_event.setPathPoints(points);
+			
+			up = BitmapTint.apply(up, Color.RED);
+			
+			_slider = new Slider(_event, Button.render(up, shadow, chrome), Button.render(up, shadow, up), Button.render(up, shadow, chrome), Button.render(down, shadow, chrome));
 		}
 		
-		if (_points.length >= 4)
-		{
-			agl.InstanceBitmapBezier(_fill.getTexture(), _fill.getWidth(), _fill.getHeight(), _points, _points.length / 2, 3 * _points.length, 0.f, 1.f, 1.f, 1.f);
-			agl.DrawBitmapWithoutShaderTranslated(_cap.getTexture(), _cap.getWidth(), _cap.getHeight(), _points[0], _points[1], 1.f);
-			agl.DrawBitmapWithoutShaderTranslated(_cap.getTexture(), _cap.getWidth(), _cap.getHeight(), _points[_points.length - 2], _points[_points.length - 1], 1.f);
-		}
+		_slider.draw(kernel, _time, dt);
 	}
 }

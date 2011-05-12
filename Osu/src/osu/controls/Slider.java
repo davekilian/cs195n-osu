@@ -24,7 +24,7 @@ public class Slider implements Control
 	/** The amount of time it takes for a button to fade in, in partial seconds */
 	public static final float FADE_IN_TIME  = .3f;
 	/** The amount of time it takes for a button to fade out, in partial seconds */
-	public static final float FADE_OUT_TIME = .1f;
+	public static final float FADE_OUT_TIME = .3f;
 	/** The amount of time, after fading in, the button appears before its event timing, in partial seconds */
 	public static final float WAIT_TIME = 1.f;
 	/** The scale ratio between the bounding box of the graphic and the interaction bounding box. Also controls the scale factor of the nub when pressed. */

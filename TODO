@@ -8,4 +8,5 @@ Mike ---
 	- Test that shit!
 - Beatmap Format
 	- Check that arbitrary input (Editor section, for example) is ints and floats where they should be
+	- Note that some of the values coming in could be malformed in a bad beatmap - null or the like
 - Generic game code and structure

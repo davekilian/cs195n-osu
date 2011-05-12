@@ -48,6 +48,8 @@ public class Button implements Control
 	private ArrayList<ButtonCallback> _callbacks;
 	/** Whether or not the user has pressed this button */
 	private boolean _pressed;
+	/** This button's approach ring */
+	private Ring _approach;
 	
 	/**
 	 * Renders a button from its components. All components should have the same pixel dimensions.
@@ -122,8 +124,8 @@ public class Button implements Control
 		_bounds.bottom = (int)(_y + h * .5f);
 	}
 	
-	/** Creates a new button with no image */
-	public Button(HOButton event)
+	/** Creates a new button with no image and an optional approach ring */
+	public Button(HOButton event, Ring approach)
 	{
 		_x = event.getX();
 		_y = event.getY();
@@ -133,10 +135,11 @@ public class Button implements Control
 		_event = event;
 		_callbacks = new ArrayList<ButtonCallback>();
 		_pressed = false;
+		_approach = approach;
 	}
 	
-	/** Creates a new button consisting of the given images */
-	public Button(HOButton event, TexturedQuad up, TexturedQuad down)
+	/** Creates a new button consisting of the given images and an optional approach ring */
+	public Button(HOButton event, TexturedQuad up, TexturedQuad down, Ring approach)
 	{
 		_x = event.getX();
 		_y = event.getY();
@@ -148,7 +151,27 @@ public class Button implements Control
 		_event = event;
 		_callbacks = new ArrayList<ButtonCallback>();
 		_pressed = false;
+		_approach = approach;
 		calcBounds();
+	}
+	
+	/** Gets this button's approach ring. May be null */
+	public Ring getApproachRing()
+	{
+		return _approach;
+	}
+
+	/** Sets this button's approach ring. May be null */
+	public void setApproachRing(Ring approach)
+	{
+		_approach = approach;
+		if (_approach.isAnimated())
+		{
+			_approach.setX(getX());
+			_approach.setY(getY());
+			_approach.setStartTime(_tbeg);
+			_approach.setEndTime(_event.getTiming() / 1000.f);
+		}
 	}
 	
 	public void register(ButtonCallback callback)
@@ -271,11 +294,18 @@ public class Button implements Control
 	}
 
 	@Override
-	public void update(Kernel kernel, float t, float dt) {}
+	public void update(Kernel kernel, float t, float dt)
+	{
+		if (_approach != null)
+			_approach.update(kernel, t, dt);
+	}
 
 	@Override
 	public void draw(Kernel kernel, float t, float dt) 
 	{
+		if (_approach != null)
+			_approach.draw(kernel, t, dt);
+		
 		if (isVisible(t))
 		{
 			float alpha = 1.f;

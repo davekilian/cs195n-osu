@@ -18,7 +18,6 @@ public class TestScreen implements Screen
 	private boolean _first = true;
 	private float _time = 0;
 	private Button _button;
-	private Ring _ring;
 
 	@Override
 	public boolean isLoaded() 
@@ -45,8 +44,6 @@ public class TestScreen implements Screen
 		
 		if (_button != null)
 			_button.update(kernel, _time, dt);
-		if (_ring != null)
-			_ring.update(kernel, _time, dt);
 	}
 
 	@Override
@@ -70,11 +67,10 @@ public class TestScreen implements Screen
 			Bitmap ringshadow = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.ring_shadow);
 			
 			HOButton event = new HOButton(kernel.getVirtualScreen().getWidth() / 2, kernel.getVirtualScreen().getHeight() / 2, 3000, false, 0);
-			_button = new Button(event, Button.render(up, shadow, chrome, Color.GREEN), Button.render(down, shadow, down, Color.GREEN));
-			_ring = new Ring(Ring.render(ring, ringshadow, Color.GREEN), _button.getX(), _button.getY(), 0.f, 1.f, 4.f, .75f, _button.getStartTime(), 3.f);
+			_button = new Button(event, Button.render(up, shadow, chrome, Color.GREEN), Button.render(down, shadow, down, Color.GREEN), null);
+			_button.setApproachRing(new Ring(Ring.render(ring, ringshadow, Color.GREEN), 0.f, 0.f, 0.f, 1.f, 4.f, .75f, 0.f, 0.f));
 		}
 
 		_button.draw(kernel, _time, dt);
-		_ring.draw(kernel, _time, dt);
 	}
 }

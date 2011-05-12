@@ -1,8 +1,10 @@
-- Pre-rendered text caching service (Andy)
-- Button/slider numbering
+- Button numbering
+- Slider numbering
 - Combo paths (those little white circles that lead you from button to button)
 - Figure out relative Z orderings (i.e. different buttons and approach rings)
 - Figure out this slider/beatmap bullshit
+- Return arrow graphic
+- Return arrows on sliders
 - Core gameplay engine
 - Load up a beatmap and play it (implicit no-fail mode :D)
 - Touch input calibration (e.g. lead slider input because droid does a running average)
@@ -16,6 +18,7 @@
 - Main meniu
 - Beatmap menu
 - Pause menu
+- Loading screen
 - Test postprocessing
 - Insert postprocessing as appropriate (e.g. blur on defeat)
 - Find interaction sfx

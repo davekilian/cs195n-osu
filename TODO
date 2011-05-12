@@ -1,4 +1,3 @@
-- Button numbering
 - Slider numbering
 - Combo paths (those little white circles that lead you from button to button)
 - Figure out relative Z orderings (i.e. different buttons and approach rings)
@@ -7,7 +6,7 @@
 - Return arrows on sliders
 - Core gameplay engine
 - Load up a beatmap and play it (implicit no-fail mode :D)
-- Touch input calibration (e.g. lead slider input because droid does a running average)
+- Touch input calibration (see wiki)
 - Health / losing
 - Scoring
 - Lotsa constant-tweaking

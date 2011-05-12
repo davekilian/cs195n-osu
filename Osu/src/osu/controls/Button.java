@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import dkilian.andy.Kernel;
+import dkilian.andy.PrerenderCache;
 import dkilian.andy.TexturedQuad;
 
 /**
@@ -50,6 +51,10 @@ public class Button implements Control
 	private boolean _pressed;
 	/** This button's approach ring */
 	private Ring _approach;
+	/** The cache used to lookup / render text on-the-fly */
+	private PrerenderCache _textCache;
+	/** The text to render centered in this button; null if none desired */
+	private String _text;
 	
 	/**
 	 * Renders a button from its components. All components should have the same pixel dimensions.
@@ -124,8 +129,14 @@ public class Button implements Control
 		_bounds.bottom = (int)(_y + h * .5f);
 	}
 	
-	/** Creates a new button with no image and an optional approach ring */
-	public Button(HOButton event, Ring approach)
+	/**
+	 * Creates a new button
+	 * @param event The event this button corresponds to
+	 * @param approach The approach ring that centers on this button based on its timing. May be null if none desired.
+	 * @param textCache Caches pre-rendered text sprites
+	 * @param text The text to render centered in this button. May be null if none desired.
+	 */
+	public Button(HOButton event, Ring approach, PrerenderCache textCache, String text)
 	{
 		_x = event.getX();
 		_y = event.getY();
@@ -136,10 +147,20 @@ public class Button implements Control
 		_callbacks = new ArrayList<ButtonCallback>();
 		_pressed = false;
 		_approach = approach;
+		_textCache = textCache;
+		_text = text;
 	}
-	
-	/** Creates a new button consisting of the given images and an optional approach ring */
-	public Button(HOButton event, TexturedQuad up, TexturedQuad down, Ring approach)
+
+	/**
+	 * Creates a new button
+	 * @param event The event this button corresponds to
+	 * @param up The image drawn when this button is not being pressed
+	 * @param down The image drawn when this button is being pressed
+	 * @param approach The approach ring that centers on this button based on its timing. May be null if none desired.
+	 * @param textCache Caches pre-rendered text sprites
+	 * @param text The text to render centered in this button. May be null if none desired.
+	 */
+	public Button(HOButton event, TexturedQuad up, TexturedQuad down, Ring approach, PrerenderCache textCache, String text)
 	{
 		_x = event.getX();
 		_y = event.getY();
@@ -152,7 +173,21 @@ public class Button implements Control
 		_callbacks = new ArrayList<ButtonCallback>();
 		_pressed = false;
 		_approach = approach;
+		_textCache = textCache;
+		_text = text;
 		calcBounds();
+	}
+	
+	/** Registers an object to receive notifications from this button */
+	public void register(ButtonCallback callback)
+	{
+		_callbacks.add(callback);
+	}
+	
+	/** Unregisters this object from receiving notifications from this button */
+	public void unregister(ButtonCallback callback)
+	{
+		_callbacks.remove(callback);
 	}
 	
 	/** Gets this button's approach ring. May be null */
@@ -174,14 +209,16 @@ public class Button implements Control
 		}
 	}
 	
-	public void register(ButtonCallback callback)
+	/** Gets the text centered in this button. May be null if none desired. */
+	public String getText()
 	{
-		_callbacks.add(callback);
+		return _text;
 	}
 	
-	public void unregister(ButtonCallback callback)
+	/** Sets the text centered in this button. May be null if none desired */
+	public void setText(String text)
 	{
-		_callbacks.remove(callback);
+		_text = text;
 	}
 	
 	public HOButton getEvent()
@@ -320,6 +357,15 @@ public class Button implements Control
 			s.getTranslation().y = _y;
 			s.setAlpha(alpha);
 			s.draw(kernel);
+			
+			if (_text != null)
+			{
+				s = _textCache.string(_text);
+				s.getTranslation().x = _x;
+				s.getTranslation().y = _y;
+				s.setAlpha(alpha);
+				s.draw(kernel);
+			}
 		}
 	}
 }

@@ -2,6 +2,7 @@ package dkilian.andy;
 
 import dkilian.andy.jni.agl;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
@@ -12,9 +13,11 @@ import android.opengl.GLUtils;
  * @author dkilian
  */
 public class Prerender
-{
+{	
 	/** Because drawRoundRect() doesn't have an overload that just takes floats T_T */
-	private static RectF _r = new RectF();
+	private static RectF _rf = new RectF();
+	/** Because Paint.getTextBounds() */
+	private static Rect _r = new Rect();
 	
 	/**
 	 * Creates the smallest context that can hold the given string rendered with
@@ -28,8 +31,9 @@ public class Prerender
 	 */
 	public static PrerenderContext contextForString(String text, Paint p)
 	{
-		int width = (int)(p.measureText(text) + 1.f);
-		int height = (int)(p.getTextSize() + 1.f);
+		p.getTextBounds(text, 0, text.length(), _r);
+		int width = _r.width();
+		int height = _r.height();
 		
 		return new PrerenderContext(width, height, p);
 	}
@@ -105,8 +109,9 @@ public class Prerender
 	 */
 	public static TexturedQuad string(String text, PrerenderContext context)
 	{
+		context.getPaint().getTextBounds(text, 0, text.length(), _r);
 		context.clear();
-		context.getCanvas().drawText(text, 0.f, context.getBitmap().getHeight(), context.getPaint());
+		context.getCanvas().drawText(text, -_r.left, -_r.top, context.getPaint());
 		
 		return new TexturedQuad(context.getBitmap());
 	}
@@ -120,8 +125,9 @@ public class Prerender
 	 */
 	public static void string(String text, PrerenderContext context, TexturedQuad target)
 	{
+		context.getPaint().getTextBounds(text, 0, text.length(), _r);
 		context.clear();
-		context.getCanvas().drawText(text, 0.f, 0.f, context.getPaint());
+		context.getCanvas().drawText(text, -_r.left, -_r.top, context.getPaint());
 		
 		agl.BindTexture(target.getTexture());
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, context.getBitmap(), 0);
@@ -331,13 +337,13 @@ public class Prerender
 	 */
 	public static TexturedQuad roundedRectangle(float w, float h, float r, PrerenderContext context)
 	{	
-		_r.top = 0.f;
-		_r.left = 0.f;
-		_r.right = w;
-		_r.bottom = h;
+		_rf.top = 0.f;
+		_rf.left = 0.f;
+		_rf.right = w;
+		_rf.bottom = h;
 		
 		context.clear();
-		context.getCanvas().drawRoundRect(_r, r, r, context.getPaint());
+		context.getCanvas().drawRoundRect(_rf, r, r, context.getPaint());
 		
 		return new TexturedQuad(context.getBitmap());
 	}
@@ -352,13 +358,13 @@ public class Prerender
 	 */
 	public static void roundedRectangle(float w, float h, float r, PrerenderContext context, TexturedQuad target)
 	{
-		_r.top = 0.f;
-		_r.left = 0.f;
-		_r.right = w;
-		_r.bottom = h;
+		_rf.top = 0.f;
+		_rf.left = 0.f;
+		_rf.right = w;
+		_rf.bottom = h;
 		
 		context.clear();
-		context.getCanvas().drawRoundRect(_r, r, r, context.getPaint());
+		context.getCanvas().drawRoundRect(_rf, r, r, context.getPaint());
 		
 		agl.BindTexture(target.getTexture());
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, context.getBitmap(), 0);

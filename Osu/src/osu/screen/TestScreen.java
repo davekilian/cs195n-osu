@@ -1,19 +1,13 @@
 package osu.screen;
 
-import java.util.LinkedList;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.util.DisplayMetrics;
-import osu.controls.Button;
-import osu.controls.Miss;
 import osu.controls.Ring;
-import osu.controls.Slider;
-import osu.game.HOButton;
-import osu.game.HOSlider;
-import osu.graphics.BitmapTint;
+import osu.controls.Spinner;
+import osu.game.HOSpinner;
 import osu.main.R;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
@@ -25,7 +19,7 @@ public class TestScreen implements Screen
 	private boolean _loaded = false;
 	private boolean _first = true;
 	private float _time = 0;
-	private Slider _slider;
+	private Spinner _spinner;
 
 	@Override
 	public boolean isLoaded() 
@@ -50,8 +44,8 @@ public class TestScreen implements Screen
 	{	
 		_time += dt;
 		
-		if (_slider != null)
-			_slider.update(kernel, _time, dt);
+		if (_spinner != null)
+			_spinner.update(kernel, _time, dt);
 	}
 
 	@Override
@@ -66,37 +60,22 @@ public class TestScreen implements Screen
 
 			BitmapFactory.Options opt = new BitmapFactory.Options();
 			opt.inTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
+			
+			Bitmap ring = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.ring, opt);
+			Bitmap rshadow = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.ring_shadow, opt);
 
-			Bitmap up = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_up, opt);
-			Bitmap down = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_down, opt);
-			Bitmap chrome = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_chrome, opt);
-			Bitmap shadow = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_shadow, opt);
-			Bitmap ring = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.ring);
-			Bitmap ringshadow = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.ring_shadow);
+			TexturedQuad spiral = TexturedQuad.fromResource(kernel, R.drawable.spinner_spiral);
+			TexturedQuad fill = TexturedQuad.fromResource(kernel, R.drawable.spinner_fill);
+			TexturedQuad nofill = TexturedQuad.fromResource(kernel, R.drawable.spinner_nofill);
+			TexturedQuad mask = TexturedQuad.fromResource(kernel, R.drawable.spinner_mask);
 			
-			up = BitmapTint.apply(up, Color.GREEN);
-			down = BitmapTint.apply(down, Color.GREEN);
-			ring = BitmapTint.apply(ring, Color.GREEN);
-
-			LinkedList<Point> points = new LinkedList<Point>();
-			points.add(new Point(                                          64,                                         64));
-			points.add(new Point(kernel.getVirtualScreen().getWidth() * 1 / 3, kernel.getVirtualScreen().getHeight() - 64));
-			points.add(new Point(kernel.getVirtualScreen().getWidth() * 2 / 3,                                         64));
-			points.add(new Point(   kernel.getVirtualScreen().getWidth() - 64, kernel.getVirtualScreen().getHeight() - 64));
+			HOSpinner event = new HOSpinner(0, 0, 3000, false, 0);
+			event.setEndTiming(13000);
 			
-			HOSlider event = new HOSlider(0, 0, 3000, false, 0);
-			event.setPathPoints(points);
-			event.setRepeats(4);
-			
-			_slider = new Slider(event, 
-								 Button.render(up, shadow, chrome), 
-								 Button.render(down, shadow, down), 
-								 Button.render(up, shadow, chrome), 
-					             Button.render(down, shadow, chrome), 
-					             null);
-			_slider.setApproachRing(new Ring(Ring.render(ring, ringshadow)));
+			_spinner = new Spinner(event, spiral, nofill, fill, mask, null);
+			_spinner.setApproachRing(new Ring(Ring.render(ring, rshadow, Color.argb(255, 0, 100, 255))));
 		}
 		
-		_slider.draw(kernel, _time, dt);
+		_spinner.draw(kernel, _time, dt);
 	}
 }

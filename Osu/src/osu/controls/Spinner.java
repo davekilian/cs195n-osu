@@ -42,16 +42,21 @@ public class Spinner implements Control
 	private HOSpinner _event;
 	/** The charge level gained by this spinner per full CCW rotation */
 	private float _chargePerRotation;
+	/** The amount of power that is drained per second */
+	private float _powerDrain;
 	/** The power in the power meter, between 0 and 1 */
 	private float _power;
 	/** The callbacks to notify upon interaction with this spinner */
 	private ArrayList<SpinnerCallback> _callbacks;
+	/** This spinner's approach ring */
+	private Ring _approach;
 	
 	/**
 	 * Creates a new spinner
 	 * @param event The event this spinner wraps
+	 * @param approach This spinner's optional approach ring
 	 */
-	public Spinner(HOSpinner event)
+	public Spinner(HOSpinner event, Ring approach)
 	{
 		_event = event;
 		_x = event.getX();
@@ -63,8 +68,10 @@ public class Spinner implements Control
 		_isDown = false;
 		_rotation = 0.f;
 		_chargePerRotation = .1f;
+		_powerDrain = .1f;
 		_power = 0.f;
 		_callbacks = new ArrayList<SpinnerCallback>();
+		_approach = approach;
 	}
 	
 	/**
@@ -74,8 +81,9 @@ public class Spinner implements Control
 	 * @param noFill The graphic that covers the fill layer, making the power bar seem not filled. Will be clipped based on charge amount
 	 * @param fill The graphic that makes the power bar seem filled.
 	 * @param mask The mask that is drawn above the power bar and spinner graphic.
+	 * @param approach This spinner's optional approach ring
 	 */
-	public Spinner(HOSpinner event, TexturedQuad spinner, TexturedQuad noFill, TexturedQuad fill, TexturedQuad mask)
+	public Spinner(HOSpinner event, TexturedQuad spinner, TexturedQuad noFill, TexturedQuad fill, TexturedQuad mask, Ring approach)
 	{
 		_event = event;
 		_x = event.getX();
@@ -86,9 +94,11 @@ public class Spinner implements Control
 		_prevX = _prevY = 0.f;
 		_isDown = false;
 		_rotation = 0.f;
-		_chargePerRotation = .025f;
+		_chargePerRotation = .05f;
+		_powerDrain = .1f;
 		_power = 0.f;
 		_callbacks = new ArrayList<SpinnerCallback>();
+		_approach = approach;
 		
 		_spinner = spinner;
 		_noFill = noFill;
@@ -106,6 +116,29 @@ public class Spinner implements Control
 	public void unregister(SpinnerCallback callback)
 	{
 		_callbacks.remove(callback);
+	}
+	
+	/** Gets this spinner's optional approach ring. May be null. */
+	public Ring getApproachRing()
+	{
+		return _approach;
+	}
+
+	/** Sets this spinner's optional approach ring. May be null. */
+	public void setApproachRing(Ring r)
+	{
+		_approach = r;
+		
+		if (_approach != null)
+		{
+			_approach.setAnimated(true);
+			_approach.setStartAlpha(0.f);
+			_approach.setEndAlpha(1.f);
+			_approach.setStartScale(4.f);
+			_approach.setEndScale(0.f);
+			_approach.setStartTime(_tbeg);
+			_approach.setEndTime(_tend);
+		}
 	}
 	
 	/** Gets the angle by which this spinner is rotated, in degrees */
@@ -130,6 +163,30 @@ public class Spinner implements Control
 	public void setPower(float power)
 	{
 		_power = power;
+	}
+	
+	/** Gets the amount of power added per complete rotation of the spinner */
+	public float getChargeRate()
+	{
+		return _chargePerRotation;
+	}
+
+	/** Sets the amount of power added per complete rotation of the spinner */
+	public void setChargeRate(float chargePerRotation)
+	{
+		_chargePerRotation = chargePerRotation;
+	}
+	
+	/** Gets the amount of power drained from the spinner per second */
+	public float getDrainRate()
+	{
+		return _powerDrain;
+	}
+
+	/** Sets the amount of power drained from the spinner per second */
+	public void setDrainRate(float drain)
+	{
+		_powerDrain = drain;
 	}
 
 	/** Unused */
@@ -215,6 +272,9 @@ public class Spinner implements Control
 	@Override
 	public void update(Kernel kernel, float t, float dt) 
 	{
+		if (_approach != null && isVisible(t))
+			_approach.update(kernel, t, dt);
+		
 		if (isVisible(t) && kernel.getTouch().isDown())
 		{
 			if (!_isDown)
@@ -247,12 +307,15 @@ public class Spinner implements Control
 		{
 			_isDown = false;
 		}
+		
+		_power -= _powerDrain * dt;
+		if (_power < 0.f) _power = 0.f;
 	}
 
 	/** Draws this spinner */
 	@Override
 	public void draw(Kernel kernel, float t, float dt) 
-	{
+	{		
 		if (isVisible(t))
 		{			
 			float alpha = 1.f;
@@ -287,6 +350,13 @@ public class Spinner implements Control
 			_mask.getTranslation().y = cy;
 			_mask.setAlpha(alpha);
 			_mask.draw(kernel);
+
+			if (_approach != null)
+			{
+				_approach.setX(cx);
+				_approach.setY(cy);
+				_approach.draw(kernel, t, dt);
+			}
 		}
 	}
 }

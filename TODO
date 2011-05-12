@@ -1,7 +1,6 @@
-- NO rendering
-- NO behavior
 - Ring/slider integration
 - Ring/spinner integration
+- Pre-rendered text caching service (Andy)
 - Button/slider numbering
 - Combo paths (those little white circles that lead you from button to button)
 - Figure out relative Z orderings (i.e. different buttons and approach rings)

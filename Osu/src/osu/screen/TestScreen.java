@@ -5,11 +5,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
 import osu.controls.Button;
+import osu.controls.Miss;
 import osu.controls.Ring;
 import osu.game.HOButton;
 import osu.main.R;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
+import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
 public class TestScreen implements Screen
@@ -18,6 +20,7 @@ public class TestScreen implements Screen
 	private boolean _first = true;
 	private float _time = 0;
 	private Button _button;
+	private Miss _miss;
 
 	@Override
 	public boolean isLoaded() 
@@ -52,7 +55,7 @@ public class TestScreen implements Screen
 		if (_first)
 		{
 			_first = false;
-
+			
 			agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
 			agl.BlendPremultiplied();
 
@@ -69,8 +72,11 @@ public class TestScreen implements Screen
 			HOButton event = new HOButton(kernel.getVirtualScreen().getWidth() / 2, kernel.getVirtualScreen().getHeight() / 2, 3000, false, 0);
 			_button = new Button(event, Button.render(up, shadow, chrome, Color.GREEN), Button.render(down, shadow, down, Color.GREEN), null);
 			_button.setApproachRing(new Ring(Ring.render(ring, ringshadow, Color.GREEN), 0.f, 0.f, 0.f, 1.f, 4.f, .75f, 0.f, 0.f));
+			
+			_miss = new Miss(event, TexturedQuad.fromResource(kernel, R.drawable.no));
 		}
 
+		_miss.draw(kernel, _time, dt);
 		_button.draw(kernel, _time, dt);
 	}
 }

@@ -1,7 +1,31 @@
-- Textured quads
-- Implement bitmaps
-- Add bitmaps to HelloAGL demo
-- Start adding graphics code to Andy 
+- Cut the edges out of the spinner graphic (reboots yay)
+- Ring rendering
+- Ring behavior
+- Ring/button integration
+- Ring/slider integration
+- Ring/spinner integration
+- NO rendering
+- NO behavior
+- Button/slider numbering
+- Combo paths (those little white circles that lead you from button to button)
+- Figure out this slider/beatmap bullshit
+- Core gameplay engine
+- Load up a beatmap and play it (implicit no-fail mode :D)
+- Touch input calibration (e.g. lead slider input because droid does a running average)
+- Health / losing
+- Scoring
+- Lotsa constant-tweaking
+- Fancified graphics (shaders, graphics)
+- Music playback
+- Music seeking
+- Music skipping
+- Main meniu
+- Beatmap menu
+- Pause menu
+- Test postprocessing
+- Insert postprocessing as appropriate (e.g. blur on defeat)
+- Find interaction sfx
+- Implement interaction sfx
 
 Mike ---
 - Parser

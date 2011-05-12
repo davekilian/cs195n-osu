@@ -1,14 +1,11 @@
 package osu.screen;
 
-import osu.controls.Button;
-import osu.game.HOButton;
+import osu.controls.Spinner;
+import osu.game.HOSpinner;
 import osu.main.R;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.util.DisplayMetrics;
 import dkilian.andy.Kernel;
 import dkilian.andy.Screen;
+import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
 public class TestScreen implements Screen
@@ -16,7 +13,8 @@ public class TestScreen implements Screen
 	private boolean _loaded = false;
 	private boolean _first = true;
 	private float _time = 0;
-	private Button _button = null;
+	private Spinner _spinner;
+	private HOSpinner _event;
 
 	@Override
 	public boolean isLoaded() 
@@ -41,14 +39,8 @@ public class TestScreen implements Screen
 	{	
 		_time += dt;
 		
-		if (kernel.getTouch().isDown() && _button != null)
-			_button.interact(kernel.getTouch().getX(), kernel.getTouch().getY(), _time);
-		
-		// TODO: change this demo
-		// - Load the button bitmap directly
-		// - Whenever the user clicks, add a bezier control point there
-		// - When we have enough points, draw the curve by instancing the button bitmap
-		// - Then get to work on sliders.
+		if (_spinner != null)
+			_spinner.update(kernel, _time, dt);
 	}
 
 	@Override
@@ -61,21 +53,16 @@ public class TestScreen implements Screen
 			agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
 			agl.BlendPremultiplied();
 			
-			BitmapFactory.Options opt = new BitmapFactory.Options();
-			opt.inTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
+			TexturedQuad spinner = TexturedQuad.fromResource(kernel, R.drawable.spinner_spiral);
+			TexturedQuad fill = TexturedQuad.fromResource(kernel, R.drawable.spinner_fill);
+			TexturedQuad nofill = TexturedQuad.fromResource(kernel, R.drawable.spinner_nofill);
+			TexturedQuad mask = TexturedQuad.fromResource(kernel, R.drawable.spinner_mask);
 			
-			Bitmap shadow = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_shadow, opt);
-			Bitmap up = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_up, opt);
-			Bitmap down = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_down, opt);
-			Bitmap chrome = BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.button_chrome, opt);
-			
-			HOButton event = new HOButton((kernel.getVirtualScreen().getWidth() - up.getWidth()) / 2,
-					                      (kernel.getVirtualScreen().getHeight() - up.getHeight()) / 2,
-					                      3000, false, 0);
-			
-			_button = new Button(event, Button.render(up, shadow, chrome, Color.MAGENTA), Button.render(down, shadow, chrome, Color.MAGENTA));
+			_event = new HOSpinner(0, 0, 3000, false, 0);
+			_event.setEndTiming(13000);
+			_spinner = new Spinner(_event, spinner, nofill, fill, mask);
 		}
 		
-		_button.draw(kernel, _time, dt);
+		_spinner.draw(kernel, _time, dt);
 	}
 }

@@ -75,6 +75,9 @@ const char _agl_quad_fshader[] =
 GLint _agl_virtualWidth = 0;			// The width of the viewport in virtual coordinates
 GLint _agl_virtualHeight = 0;			// The height of the viewport in virtual coordinates
 Matrix _agl_virtualTransform;			// The transform from virtual coordinates to world coordinates
+GLfloat _agl_virtualScale = 1.f;		// The uniform scale component of the virtual transform
+GLfloat _agl_virtualXOffset = 0.f; 		// The horizontal translation of the virtual transform
+GLfloat _agl_virtualYOffset = 0.f;		// The vertical translation of the virtual transform
 ShaderAttachment *_agl_shaders = 0;		// Pairs each shader program with its attached vertex/fragment shaders, for cleanup purposes
 MatrixStack *_agl_modelview = 0;		// Emulates OpenGL 1.0's ModelView matrix stack
 FBOColorAttachment *_agl_fbo_color = 0;	// Pairs each FBO with its attached depth buffer, for cleanup purposes
@@ -89,9 +92,9 @@ GLint _agl_quad_program = 0;			// The program used to draw textured quads
 GLint _agl_bound_shader = 0;			// The currently bound shader. Used to set aglPosition in aglTexturedQuad() if applicable.
 GLfloat _agl_alpha = 1.f;				// The current alpha channel value, between 0 and 1
 
-// Maybe there are preprocessor hacks to make this prettier
 #define LOG_ENABLED 0
 
+// Maybe there are preprocessor hacks to make this prettier
 #if LOG_ENABLED
 #define logcat(a) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a);
 #define logfmt(a, b) __android_log_print(ANDROID_LOG_VERBOSE, "aglVerbose", a, b);
@@ -106,6 +109,8 @@ GLfloat _agl_alpha = 1.f;				// The current alpha channel value, between 0 and 1
 
 void  aglInitialize2D(GLint w, GLint h)
 {
+	glEnable(GL_SCISSOR_TEST);
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	// Supposedly GLUtils.glTexImage2D() produces premultiplied alpha results
 
@@ -257,6 +262,9 @@ void  aglComputeVirtualTransform()
 		// Virtual coordinates to device coordinates
 		matrix_translate(&_agl_virtualTransform, 0.f, delta, 0.f);
 		matrix_scale(&_agl_virtualTransform, scalex, scalex, 1.f);
+
+		_agl_virtualYOffset = delta;
+		_agl_virtualScale = scalex;
 	}
 	else
 	{
@@ -269,6 +277,9 @@ void  aglComputeVirtualTransform()
 		// Virtual coordinates to device coordinates
 		matrix_translate(&_agl_virtualTransform, delta, 0.f, 0.f);
 		matrix_scale(&_agl_virtualTransform, scaley, scaley, 1.f);
+
+		_agl_virtualXOffset = delta;
+		_agl_virtualScale = scaley;
 	}
 }
 
@@ -293,6 +304,30 @@ void aglBlendPremultiplied()
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void aglClip(GLint x, GLint y, GLint w, GLint h)
+{
+	GLint v[4];
+	glGetIntegerv(GL_VIEWPORT, v);
+
+	logcat("Clip rectangle");
+	logfmt2("Clip: x %d y %d", x, y);
+	logfmt2("Translations: x %f y %f", _agl_virtualXOffset, _agl_virtualYOffset);
+	logfmt2("Clip: w %d y %d", w, h);
+	logfmt("Scale: %f", _agl_virtualScale);
+
+	x = (GLint)(x + _agl_virtualXOffset);
+	y = (GLint)(y + _agl_virtualYOffset);
+	w = (GLint)(w * _agl_virtualScale);
+	h = (GLint)(h * _agl_virtualScale);
+
+	y += v[3] - h; // +y=up to +y=down
+
+	logfmt2("x' %d y' %d", x, y);
+	logfmt2("w' %d h' %d", w, h);
+
+	glScissor(x, y, w, h);
 }
 
 GLint aglLoadShader(const char* vertex, const char* fragment)
@@ -734,7 +769,7 @@ void  aglInstanceBitmapLinear(GLint tex, GLint w, GLint h, GLfloat x1, GLfloat y
 
 	for (i = 0; i <= numSteps; ++i)
 	{
-		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+		aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
 		x += dx;
 		y += dy;
 	}
@@ -746,12 +781,24 @@ void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoint
 	GLint i = 0, cplen = 2 * numPoints * sizeof(GLfloat);
 	GLfloat *cp = (GLfloat*)malloc(cplen);
 
+	logcat("Instancing bitmap using Bezier interpolation");
+	logfmt("%d control points", numPoints);
+	logfmt("%d steps", numSteps);
+
+#if LOG_ENABLED
+	for (i = 0; i < numPoints; ++i)
+	{
+		logfmt3("Control point %d: (%f, %f)", i, controlPoints[2*i], controlPoints[2*i+1]);
+	}
+#endif
+
 	for (i = 0; i <= numSteps; ++i)
 	{
 		memcpy(cp, controlPoints, cplen);
-		aglEvalBezier(cp, numPoints, t, &x, &y);
-		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+		aglEvalBezier(cp, numPoints, 1.f - t, &x, &y);
+		aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
 		t += dt;
+		logfmt3("Step %d evaluated to (%f,%f)", i, x, y);
 	}
 
 	free(cp);
@@ -771,9 +818,22 @@ void  aglInstanceBitmapCatmull(GLint tex, GLint w, GLint h, GLfloat *controlPoin
 		x = .5f * (2 * P1x + (-P0x + P2x) * t + (2 * P0x - 5 * P1x + 4 * P2x - P3x) * t * t + (-P0x + 3 * P1x - 3 * P2x + P3x) * t * t * t);
 		y = .5f * (2 * P1y + (-P0y + P2y) * t + (2 * P0y - 5 * P1y + 4 * P2y - P3y) * t * t + (-P0y + 3 * P1y - 3 * P2y + P3y) * t * t * t);
 
-		aglDrawBitmapTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+		aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
 		t += dt;
 	}
+}
+
+void  aglDrawAlongBezierPath(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numPoints ,GLfloat t, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
+{
+	GLfloat x, y;
+	GLint cplen = 2 * numPoints * sizeof(GLfloat);
+	GLfloat *cp = (GLfloat*)malloc(cplen);
+	memcpy(cp, controlPoints, cplen);
+
+	aglEvalBezier(cp, numPoints, t, &x, &y);
+	aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
+
+	free(cp);
 }
 
 void  aglClearColor(GLfloat r, GLfloat g, GLfloat b)
@@ -1011,6 +1071,11 @@ void Java_dkilian_andy_jni_agl_BlendPremultiplied(JNIEnv *env, jobject *thiz)
 	aglBlendPremultiplied();
 }
 
+void Java_dkilian_andy_jni_agl_Clip(JNIEnv *env, jobject *thiz, jint x, jint y, jint w, jint h)
+{
+	aglClip(x, y, w, h);
+}
+
 jint Java_dkilian_andy_jni_agl_LoadShader(JNIEnv *env, jobject *thiz, jstring vertex, jstring fragment)
 {
 	const char* v, *f;
@@ -1220,6 +1285,13 @@ void Java_dkilian_andy_jni_agl_InstanceBitmapCatmull(JNIEnv *env, jobject *thiz,
 {
 	float *c = (*env)->GetFloatArrayElements(env, controlPoints, NULL);
 	aglInstanceBitmapCatmull(tex, w, h, c, numSteps, rot, xscale, yscale, alpha);
+	(*env)->ReleaseFloatArrayElements(env, controlPoints, c, JNI_ABORT);
+}
+
+void Java_dkilian_andy_jni_agl_DrawAlongBezierPath(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numPoints, jfloat t, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha)
+{
+	float *c = (*env)->GetFloatArrayElements(env, controlPoints, NULL);
+	aglDrawAlongBezierPath(tex, w, h, c, numPoints, t, rot, xscale, yscale, alpha);
 	(*env)->ReleaseFloatArrayElements(env, controlPoints, c, JNI_ABORT);
 }
 

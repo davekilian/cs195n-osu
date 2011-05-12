@@ -23,7 +23,7 @@ public class HOSlider extends HitObject {
 	
 	// General Variables (?)
 	private int repeats; // Number of times this slider path should be followed back and forth
-	private float path_length; // The path length (divided in some weird measurement against BPM)
+	private float path_length; // The entire path's length (divided in some weird measurement against BPM)
 	
 	
 	// *** CONSTRUCTOR *** //

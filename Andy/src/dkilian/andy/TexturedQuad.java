@@ -47,6 +47,7 @@ public class TexturedQuad implements Sprite
 		opt.inTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
 		
 		Bitmap b = BitmapFactory.decodeResource(kernel.getActivity().getResources(), resource, opt);
+		b = b.copy(Bitmap.Config.ARGB_8888, false); // Normalize format. Sometimes GLUtils.texImage2D causes GL_INVALID_ENUM in some cases.
 		
 		int tex = agl.CreateEmptyTexture();
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, b, 0);
@@ -66,6 +67,7 @@ public class TexturedQuad implements Sprite
 		opt.inTargetDensity = DisplayMetrics.DENSITY_DEFAULT;
 		
 		Bitmap b = BitmapFactory.decodeResource(res, id, opt);
+		b = b.copy(Bitmap.Config.ARGB_8888, false); // Normalize format. Sometimes GLUtils.texImage2D causes GL_INVALID_ENUM in some cases.
 		
 		int tex = agl.CreateEmptyTexture();
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, b, 0);

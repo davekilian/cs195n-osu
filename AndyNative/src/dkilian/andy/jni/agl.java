@@ -91,6 +91,16 @@ public class agl
 	public static native void BlendPremultiplied();
 	
 	/**
+	 * Sets the current clip rectangle. Any pixels outside of the clip rectangle will be left
+	 * unmodified by drawing operations that would normally modify them.
+	 * @param x The X coordinate of the clip rectangle's top-left corner, in virtual space
+	 * @param y The Y coordinate of the clip rectangle's top-left corner, in virtual space
+	 * @param w The width of the clip rectangle in virtual coordinates
+	 * @param h The height of the clip rectangle in virtual coordinates
+	 */
+	public static native void Clip(int x, int y, int w, int h);
+	
+	/**
 	 * Compiles a shader program
 	 * @param vertex The source code of the vertex shader
 	 * @param fragment The source code of the fragment shader
@@ -436,6 +446,21 @@ public class agl
 	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
 	 */
 	public static native void InstanceBitmapCatmull(int tex, int w, int h, float[] controlPoints, int numSteps, float rot, float xscale, float yscale, float alpha);
+
+	/**
+	 * Draws a sprite centered at the evaluation of a certain point along a Bezier path
+	 * @param tex The texture containing the bitmap data to draw
+	 * @param w The width of the sprite in virtual coordinates
+	 * @param h The height of the sprite in virtual coordinates
+	 * @param controlPoints A set of at least two Bezier control points, packed in the format [x1 y1 x2 y2 ... xn yn]
+	 * @param numPoints The number of control point locations contained in the controlPoints array.
+	 * @param t The point along the path to evaluate, where 0 is the first point and 1 is the last point
+	 * @param rot The rotation to apply to each sprite, in degrees
+	 * @param xscale The factor by which to horizontally scale each sprite
+	 * @param yscale The factor by which to vertically scale each sprite
+	 * @param alpha The alpha value to multiply with each pixel in the entire sprite, between 0 and 1
+	 */
+	public static native void DrawAlongBezierPath(int tex, int w, int h, float[] controlPoints, int numPoints, float t, float rot, float xscale, float yscale, float alpha);
 	
 	/**
 	 * Sets the color the backbuffer is cleared to at the beginning of every frame

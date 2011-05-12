@@ -16,12 +16,15 @@
 - Health / losing
 - Scoring
 - Lotsa constant-tweaking
+- Fancified graphics (shaders, graphics)
 - Music playback
 - Music seeking
 - Music skipping
 - Main meniu
 - Beatmap menu
 - Pause menu
+- Test postprocessing
+- Insert postprocessing as appropriate (e.g. blur on defeat)
 - Find interaction sfx
 - Implement interaction sfx
 

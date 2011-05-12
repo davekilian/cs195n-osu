@@ -49,10 +49,7 @@ public class TestScreen implements Screen
 		_time += dt;
 		
 		if (_slider != null)
-		{
 			_slider.update(kernel, _time, dt);
-			_slider.setNubPosition(.5f + .5f * FloatMath.sin(_time));
-		}
 	}
 
 	@Override
@@ -79,8 +76,8 @@ public class TestScreen implements Screen
 			points.add(new Point(kernel.getVirtualScreen().getWidth() * 2 / 3,                                         64));
 			points.add(new Point(   kernel.getVirtualScreen().getWidth() - 64, kernel.getVirtualScreen().getHeight() - 64));
 			
-			_event = new HOSlider(15, 15, 0, true, 0);
-			_event.setRepeats(Integer.MAX_VALUE);
+			_event = new HOSlider(15, 15, 3000, true, 0);
+			_event.setRepeats(4);
 			_event.setPathPoints(points);
 			
 			up = BitmapTint.apply(up, Color.RED);

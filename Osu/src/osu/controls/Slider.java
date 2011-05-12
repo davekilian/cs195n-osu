@@ -67,11 +67,11 @@ public class Slider implements Control
 	public Slider(HOSlider event)
 	{
 		_event = event;
-		_velocity = 1.f; // TODO: figure out what in god's name the beatmaps are doing
+		_velocity = .25f;
 		_x = event.getPathPoints().getFirst().x;
 		_y = event.getPathPoints().getFirst().y;
 		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);
-		_tend = _event.getTiming() / 1000.f + _event.getRepeats() * _velocity + FADE_OUT_TIME;
+		_tend = _event.getTiming() / 1000.f + _event.getRepeats() / _velocity + FADE_OUT_TIME;
 		_bounds = new Rect();
 		_callbacks = new ArrayList<SliderCallback>();
 		_repeatIteration = 0;
@@ -99,11 +99,11 @@ public class Slider implements Control
 	public Slider(HOSlider event, TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown)
 	{
 		_event = event;
-		_velocity = 1.f; // TODO: figure out what in god's name the beatmaps are doing
+		_velocity = .25f;
 		_x = event.getPathPoints().getFirst().x;
 		_y = event.getPathPoints().getFirst().y;
 		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);
-		_tend = _event.getTiming() / 1000.f + _event.getRepeats() * _velocity + FADE_OUT_TIME;
+		_tend = _event.getTiming() / 1000.f + _event.getRepeats() / _velocity + FADE_OUT_TIME;
 		_bounds = new Rect();
 		_callbacks = new ArrayList<SliderCallback>();
 		_cap = cap;
@@ -302,20 +302,34 @@ public class Slider implements Control
 	@Override
 	public void update(Kernel kernel, float t, float dt) 
 	{
-		_t += _velocity * dt;
-		Bezier.evaluate2d(_bezier, _t, _nubPoint);
-		
-		int dw = (int)(.5f * _nubUp.getWidth() * INPUT_FUDGE_FACTOR);
-		int dh = (int)(.5f * _nubUp.getHeight() * INPUT_FUDGE_FACTOR);
-		
-		_bounds.left   = (int)(_nubPoint.x - dw);
-		_bounds.top    = (int)(_nubPoint.y - dh);
-		_bounds.right  = (int)(_nubPoint.x + dw);
-		_bounds.bottom = (int)(_nubPoint.y + dh);
-		
-		_pressed = kernel.getTouch().isDown() && 
-		           Math.abs(kernel.getTouch().getX() - _nubPoint.x) < dw &&
-		           Math.abs(kernel.getTouch().getY() - _nubPoint.y) < dh;
+		if (t >= _tbeg + FADE_IN_TIME + WAIT_TIME && t <= _tend)
+		{
+			_t += _velocity * dt * ((_repeatIteration & 1) != 0 ? -1.f : 1.f);
+			if (_t > 1.f)
+			{
+				++_repeatIteration;
+				_t = 2.f - _t;
+			}
+			else if (_t < 0.f)
+			{
+				++_repeatIteration;
+				_t *= -1.f;
+			}
+			
+			Bezier.evaluate2d(_bezier, _t, _nubPoint);
+			
+			int dw = (int)(.5f * _nubUp.getWidth() * INPUT_FUDGE_FACTOR);
+			int dh = (int)(.5f * _nubUp.getHeight() * INPUT_FUDGE_FACTOR);
+			
+			_bounds.left   = (int)(_nubPoint.x - dw);
+			_bounds.top    = (int)(_nubPoint.y - dh);
+			_bounds.right  = (int)(_nubPoint.x + dw);
+			_bounds.bottom = (int)(_nubPoint.y + dh);
+			
+			_pressed = kernel.getTouch().isDown() && 
+			           Math.abs(kernel.getTouch().getX() - _nubPoint.x) < dw &&
+			           Math.abs(kernel.getTouch().getY() - _nubPoint.y) < dh;
+		}
 	}
 
 	/** Renders this slider */
@@ -323,8 +337,16 @@ public class Slider implements Control
 	public void draw(Kernel kernel, float t, float dt) 
 	{
 		if (isVisible(t))
-		{
-			agl.InstanceBitmapBezier(_fill.getTexture(), _fill.getWidth(), _fill.getHeight(), _bezier, _bezier.length / 2, STEPS_PER_CONTROL_POINT * _bezier.length / 2, 0.f, 1.f, 1.f, 1.f);
+		{	
+			float scale = _pressed ? INPUT_FUDGE_FACTOR : 1.f;
+			float alpha = 1.f;
+			if (t >= _tbeg && t <= _tbeg + FADE_IN_TIME)
+				alpha = (t - _tbeg) / FADE_IN_TIME;
+			else if (t <= _tend && t >= _tend - FADE_OUT_TIME)
+				alpha = (_tend - t) / FADE_OUT_TIME;			
+			
+			agl.InstanceBitmapBezier(_fill.getTexture(), _fill.getWidth(), _fill.getHeight(), _bezier, _bezier.length / 2, STEPS_PER_CONTROL_POINT * _bezier.length / 2, 0.f, 1.f, 1.f, alpha);
+			_cap.setAlpha(alpha);
 			_cap.getTranslation().x = _bezier[0];
 			_cap.getTranslation().y = _bezier[1];
 			_cap.draw(kernel);
@@ -332,16 +354,11 @@ public class Slider implements Control
 			_cap.getTranslation().y = _bezier[_bezier.length - 1];
 			_cap.draw(kernel);
 			
-			TexturedQuad nub = _pressed ? _nubDown : _nubUp;
-			float scale = _pressed ? INPUT_FUDGE_FACTOR : 1.f;
-			float alpha = 1.f;
-			
-			if (t >= _tbeg && t <= _tbeg + FADE_IN_TIME)
-				alpha = (t - _tbeg) / FADE_IN_TIME;
-			else if (t <= _tend && t >= _tend - FADE_OUT_TIME)
-				alpha = (_tend - t) / FADE_OUT_TIME;
-			
-			agl.DrawAlongBezierPath(nub.getTexture(), nub.getWidth(), nub.getHeight(), _bezier, _bezier.length / 2, _t, 0.f, scale, scale, alpha);
+			if (_repeatIteration < _event.getRepeats())
+			{
+				TexturedQuad nub = _pressed ? _nubDown : _nubUp;	
+				agl.DrawAlongBezierPath(nub.getTexture(), nub.getWidth(), nub.getHeight(), _bezier, _bezier.length / 2, _t, 0.f, scale, scale, alpha);
+			}
 		}
 	}
 }

@@ -29,7 +29,9 @@ public class SplashScreen implements Screen
 	public void update(Kernel kernel, float dt) 
 	{
 		// Testing in-game controls
-		kernel.swapScreen(new TestScreen());
+//		kernel.swapScreen(new TestScreen());
+		
+		kernel.swapScreen(new LoadScreen("/osu/beatmaps/tsugaru/test-tsugaru.osu"));
 	}
 
 	@Override

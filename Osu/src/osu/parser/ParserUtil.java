@@ -111,7 +111,7 @@ public class ParserUtil {
 		beatmap.setOverallDifficulty(Integer.parseInt(map.get("overalldifficulty")));
 		beatmap.setApproachRate(Integer.parseInt(map.get("approachrate")));
 		beatmap.setSliderMultiplier(Float.parseFloat(map.get("slidermultiplier")));
-		beatmap.setSliderTickRate(Integer.parseInt(map.get("slidertickrate")));
+		beatmap.setSliderTickRate(Float.parseFloat(map.get("slidertickrate")));
 	}
 	
 	private static void setEvents(ParserContainer pc, Beatmap beatmap)

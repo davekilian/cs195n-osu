@@ -2,7 +2,6 @@ package osu.math;
 
 import android.graphics.PointF;
 import android.util.FloatMath;
-
 /**
  * A simple Bezier curve evaluator
  * @author dkilian
@@ -25,7 +24,7 @@ public class Bezier
 		if (buf == null || buf.length < points.length)
 			buf = new float[points.length];
 		
-		for (int i = 0; i < buf.length; ++i)
+		for (int i = 0; i < points.length; ++i)
 			buf[i] = points[i];
 		
 		float oneMinusT = 1.f - t;

@@ -452,6 +452,7 @@ public class Slider implements Control
 						_repeat.getTranslation().x = _bezier[0];
 						_repeat.getTranslation().y = _bezier[1];
 						_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(tmpx - _bezier[1], tmpy - _bezier[0])));
+						_repeat.setAlpha(alpha);
 						_repeat.draw(kernel);
 					}
 				}
@@ -462,6 +463,7 @@ public class Slider implements Control
 					_repeat.getTranslation().x = endx;
 					_repeat.getTranslation().y = endy;
 					_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(tmpx - endx, tmpy - endy)));
+					_repeat.setAlpha(alpha);
 					_repeat.draw(kernel);
 				}
 

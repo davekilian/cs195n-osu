@@ -36,7 +36,7 @@ public class Beatmap {
 	private int overall_difficulty; // Timing windows, harshness of spinners
 	private int approach_rate; // How quickly the hitboxes appear on screen
 	private float slider_multiplier; // Changes rate of speed of sliders
-	private int slider_tick_rate; // Divides the sliders into this many point components
+	private float slider_tick_rate; // Divides the sliders into this many point components
 	
 	private Background background; // Class with many background attributes
 	private LinkedList<BreakTiming> break_timings; // List of breaks in the song (no controls or HP drain)
@@ -114,7 +114,7 @@ public class Beatmap {
 	public void setOverallDifficulty(int i) { overall_difficulty = i; }
 	public void setApproachRate(int i) { approach_rate = i; }
 	public void setSliderMultiplier(float f) { slider_multiplier = f; }
-	public void setSliderTickRate(int i) { slider_tick_rate = i; }
+	public void setSliderTickRate(float i) { slider_tick_rate = i; }
 	
 	public void setBackground(Background back) { background = back; }
 	public void setBreakTimings(LinkedList<BreakTiming> timings) { break_timings = timings; }
@@ -147,7 +147,7 @@ public class Beatmap {
 	public int getOverallDifficulty() { return overall_difficulty; }
 	public int getApproachRate() { return approach_rate; }
 	public float getSliderMultiplier() { return slider_multiplier; }
-	public int getSliderTickRate() { return slider_tick_rate; }
+	public float getSliderTickRate() { return slider_tick_rate; }
 	
 	public Background getBackground() { return background; }
 	public LinkedList<BreakTiming> getBreakTimings() { return break_timings; }

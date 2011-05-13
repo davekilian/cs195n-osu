@@ -21,7 +21,7 @@ import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
 public class TestScreen implements Screen
-{
+{	
 	private boolean _loaded = false;
 	private boolean _first = true;
 	private float _time = 0;

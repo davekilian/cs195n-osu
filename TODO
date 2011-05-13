@@ -1,12 +1,11 @@
-- Combo paths (those little white circles that lead you from button to button)
-- Figure out relative Z orderings (i.e. different buttons and approach rings)
-- Figure out this slider/beatmap bullshit
-- Return arrow graphic
-- Return arrows on sliders
+- Draw return arrows
+- Event based slider velocity and length truncation
 - Core gameplay engine
 - Figure out storage
 - Beatmap loading
 - Play a beatmap (implicity no-fail mode :D)
+- Combo paths
+- Move approach rings to a separate layer above other controls
 - Touch input calibration (see wiki)
 - Health / losing
 - Scoring

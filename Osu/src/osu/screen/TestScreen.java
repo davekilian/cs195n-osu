@@ -95,7 +95,7 @@ public class TestScreen implements Screen
 			event.setPathPoints(points);
 			event.setRepeats(4);
  			
-			_slider = new Slider(event, 
+			_slider = new Slider(event, 1000.f, 1.f, 340.f,
 								 Button.render(up, shadow, chrome), 
 								 Button.render(up, shadow, up), 
 								 Button.render(up, shadow, chrome), 

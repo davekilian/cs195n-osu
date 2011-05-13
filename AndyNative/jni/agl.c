@@ -775,15 +775,16 @@ void  aglInstanceBitmapLinear(GLint tex, GLint w, GLint h, GLfloat x1, GLfloat y
 	}
 }
 
-void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numPoints, GLint numSteps, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
+void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoints, GLint numPoints, GLint numSteps, GLfloat tmin, GLfloat tmax, GLfloat rot, GLfloat xscale, GLfloat yscale, GLfloat alpha)
 {
-	GLfloat t = 0.f, dt = 1.f / numSteps, x = 0.f, y = 0.f;
+	GLfloat t = tmin, dt = (tmax - tmin) / numSteps, x = 0.f, y = 0.f;
 	GLint i = 0, cplen = 2 * numPoints * sizeof(GLfloat);
 	GLfloat *cp = (GLfloat*)malloc(cplen);
 
 	logcat("Instancing bitmap using Bezier interpolation");
 	logfmt("%d control points", numPoints);
 	logfmt("%d steps", numSteps);
+	logfmt2("From %f to %f", tmin, tmax);
 
 #if LOG_ENABLED
 	for (i = 0; i < numPoints; ++i)
@@ -795,7 +796,7 @@ void  aglInstanceBitmapBezier(GLint tex, GLint w, GLint h, GLfloat *controlPoint
 	for (i = 0; i <= numSteps; ++i)
 	{
 		memcpy(cp, controlPoints, cplen);
-		aglEvalBezier(cp, numPoints, 1.f - t, &x, &y);
+		aglEvalBezier(cp, numPoints, t, &x, &y);
 		aglDrawBitmapWithoutShaderTransformed(tex, w, h, x, y, rot, xscale, yscale, alpha);
 		t += dt;
 		logfmt3("Step %d evaluated to (%f,%f)", i, x, y);
@@ -1274,10 +1275,10 @@ void Java_dkilian_andy_jni_agl_InstanceBitmapLinear(JNIEnv *env, jobject *thiz, 
 	aglInstanceBitmapLinear(tex, w, h, x1, y1, x2, y2, numSteps, rot, xscale, yscale, alpha);
 }
 
-void Java_dkilian_andy_jni_agl_InstanceBitmapBezier(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numPoints, jint numSteps, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha)
+void Java_dkilian_andy_jni_agl_InstanceBitmapBezier(JNIEnv *env, jobject *thiz, jint tex, jint w, jint h, jfloatArray controlPoints, jint numPoints, jint numSteps, jfloat tmin, jfloat tmax, jfloat rot, jfloat xscale, jfloat yscale, jfloat alpha)
 {
 	float *c = (*env)->GetFloatArrayElements(env, controlPoints, NULL);
-	aglInstanceBitmapBezier(tex, w, h, c, numPoints, numSteps, rot, xscale, yscale, alpha);
+	aglInstanceBitmapBezier(tex, w, h, c, numPoints, numSteps, tmin, tmax, rot, xscale, yscale, alpha);
 	(*env)->ReleaseFloatArrayElements(env, controlPoints, c, JNI_ABORT);
 }
 

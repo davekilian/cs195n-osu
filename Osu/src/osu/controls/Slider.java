@@ -50,6 +50,8 @@ public class Slider implements Control
 	private int _repeatIteration;
 	/** The bezier points describing this slider, in the format [x1 y1 x2 y2 ... xn yn] */
 	private float[] _bezier;
+	/** The upper bound of this slider's bezier curve, in [0,1] */
+	private float _bezierUpper;
 	/** The movement speed in Bezier t values per second (i.e. 1.f = the entire path in one second) */
 	private float _velocity;
 	/** The current position along this slider, between 0 and 1 */
@@ -65,21 +67,24 @@ public class Slider implements Control
 	/** The text to render centered in this slider's initial cap; null if none desired */
 	private String _text;
 	
+	/** Preallocated for GC performance */
+	private PointF _point = new PointF();
+	
 	/**
 	 * Creates a new slider with no graphics
 	 * @param event The event this slider corresponds to
+	 * @param beatLength The length of a beat at the point in the song this slider occurs, in milliseconds per beat
+	 * @param sliderMultiplier The slider speed multiplier; multiplies the slider speed from the base speed of 100 pixels per beatLength milliseconds
+	 * @param length The desired length of this slider; this slider will be truncated to match this value based on its true length (see Bezier.length())
 	 * @param approach This slider's (optional) approach ring
 	 * @param textCache Caches pre-rendered text sprites
 	 * @param text The text to render centered in this slider's initial cap. May be null if none desired.
 	 */
-	public Slider(HOSlider event, Ring approach, PrerenderCache textCache, String text)
+	public Slider(HOSlider event, float beatLength, float sliderMultiplier, float length, Ring approach, PrerenderCache textCache, String text)
 	{
 		_event = event;
-		_velocity = .5f;
 		_x = event.getPathPoints().getFirst().x;
 		_y = event.getPathPoints().getFirst().y;
-		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);
-		_tend = _event.getTiming() / 1000.f + _event.getRepeats() / _velocity + FADE_OUT_TIME;
 		_bounds = new Rect();
 		_callbacks = new ArrayList<SliderCallback>();
 		_repeatIteration = 0;
@@ -97,11 +102,19 @@ public class Slider implements Control
 			_bezier[i++] = p.x;
 			_bezier[i++] = p.y;
 		}
+		
+		_velocity = 100.f / (beatLength / 1000.f) * sliderMultiplier / length;
+		_bezierUpper = length / Bezier.length(_bezier);
+		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);
+		_tend = _event.getTiming() / 1000.f + _event.getRepeats() * _bezierUpper / _velocity + FADE_OUT_TIME;
 	}
 	
 	/**
 	 * Creates a new slider 
 	 * @param event The event this slider corresponds to
+	 * @param beatLength The length of a beat at the point in the song this slider occurs, in milliseconds per beat
+	 * @param sliderMultiplier The slider speed multiplier; multiplies the slider speed from the base speed of 100 pixels per beatLength milliseconds
+	 * @param length The desired length of this slider; this slider will be truncated to match this value based on its true length (see Bezier.length())
 	 * @param cap The graphic drawn at each end of the slider
 	 * @param fill The graphic drawn across the entire slider
 	 * @param nubUp The graphic drawn when the nub is not being pressed
@@ -111,14 +124,13 @@ public class Slider implements Control
 	 * @param textCache Caches pre-rendered text sprites
 	 * @param text The text to render centered in this slider's initial cap. May be null if none desired.
 	 */
-	public Slider(HOSlider event, TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown, TexturedQuad repeat, Ring approach, PrerenderCache textCache, String text)
+	public Slider(HOSlider event, float beatLength, float sliderMultiplier, float length, 
+			      TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown, TexturedQuad repeat, Ring approach, PrerenderCache textCache, String text)
 	{
 		_event = event;
 		_velocity = .5f;
 		_x = event.getPathPoints().getFirst().x;
 		_y = event.getPathPoints().getFirst().y;
-		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);
-		_tend = _event.getTiming() / 1000.f + _event.getRepeats() / _velocity + FADE_OUT_TIME;
 		_bounds = new Rect();
 		_callbacks = new ArrayList<SliderCallback>();
 		_cap = cap;
@@ -141,6 +153,11 @@ public class Slider implements Control
 			_bezier[i++] = p.x;
 			_bezier[i++] = p.y;
 		}
+		
+		_velocity = 100.f / (beatLength / 1000.f) * sliderMultiplier / length;
+		_bezierUpper = length / Bezier.length(_bezier);
+		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);
+		_tend = _event.getTiming() / 1000.f + _event.getRepeats() * _bezierUpper / _velocity + FADE_OUT_TIME;
 	}
 	
 	/** Gets the text centered in this slider's initial cap. May be null if none desired. */
@@ -360,10 +377,10 @@ public class Slider implements Control
 		if (t >= _tbeg + FADE_IN_TIME + WAIT_TIME && t <= _tend)
 		{
 			_t += _velocity * dt * ((_repeatIteration & 1) != 0 ? -1.f : 1.f);
-			if (_t > 1.f)
+			if (_t > _bezierUpper)
 			{
 				++_repeatIteration;
-				_t = 2.f - _t;
+				_t = 2.f * _bezierUpper - _t;
 			}
 			else if (_t < 0.f)
 			{
@@ -408,13 +425,18 @@ public class Slider implements Control
 			else if (t <= _tend && t >= _tend - FADE_OUT_TIME)
 				alpha = (_tend - t) / FADE_OUT_TIME;			
 			
-			agl.InstanceBitmapBezier(_fill.getTexture(), _fill.getWidth(), _fill.getHeight(), _bezier, _bezier.length / 2, STEPS_PER_CONTROL_POINT * _bezier.length / 2, 0.f, 1.f, 1.f, alpha);
+			Bezier.evaluate2d(_bezier, _bezierUpper, _point);
+			float endx = _point.x;
+			float endy = _point.y;
+			
+			agl.InstanceBitmapBezier(_fill.getTexture(), _fill.getWidth(), _fill.getHeight(), _bezier, _bezier.length / 2, STEPS_PER_CONTROL_POINT * _bezier.length / 2, 
+					                 0.f, _bezierUpper, 0.f, 1.f, 1.f, alpha);
 			_cap.setAlpha(alpha);
 			_cap.getTranslation().x = _bezier[0];
 			_cap.getTranslation().y = _bezier[1];
 			_cap.draw(kernel);
-			_cap.getTranslation().x = _bezier[_bezier.length - 2];
-			_cap.getTranslation().y = _bezier[_bezier.length - 1];
+			_cap.getTranslation().x = endx;
+			_cap.getTranslation().y = endy;
 			_cap.draw(kernel);
 			
 			if (_repeatIteration < _event.getRepeats())
@@ -425,18 +447,21 @@ public class Slider implements Control
 				{
 					if (_text == null || t * 1000.f >= _event.getTiming())	// Don't draw if the text is visible
 					{
+						Bezier.evaluate2d(_bezier, .025f, _point);
+						float tmpx = _point.x, tmpy = _point.y;
 						_repeat.getTranslation().x = _bezier[0];
 						_repeat.getTranslation().y = _bezier[1];
-						_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(_bezier[3] - _bezier[1], _bezier[2] - _bezier[0])));
+						_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(tmpx - _bezier[1], tmpy - _bezier[0])));
 						_repeat.draw(kernel);
 					}
 				}
 				if (remainingRepeats > 1 || (remainingRepeats == 1 && direction == 0))	// Arrow at end cap
 				{
-					int l = _bezier.length;
-					_repeat.getTranslation().x = _bezier[l-2];
-					_repeat.getTranslation().y = _bezier[l-1];
-					_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(_bezier[l-4] - _bezier[l-2], _bezier[l-3] - _bezier[l-1])));
+					Bezier.evaluate2d(_bezier, _bezierUpper - .025f, _point);
+					float tmpx = _point.x, tmpy = _point.y;
+					_repeat.getTranslation().x = endx;
+					_repeat.getTranslation().y = endy;
+					_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(tmpx - endx, tmpy - endy)));
 					_repeat.draw(kernel);
 				}
 

@@ -8,7 +8,7 @@ public class TimingPoint {
 	
 	// Time-Based
 	private long offset; // In millis - when this section begins
-	private double bpm; // 60 bpm = 1000; 120 bpm = 500; I dunno!
+	private double bpm; // In millis per beat
 	private int time_signature; // The top part of the time signature
 	
 	// Sound-Based (probably-unneeded)

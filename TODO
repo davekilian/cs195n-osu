@@ -1,6 +1,6 @@
-- Core gameplay engine
 - Figure out storage
 - Beatmap loading
+- Core gameplay engine
 - Play a beatmap (implicity no-fail mode :D)
 - Combo paths
 - Move approach rings to a separate layer above other controls

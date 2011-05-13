@@ -41,7 +41,7 @@ public class Slider implements Control
 	/** The bounds of this slider's nub */
 	private Rect _bounds;
 	/** The images the slider itself consists of */
-	private TexturedQuad _cap, _fill, _nubUp, _nubDown;
+	private TexturedQuad _cap, _fill, _nubUp, _nubDown, _repeat;
 	/** The event this slider corresponds to */
 	private HOSlider _event;
 	/** A list of objects this slider sends notifications to when its nub is interacted with */
@@ -106,11 +106,12 @@ public class Slider implements Control
 	 * @param fill The graphic drawn across the entire slider
 	 * @param nubUp The graphic drawn when the nub is not being pressed
 	 * @param nubDown The graphic drawn when the nub is being pressed
+	 * @param repeat The graphic drawn on the cap when a repeat is required
 	 * @param approach This slider's (optional) approach ring
 	 * @param textCache Caches pre-rendered text sprites
 	 * @param text The text to render centered in this slider's initial cap. May be null if none desired.
 	 */
-	public Slider(HOSlider event, TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown, Ring approach, PrerenderCache textCache, String text)
+	public Slider(HOSlider event, TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown, TexturedQuad repeat, Ring approach, PrerenderCache textCache, String text)
 	{
 		_event = event;
 		_velocity = .5f;
@@ -124,6 +125,7 @@ public class Slider implements Control
 		_fill = fill;
 		_nubUp = nubUp;
 		_nubDown = nubDown;
+		_repeat = repeat;
 		_repeatIteration = 0;
 		_t = 0;
 		_pressed = false;
@@ -417,6 +419,27 @@ public class Slider implements Control
 			
 			if (_repeatIteration < _event.getRepeats())
 			{
+				int remainingRepeats = _event.getRepeats() - (_repeatIteration + 1);
+				int direction = _repeatIteration & 1;
+				if (remainingRepeats > 1 || (remainingRepeats == 1 && direction != 0))	// Arrow at initial cap
+				{
+					if (_text == null || t * 1000.f >= _event.getTiming())	// Don't draw if the text is visible
+					{
+						_repeat.getTranslation().x = _bezier[0];
+						_repeat.getTranslation().y = _bezier[1];
+						_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(_bezier[3] - _bezier[1], _bezier[2] - _bezier[0])));
+						_repeat.draw(kernel);
+					}
+				}
+				if (remainingRepeats > 1 || (remainingRepeats == 1 && direction == 0))	// Arrow at end cap
+				{
+					int l = _bezier.length;
+					_repeat.getTranslation().x = _bezier[l-2];
+					_repeat.getTranslation().y = _bezier[l-1];
+					_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(_bezier[l-4] - _bezier[l-2], _bezier[l-3] - _bezier[l-1])));
+					_repeat.draw(kernel);
+				}
+
 				TexturedQuad nub = _pressed ? _nubDown : _nubUp;	
 				agl.DrawAlongBezierPath(nub.getTexture(), nub.getWidth(), nub.getHeight(), _bezier, _bezier.length / 2, _t, 0.f, scale, scale, alpha);
 			}

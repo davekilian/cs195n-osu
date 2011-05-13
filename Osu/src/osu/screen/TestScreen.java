@@ -17,6 +17,7 @@ import osu.main.R;
 import dkilian.andy.Kernel;
 import dkilian.andy.PrerenderCache;
 import dkilian.andy.Screen;
+import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
 public class TestScreen implements Screen
@@ -99,6 +100,7 @@ public class TestScreen implements Screen
 								 Button.render(up, shadow, up), 
 								 Button.render(up, shadow, chrome), 
 					             Button.render(down, shadow, chrome), 
+					             TexturedQuad.fromResource(kernel, R.drawable.slider_return),
 					             null,
 					             _textCache,
 					             "2");

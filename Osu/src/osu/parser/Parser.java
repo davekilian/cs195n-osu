@@ -4,33 +4,24 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
 import osu.game.*;
 
-import android.app.Activity;
-import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.util.Log;
 
 public class Parser {
-	
-	// Resource Accessors
-	private final AssetManager asset_manager;
-	
+		
 	// Storage
 	HashMap<Subsections, HashMap<String, String>> dict;
 	
 	
 	// *** CONSTRUCTORS *** //
-	public Parser(Activity act)
+	public Parser()
 	{
-		asset_manager = act.getAssets();
-		
 		initDict();
 	}
 	
@@ -95,36 +86,13 @@ public class Parser {
 	// *** ACTION *** //
 	/**
 	 * Parses an osu file and returns data to the given data structures.
-	 * Opens the path given (should be a vaild Android file location).
-	 * 
-	 * @param path The path to the desired Android file to be read.
-	 * @throws ParseException If anything unexpected happens in the file, causing parsing errors.
-	 * @throws IOException For any problems with java IO (BufferedReader).
-	 */
-	public void parseAndroidResource(String path, ParserContainer pc) throws ParseException, IOException
-	{
-		// Open resources
-		InputStream input_stream = asset_manager.open(path, AssetManager.ACCESS_BUFFER);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(input_stream));
-		
-		// Parse!
-		parse(reader, pc);
-		
-		// Close all used resources
-		reader.close();
-		input_stream.close();
-	}
-	
-	
-	/**
-	 * TEST FUNCTION: Parses an osu file and returns data to the given data structures.
-	 * Opens the path given (should be a vaild desktop file location).
+	 * Opens the path given.
 	 * 
 	 * @param path The path to the desired desktop resource to be read.
 	 * @throws ParseException If anything unexpected happens in the file, causing parsing errors.
 	 * @throws IOException For any problems with java IO (BufferedReader).
 	 */
-	public void parseDesktopResource(String path, ParserContainer pc) throws ParseException, IOException
+	public void parseResource(String path, ParserContainer pc) throws ParseException, IOException
 	{
 		// Open Resources
 		File file = new File(path);

@@ -245,13 +245,17 @@ public class Parser {
 			if (line.length() == 0) // Skip over blank lines
 				continue;
 			
-			line = line.toLowerCase(); // For easier checking against HashMap
+//			line = line.toLowerCase(); // For easier checking against HashMap
 			
 			// Parse left-side of expression
-			attrib = removeSpaces(line.substring(0, line.indexOf(':')));
+			attrib = removeSpaces(line.substring(0, line.indexOf(':'))).toLowerCase();
 			
 			// Parse right-side of expression
-			val = removeSpaces(line.substring(line.indexOf(':') + 1));
+			line = line.substring(line.indexOf(':') + 1);
+			if (line.charAt(0) == ' ')
+				val = line.substring(1);
+			else
+				val = line;
 			
 			// Set values in HashMap
 			if (subsect.containsKey(attrib))
@@ -416,12 +420,14 @@ public class Parser {
 	private String handleEvents(BufferedReader reader, ParserContainer pc) throws IOException
 	{
 		// Special case
-		String line = reader.readLine().toLowerCase(); // NOTE: I never check to make sure that this line is an event header.
+		String line = reader.readLine(); // NOTE: I never check to make sure that this line is an event header.
 		while (line.length() == 0)
-			line = reader.readLine().toLowerCase(); // Skip all blank lines
+			line = reader.readLine(); // Skip all blank lines
 		
 		while (true)
 		{
+			line = line.toLowerCase(); // Get lower case!
+			
 			if (lineCheck(line)) // Null or next header, break
 				break;
 			if (line.length() == 0) // Skip empty lines
@@ -432,7 +438,8 @@ public class Parser {
 				line = reader.readLine();
 				if (line.length() == 0 || line.charAt(0) != '0') // Error checking
 				{
-					line = getNextEventHeader(reader, line);
+					if (!isEventHeader(line))
+						getNextEventHeader(reader);
 					continue;
 				}
 					
@@ -475,7 +482,8 @@ public class Parser {
 				line = reader.readLine();
 				if (line.length() == 0) // Error checking (be more thorough?)
 				{
-					line = getNextEventHeader(reader, line);
+					if (!isEventHeader(line))
+						getNextEventHeader(reader);
 					continue;
 				}
 				
@@ -495,7 +503,7 @@ public class Parser {
 				printError("Parser.handleEvents", "Unknown event header: " + line);
 			
 			// Get next event header (or null or section header)
-			line = getNextEventHeader(reader, line);
+			line = getNextEventHeader(reader);
 		}
 		
 		return line;
@@ -641,10 +649,10 @@ public class Parser {
 	 * @return The next event header, if applicable
 	 * @throws IOException If there is some Java IO error
 	 */
-	private String getNextEventHeader(BufferedReader reader, String cur) throws IOException
+	private String getNextEventHeader(BufferedReader reader) throws IOException
 	{
-		String line = cur;
-		while (line != null || !isEventHeader(line) || !isHeader(line))
+		String line = reader.readLine();
+		while (line != null && !isEventHeader(line) && !isHeader(line))
 			line = reader.readLine();
 		
 		return line;

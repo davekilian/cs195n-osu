@@ -47,7 +47,7 @@ public class ParserUtil {
 		beatmap.setPreviewTime(Long.parseLong(map.get("previewtime")));
 		beatmap.setCountdownStyle(Integer.parseInt(map.get("countdown")));
 		beatmap.setSampleSet(map.get("sampleset"));
-		beatmap.setStackLeniency(Integer.parseInt(map.get("stackleniency")));
+		beatmap.setStackLeniency(Float.parseFloat(map.get("stackleniency")));
 		beatmap.setPlayMode(Integer.parseInt(map.get("mode")));
 		beatmap.setLetterboxInBreaks(Integer.parseInt(map.get("letterboxinbreaks")) == 1 ? true : false);
 		

@@ -149,6 +149,11 @@ SoundType: Determines what sound should be played as this piece is activated
 	12 - Finish & clap
 	10 - Whistle & clap
 	14 - Whistle, clap, & finish
+- These are flags. So
+	- Whistle = 0x0010
+	- Finish  = 0x0100
+	- Clap    = 0x1000
+- Bitwise-and them together to get multiple at once
 
 TYPE-SPECIFIC:
 	Button - none

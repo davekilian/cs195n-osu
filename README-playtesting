@@ -1,0 +1,16 @@
+CS195N Final Project Playtesting Handin Readme
+Dave Kilian (dkilian) & Michael Comella (mcomella)
+Osu!
+
+A NOTE ON PLAYTESTING NOTES
+	Both of us were a bit overbooked in terms of assignments due over the past few weeks and we ended up working on the assignments in the order that they were due. Because of this, unfortunately, our final project took a backseat for a while until recently when we finally had a chance to begin working on it. We hit a few speed bumps along the way (see below) which made our progress slower than expected and unfortunately, we were unable to make the game playtestable by the handin headline. We will be sure playtest as soon as we reach this stage (which appears to be relatively soon).
+
+DIFFICULTIES
+	One of our ideas in our assignment was to reverse engineer the Osu beatmap format (from the PC game) so that we would have a large library of songs to work with from the get-go. As should have been expected, this process was not as flawless as we had hoped. We hit some hurdles in the  undocumented beatmap format.
+	In particularly, the slider format was fairly unintuitive, requiring truncation based upon BPM and the length of the slider as well as the ability to evaluate a Bezier curve of an unlimited number of points (which were thus inclined to implement).
+	These, among other issues, caused some hiccups that were unexpected, preventing us from making the playtestable handin deadline with actual playtest cases.
+
+ON DEPARTMENT MACHINES
+	We are working on the project from our home machines. We have not tested anything on the department machines since we wanted to spend the most amount of time possible working on the assignment. Therefore, we have not modified any project settings and just handed in our entire workspace to hand in everything we have so far.
+	Since we have also written native OpenGL code, we are also using the NDK which, as far as we know, is not installed on department machines (though we could be wrong).
+	Therefore, between these issues, we don't think our code will run on department machines without some reconfiguration (though it does currently run on the device using our home setup).

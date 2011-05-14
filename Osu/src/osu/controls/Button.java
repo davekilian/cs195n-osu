@@ -206,6 +206,8 @@ public class Button implements Control
 			_approach.setY(getY());
 			_approach.setStartTime(_tbeg);
 			_approach.setEndTime(_event.getTiming() / 1000.f);
+			_approach.setStartScale(3.f);
+			_approach.setEndScale(1.f);
 		}
 	}
 	

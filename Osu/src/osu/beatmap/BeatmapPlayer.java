@@ -32,8 +32,8 @@ import dkilian.andy.TexturedQuad;
  */
 public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCallback
 {
-	/** The 'grace period' before/after a control's timings for which input is accepted, in beats. */
-	public static final float GRACE_PERIOD = .5f;
+	/** The 'grace period' before/after a control's timings for which input is accepted, in partial seconds */
+	public static final float GRACE_PERIOD = .25f;
 	
 	/** The beatmap this player plays */
 	private Beatmap _beatmap;
@@ -51,8 +51,6 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	private HashMap<Control, Miss> _misses;
 	/** The icon shown when an item is missed */
 	private TexturedQuad _missIcon;
-	/** The current game time, in seconds */
-	private float _time;
 	/** The player that plays this beatmap's audio */
 	private MediaPlayer _player;
 	
@@ -67,7 +65,6 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		_onDeck = new ArrayList<Control>();
 		_nextControl = 0;
 		_misses = new HashMap<Control, Miss>();
-		_time = 0.f;
 		_player = new MediaPlayer();
 		
 		Paint p = new Paint();
@@ -151,10 +148,10 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		if (c.getClass() == Button.class)
 		{
 			((Button)c).register(this);
-			((Button)c).getEvent().setGracePeriod(beatLength * GRACE_PERIOD);
+			((Button)c).getEvent().setGracePeriod(GRACE_PERIOD);
 			
 			Miss m = new Miss(((Button)c).getEvent(), _missIcon);
-			m.setStartTime(((Button)c).getEndTime() + beatLength * GRACE_PERIOD);
+			m.setStartTime(((Button)c).getEndTime() + GRACE_PERIOD);
 			m.setEndTime(m.getStartTime() + Miss.ANIMATION_TIME);
 			
 			_controls.add(m);
@@ -164,12 +161,12 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		{
 			Slider s = (Slider)c;
 			s.register(this);
-			s.getEvent().setGracePeriod(beatLength * GRACE_PERIOD);
+			s.getEvent().setGracePeriod(GRACE_PERIOD);
 			
 			HOSlider event = s.getEvent();
 			
 			Miss m = new Miss(event, _missIcon);
-			m.setStartTime(s.getEndTime() + beatLength * GRACE_PERIOD);
+			m.setStartTime(s.getEndTime() + GRACE_PERIOD);
 			m.setEndTime(m.getStartTime() + Miss.ANIMATION_TIME);
 			
 			if ((event.getRepeats() & 1) != 0)
@@ -214,7 +211,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	/** Does per-frame updating needed by this player */
 	public void update(Kernel kernel, float t, float dt)
 	{
-		_time = t;
+		t = _player.getCurrentPosition() / 1000.f - GRACE_PERIOD;
 		
 		// Remove invisible on-deck controls
 		for (int i = 0; i < _onDeck.size(); ++i)
@@ -261,6 +258,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	/** Renders the beatmap */
 	public void draw(Kernel kernel, float t, float dt)
 	{		
+		t = _player.getCurrentPosition() / 1000.f - GRACE_PERIOD;
+		
 		if (_background != null)
 		{
 			float w = kernel.getVirtualScreen().getWidth();
@@ -289,14 +288,18 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	@Override
 	public void sliderEvent(Slider sender, HOSlider event) 
 	{
-		if (Math.abs(_time - event.getTiming() / 1000.f) < event.getGracePeriod())
+		float t = _player.getCurrentPosition() / 1000.f - GRACE_PERIOD;
+		
+		if (Math.abs(t - event.getTiming() / 1000.f) < event.getGracePeriod())
 			_misses.get(sender).cancel();
 	}
 
 	@Override
 	public void buttonEvent(Button sender, HOButton event) 
 	{		
-		if (Math.abs(_time - event.getTiming() / 1000.f) < event.getGracePeriod())
+		float t = _player.getCurrentPosition() / 1000.f - GRACE_PERIOD;
+		
+		if (Math.abs(t - event.getTiming() / 1000.f) < event.getGracePeriod())
 			_misses.get(sender).cancel();
 	}
 }

@@ -194,7 +194,7 @@ public class Slider implements Control
 			_approach.setStartAlpha(0.f);
 			_approach.setEndAlpha(1.f);
 			_approach.setStartScale(3.f);
-			_approach.setEndScale(.75f);
+			_approach.setEndScale(1.f);
 			_approach.setStartTime(_tbeg);
 			_approach.setEndTime(_event.getTiming() / 1000.f);
 		}

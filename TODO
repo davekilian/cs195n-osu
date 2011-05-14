@@ -1,11 +1,11 @@
-- Core gameplay engine
-- Play a beatmap (implicity no-fail mode :D)
+- Track allocations, there seems to be a lot of activity but it could just be native alloc()/free()
+- Gameplay interaction
+- Miss icons
 - Combo paths
-- Move approach rings to a separate layer above other controls
-- Touch input calibration (see wiki)
 - Health / losing
 - Scoring
-- Lotsa constant-tweaking
+- Better hit-target size
+- Touch input calibration
 - Fancified graphics (shaders, particles)
 - Music playback
 - Music seeking

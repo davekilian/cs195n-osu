@@ -251,17 +251,28 @@ public class BeatmapLoader
 			int combo = 0;
 			int comboNumber = 1;
 			int timingPoint = 0;
+			float lastbpm = (float)beatmap.getTimingPoint().get(0).getBPM();
 			
 			for (int i = 0; i < pc.hit_objects.size(); ++i)
 			{
 				HitObject ho = pc.hit_objects.get(i);
 				if (ho.getNewCombo())
+				{
 					combo = (combo + 1) % beatmap.getComboColors().size();
+					comboNumber = 1;
+				}
 				
 				ComboColor color = beatmap.getComboColors().get(combo);
 				
 				while (timingPoint+1 < beatmap.getTimingPoint().size() && beatmap.getTimingPoint().get(timingPoint+1).getOffset() < ho.getTiming())
+				{
 					++timingPoint;
+					float bpm = (float)beatmap.getTimingPoint().get(timingPoint).getBPM();
+					if (bpm < 0)
+						lastbpm *= bpm / -100.f;
+					else
+						lastbpm = bpm;
+				}
 				
 				if (ho.getClass() == HOButton.class)
 				{
@@ -273,7 +284,7 @@ public class BeatmapLoader
 				else if (ho.getClass() == HOSlider.class)
 				{
 					HOSlider event = (HOSlider)ho;
-					float beatLength = (float)beatmap.getTimingPoint().get(timingPoint).getBPM();
+					float beatLength = lastbpm;
 					Slider s = new Slider(event, beatLength, beatmap.getSliderMultiplier(), event.getPathLength(), sliderCaps.get(color),
 							              sliderFills.get(color), sliderNubUps.get(color), sliderNubDowns.get(color), sliderReturn, null,
 							              player.getTextCache(), Integer.toString(comboNumber++));

@@ -20,7 +20,7 @@ import dkilian.andy.jni.agl;
 public class Slider implements Control
 {
 	/** The number of instances of the fill graphic drawn for a slider divided by the number of control points in the curve */
-	public static final int STEPS_PER_CONTROL_POINT = 6;
+	public static final int STEPS_PER_CONTROL_POINT = 3;
 	/** The amount of time it takes for a button to fade in, in partial seconds */
 	public static final float FADE_IN_TIME  = .3f;
 	/** The amount of time it takes for a button to fade out, in partial seconds */
@@ -83,8 +83,8 @@ public class Slider implements Control
 	public Slider(HOSlider event, float beatLength, float sliderMultiplier, float length, Ring approach, PrerenderCache textCache, String text)
 	{
 		_event = event;
-		_x = event.getPathPoints().getFirst().x;
-		_y = event.getPathPoints().getFirst().y;
+		_x = event.getX();
+		_y = event.getY();
 		_bounds = new Rect();
 		_callbacks = new ArrayList<SliderCallback>();
 		_repeatIteration = 0;
@@ -94,9 +94,11 @@ public class Slider implements Control
 		_approach = approach;
 		_textCache = textCache;
 		_text = text;
-		
-		_bezier = new float[_event.getPathPoints().size() * 2];
+
+		_bezier = new float[_event.getPathPoints().size() * 2 + 2];
 		int i = 0;
+		_bezier[i++] = _x;
+		_bezier[i++] = _y;
 		for (Point p : _event.getPathPoints())
 		{
 			_bezier[i++] = p.x;
@@ -129,8 +131,8 @@ public class Slider implements Control
 	{
 		_event = event;
 		_velocity = .5f;
-		_x = event.getPathPoints().getFirst().x;
-		_y = event.getPathPoints().getFirst().y;
+		_x = event.getX();
+		_y = event.getY();
 		_bounds = new Rect();
 		_callbacks = new ArrayList<SliderCallback>();
 		_cap = cap;
@@ -146,8 +148,10 @@ public class Slider implements Control
 		_textCache = textCache;
 		_text = text;
 		
-		_bezier = new float[_event.getPathPoints().size() * 2];
+		_bezier = new float[_event.getPathPoints().size() * 2 + 2];
 		int i = 0;
+		_bezier[i++] = _x;
+		_bezier[i++] = _y;
 		for (Point p : _event.getPathPoints())
 		{
 			_bezier[i++] = p.x;

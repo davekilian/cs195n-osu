@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 /**
  * Renders Canvas objects (i.e. text, circles, lines) to textures to
@@ -34,6 +35,12 @@ public class Prerender
 		p.getTextBounds(text, 0, text.length(), _r);
 		int width = _r.width();
 		int height = _r.height();
+		
+		// Non-even dimensions make GLUtils.texImage2D fuck up
+		if ((width & 1) != 0) ++width;
+		if ((height & 1) != 0) ++height;
+		
+		Log.v("", "text: " + text + " w: " + width + " h: " + height);
 		
 		return new PrerenderContext(width, height, p);
 	}

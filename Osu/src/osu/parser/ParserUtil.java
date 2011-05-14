@@ -2,6 +2,8 @@ package osu.parser;
 
 import java.util.HashMap;
 
+import android.util.Log;
+
 import osu.beatmap.*;
 
 /**
@@ -33,6 +35,7 @@ public class ParserUtil {
 			
 			return beatmap;
 		} catch (Exception ex) {
+			Log.v("", "", ex);
 			throw new ParseException("The conversion to Beatmap could not be completed: " + ex.toString());
 		}
 	}

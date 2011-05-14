@@ -261,15 +261,18 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	/** Renders the beatmap */
 	public void draw(Kernel kernel, float t, float dt)
 	{		
-		float w = kernel.getVirtualScreen().getWidth();
-		float h = kernel.getVirtualScreen().getHeight();
-
-		float scalex = w / _background.getWidth(), scaley = h / _background.getHeight(), scale = scalex < scaley ? scalex : scaley;
-		_background.getTranslation().x = .5f * w;
-		_background.getTranslation().y = .5f * h;
-		_background.getScale().x = scale;
-		_background.getScale().y = scale;
-		_background.draw(kernel);
+		if (_background != null)
+		{
+			float w = kernel.getVirtualScreen().getWidth();
+			float h = kernel.getVirtualScreen().getHeight();
+			
+			float scalex = w / _background.getWidth(), scaley = h / _background.getHeight(), scale = scalex < scaley ? scalex : scaley;
+			_background.getTranslation().x = .5f * w;
+			_background.getTranslation().y = .5f * h;
+			_background.getScale().x = scale;
+			_background.getScale().y = scale;
+			_background.draw(kernel);
+		}
 		
 		synchronized (_onDeck) 
 		{

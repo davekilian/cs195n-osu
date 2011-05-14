@@ -142,8 +142,8 @@ public class BeatmapLoader
 			}
 			catch (Exception ex)
 			{
-				progress = "Can't parse " + path + ": " + ex.toString();
-				Log.e("BeatmapLoader", progress);
+				progress = "Can't load beatmap audio: " + ex.toString();
+				Log.e("BeatmapLoader", progress, ex);
 				return;
 			}
 			
@@ -321,13 +321,14 @@ public class BeatmapLoader
 			String bgpath = folder + File.separator + beatmap.getBackground().getImagePath();
 			if (!new File(bgpath).exists())
 			{
-				progress = "Background image doesn't exist";
+				progress = "Background image doesn't exist: " + bgpath;
 				Log.e("BeatmapLoader", progress);
-				return;
 			}
-			Log.v("", bgpath);
-			player.setBackground(crossload(BitmapFactory.decodeFile(bgpath).copy(Bitmap.Config.ARGB_8888, false)));
-			++itemsLoaded; if (cancelled) return;
+			else
+			{
+				player.setBackground(crossload(BitmapFactory.decodeFile(bgpath).copy(Bitmap.Config.ARGB_8888, false)));
+				++itemsLoaded; if (cancelled) return;
+			}
 			
 			progress = beatmap.getAudioFilename();
 			String audiopath = folder + File.separator + beatmap.getAudioFilename();
@@ -339,7 +340,7 @@ public class BeatmapLoader
 			catch (Exception ex)
 			{
 				progress = "Can't load beatmap audio: " + ex.toString();
-				Log.e("BeatmapLoader", progress);
+				Log.e("BeatmapLoader", progress, ex);
 				return;
 			}
 			++itemsLoaded; if (cancelled) return;

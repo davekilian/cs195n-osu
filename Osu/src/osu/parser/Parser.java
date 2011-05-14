@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
+import osu.beatmap.Metadata;
 import osu.game.*;
 
 import android.graphics.Point;
@@ -103,6 +104,58 @@ public class Parser {
 		
 		// Close all used resources
 		reader.close();
+	}
+	
+	
+	public Metadata parseMetadataResource(String path) throws ParseException, IOException
+	{
+		Metadata out = new Metadata();
+		
+		// File IO
+		File file = new File(path);
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		
+		// Parse for metadata!
+		String line = getMetadataHeader(reader);
+		if (line == null)
+			throw new ParseException("Metadata header does not exist.");
+		
+		line = reader.readLine();
+		while (!lineCheck(line)) // Loop until EOF or a new header
+		{
+			if (line.length() == 0) // Error checking
+			{
+				line = reader.readLine();
+				continue;
+			}
+			
+			String to_check = removeSpaces(line.substring(0, line.indexOf(':'))).toLowerCase();
+			String val = removeFirstSpaces(line.substring(line.indexOf(':') + 1));
+			
+			if (to_check.equals("title"))
+				out.title = val;
+			else if (to_check.equals("artist"))
+				out.artist = val;
+			else if (to_check.equals("creator"))
+				out.creator = val;
+			else if (to_check.equals("version"))
+				out.version = val;
+			else if (to_check.equals("source"))
+				out.source = val;
+			else if (to_check.equals("tags"))
+				out.tags = val;
+			
+			line = reader.readLine();
+		}
+		
+		// Make sure we got good results
+		if (out.anyNull())
+			throw new ParseException("A field in Metadata was not filled in.");
+		
+		// Close all used resources
+		reader.close();
+		
+		return out;
 	}
 	
 	
@@ -660,6 +713,20 @@ public class Parser {
 	
 	
 	/**
+	 * Returns the Metadata header, or null if it does not exist.
+	 */
+	private String getMetadataHeader(BufferedReader reader) throws IOException
+	{
+		String line = removeSpaces(reader.readLine().toLowerCase());
+		
+		while (line != null && !line.equals("[metadata]"))
+			line = removeSpaces(reader.readLine().toLowerCase());
+			
+		return line;
+	}
+	
+	
+	/**
 	 * Removes all spaces in the input String.
 	 * @param s The String to remove the spaces from.
 	 * @return The given String with no space characters.
@@ -680,6 +747,18 @@ public class Parser {
 		return s;
 	}
 
+	
+	/**
+	 * Removes all the first spaces from the input String (before the content begins).
+	 */
+	private String removeFirstSpaces(String s)
+	{
+		while (s.length() != 0 && s.charAt(0) == ' ')
+			s = s.substring(1);
+		
+		return s;
+	}
+	
 	
 	/**
 	 * Prints any non-thrown parse errors to the command line (Logcat and stdout).

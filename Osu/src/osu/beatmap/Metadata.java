@@ -25,4 +25,15 @@ public class Metadata {
 		tags = null;
 	}
 	
+	
+	// *** HELPER METHODS *** //
+	/**
+	 * Return a boolean saying whether any fields in metadata are null.
+	 */
+	public boolean anyNull()
+	{
+		return (title == null || artist == null || creator == null || 
+				version == null || source == null || tags == null);
+	}
+	
 }

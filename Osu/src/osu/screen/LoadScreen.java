@@ -3,6 +3,7 @@ package osu.screen;
 import android.graphics.Color;
 import android.graphics.Paint;
 import osu.beatmap.BeatmapLoader;
+import osu.main.R;
 import dkilian.andy.Kernel;
 import dkilian.andy.Prerender;
 import dkilian.andy.PrerenderContext;
@@ -28,6 +29,10 @@ public class LoadScreen implements Screen
 	private TexturedQuad _text;
 	
 	private boolean _renderedCombos = false;
+	
+	private TexturedQuad _background;
+	
+	private TexturedQuad _progress;
 	
 	public LoadScreen(String path)
 	{
@@ -73,6 +78,9 @@ public class LoadScreen implements Screen
 			
 			_context = new PrerenderContext(500, 20, p);
 			_text = new TexturedQuad(agl.CreateEmptyTexture(), 500, 20);
+			
+			_background = TexturedQuad.fromResource(kernel, R.drawable.loading_screen);
+			_progress = TexturedQuad.fromResource(kernel, R.drawable.loading_screen_progress);
 		}
 		
 		if (_loader != null && !_loader.isLoading() && !_renderedCombos)
@@ -82,14 +90,24 @@ public class LoadScreen implements Screen
 			_renderedCombos = true;
 		}
 		
+		float x = .5f * kernel.getVirtualScreen().getWidth();
+		float y = .5f * kernel.getVirtualScreen().getHeight();
+		_background.getTranslation().x = x;
+		_background.getTranslation().y = y;
+		_background.draw(kernel);
+
+		agl.Clip(0, 0, (int)(kernel.getVirtualScreen().getWidth() * _loader.getProgress()), kernel.getVirtualScreen().getHeight());
+		_progress.getTranslation().x = x;
+		_progress.getTranslation().y = y;
+		_progress.draw(kernel);
+		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight());
+		
 		Prerender.string(_loader.getProgressString(), _context, _text);
 		
 		_text.getTranslation().x = kernel.getVirtualScreen().getWidth() * .5f;
-		_text.getTranslation().y = kernel.getVirtualScreen().getHeight() * .5f;
+		_text.getTranslation().y = kernel.getVirtualScreen().getHeight() * .75f;
 		_text.draw(kernel);
 		
 		_loader.doGLTasks();
-		
-		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight());
 	}
 }

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
+import android.graphics.Rect;
 
 import osu.controls.Button;
 import osu.controls.ButtonCallback;
@@ -21,7 +21,6 @@ import osu.game.HOSpinner;
 import dkilian.andy.Kernel;
 import dkilian.andy.PrerenderCache;
 import dkilian.andy.TexturedQuad;
-import dkilian.andy.jni.agl;
 
 /**
  * Encapsulates the logic of playing a beatmap, e.g. playing the audio, showing
@@ -174,7 +173,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		{
 			synchronized (_onDeck)
 			{
-				_onDeck.add(_controls.get(_nextControl));
+				_onDeck.addFirst(_controls.get(_nextControl));
 			}
 			++_nextControl;
 		}
@@ -187,15 +186,19 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		}
 		
 		// Interactions with the current on-deck control
-		// TODO
+		if (!_onDeck.isEmpty() && kernel.getTouch().isDown())
+		{
+			float x = kernel.getTouch().getX();
+			float y = kernel.getTouch().getY();
+			Rect r = _onDeck.getLast().getHitbox();
+			if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom)
+				_onDeck.getLast().interact(x, y, t);
+		}
 	}
 	
 	/** Renders the beatmap */
 	public void draw(Kernel kernel, float t, float dt)
-	{				
-		agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
-		agl.BlendPremultiplied();
-		
+	{		
 		float w = kernel.getVirtualScreen().getWidth();
 		float h = kernel.getVirtualScreen().getHeight();
 
@@ -209,11 +212,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		synchronized (_onDeck) 
 		{
 			for (Control c : _onDeck)
-			{
 				c.draw(kernel, t, dt);
-				if (c.getEndTime() == Float.POSITIVE_INFINITY)
-					Log.v("", c.getClass().toString() + " t: " + t + " tbeg: " + c.getStartTime() + " tend: " + c.getEndTime());
-			}
 		}
 	}
 

@@ -101,7 +101,7 @@ public class Ring implements Control
 		_bounds = new Rect();
 		_alphabeg = 0.f;
 		_alphaend = 1.f;
-		_scalebeg = 8.f;
+		_scalebeg = 3.f;
 		_scaleend = 1.f;
 		_animating = true;
 		_alpha = 1.f;
@@ -126,7 +126,7 @@ public class Ring implements Control
 		_bounds = new Rect();
 		_alphabeg = 0.f;
 		_alphaend = 1.f;
-		_scalebeg = 8.f;
+		_scalebeg = 3.f;
 		_scaleend = 1.f;
 		_animating = false;
 		_alpha = alpha;

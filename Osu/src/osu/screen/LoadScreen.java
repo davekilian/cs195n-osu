@@ -80,5 +80,7 @@ public class LoadScreen implements Screen
 		_text.draw(kernel);
 		
 		_loader.doGLTasks();
+		
+		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight());
 	}
 }

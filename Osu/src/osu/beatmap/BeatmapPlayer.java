@@ -6,6 +6,7 @@ import java.util.HashMap;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.media.MediaPlayer;
 
 import osu.controls.Button;
 import osu.controls.ButtonCallback;
@@ -32,7 +33,7 @@ import dkilian.andy.TexturedQuad;
 public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCallback
 {
 	/** The 'grace period' before/after a control's timings for which input is accepted, in beats. */
-	public static final float GRACE_PERIOD = 1.f;
+	public static final float GRACE_PERIOD = .5f;
 	
 	/** The beatmap this player plays */
 	private Beatmap _beatmap;
@@ -52,6 +53,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	private TexturedQuad _missIcon;
 	/** The current game time, in seconds */
 	private float _time;
+	/** The player that plays this beatmap's audio */
+	private MediaPlayer _player;
 	
 	/**
 	 * Creates a new beatmap player
@@ -65,6 +68,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		_nextControl = 0;
 		_misses = new HashMap<Control, Miss>();
 		_time = 0.f;
+		_player = new MediaPlayer();
 		
 		Paint p = new Paint();
 		_textCache = new PrerenderCache(p);
@@ -83,6 +87,12 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	public void setBeatmap(Beatmap bm)
 	{
 		_beatmap = bm;
+	}
+	
+	/** Gets the media player that play's this beatmap's audio */
+	public MediaPlayer getMediaPlayer()
+	{
+		return _player;
 	}
 	
 	/** Gets this beatmap's background image */
@@ -193,7 +203,10 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	}
 	
 	/** Initializes playback */
-	public void begin() {}
+	public void begin()
+	{
+		_player.start();
+	}
 	
 	/** Ends playback prematurely (e.g. due to a game over/loss condition) */
 	public void end() {}

@@ -330,7 +330,18 @@ public class BeatmapLoader
 			++itemsLoaded; if (cancelled) return;
 			
 			progress = beatmap.getAudioFilename();
-			// TODO - when we have audio
+			String audiopath = folder + File.separator + beatmap.getAudioFilename();
+			try
+			{
+				player.getMediaPlayer().setDataSource(audiopath);
+				player.getMediaPlayer().prepare();
+			}
+			catch (Exception ex)
+			{
+				progress = "Can't load beatmap audio: " + ex.toString();
+				Log.e("BeatmapLoader", progress);
+				return;
+			}
 			++itemsLoaded; if (cancelled) return;
 			
 			progress = "done!";

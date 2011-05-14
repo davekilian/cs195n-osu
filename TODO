@@ -1,4 +1,3 @@
-- Miss icons
 - Health / losing
 - Scoring
 - Better hit-target size
@@ -13,7 +12,7 @@
 - Pause menu
 - Loading screen
 - Test postprocessing
-- Insert postprocessing as appropriate (e.g. blur on defeat)
+- Insert postprocessing as appropriate (e.g. blur on defeat, oversaturate on low health?)
 - Find interaction sfx
 - Implement interaction sfx
 

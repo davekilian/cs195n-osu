@@ -3,6 +3,7 @@ package osu.controls;
 import java.util.ArrayList;
 
 import osu.game.HOSpinner;
+import osu.game.HitObject;
 import android.graphics.Rect;
 import dkilian.andy.Kernel;
 import dkilian.andy.TexturedQuad;
@@ -368,5 +369,12 @@ public class Spinner implements Control
 				_approach.draw(kernel, t, dt);
 			}
 		}
+	}
+
+	/** Not used */
+	@Override
+	public HitObject getEvent() 
+	{
+		return null;
 	}
 }

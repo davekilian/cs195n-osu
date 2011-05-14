@@ -1,6 +1,6 @@
 package osu.controls;
 
-import osu.game.HOButton;
+import osu.game.HitObject;
 import android.graphics.Rect;
 import dkilian.andy.Kernel;
 import dkilian.andy.TexturedQuad;
@@ -32,7 +32,7 @@ public class Miss implements Control
 	private TexturedQuad _sprite;
 	
 	/** Creates a new miss icon corresponding to a button event */
-	public Miss(HOButton event)
+	public Miss(HitObject event)
 	{
 		_x = event.getX();
 		_y = event.getY();
@@ -43,7 +43,7 @@ public class Miss implements Control
 	}
 	
 	/** Creates a new miss icon corresponding to a button event */
-	public Miss(HOButton event, TexturedQuad sprite)
+	public Miss(HitObject event, TexturedQuad sprite)
 	{
 		_x = event.getX();
 		_y = event.getY();
@@ -156,5 +156,12 @@ public class Miss implements Control
 			_sprite.getScale().x = _sprite.getScale().y = .75f;
 			_sprite.draw(kernel);
 		}
+	}
+
+	/** Not used */
+	@Override
+	public HitObject getEvent() 
+	{
+		return null;
 	}
 }

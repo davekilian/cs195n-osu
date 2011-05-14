@@ -1,6 +1,7 @@
 package osu.controls;
 
 import osu.game.ComboColor;
+import osu.game.HitObject;
 import osu.graphics.BitmapTint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -360,5 +361,12 @@ public class Ring implements Control
 			_sprite.getScale().y = scale;
 			_sprite.draw(kernel);
 		}
+	}
+
+	/** Not used */
+	@Override
+	public HitObject getEvent() 
+	{
+		return null;
 	}
 }

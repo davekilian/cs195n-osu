@@ -1,5 +1,6 @@
 package osu.controls;
 
+import osu.game.HitObject;
 import dkilian.andy.Kernel;
 import android.graphics.Rect;
 
@@ -30,6 +31,9 @@ public interface Control
 	public float getEndTime();
 	/** Sets the time, in partial seconds, from the beginning of the song this control should be hidden again */
 	public void setEndTime(float t);
+	
+	/** Gets the hit object corresponding to this control */
+	public HitObject getEvent();
 	
 	/**
 	 * Determines whether or not this control should be visible at the given time

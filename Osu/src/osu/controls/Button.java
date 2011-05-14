@@ -318,15 +318,13 @@ public class Button implements Control
 	@Override
 	public void interact(float x, float y, float t) 
 	{
-		if (isVisible(t))
+		if (x >= _bounds.left && x <= _bounds.right && y >= _bounds.top && y <= _bounds.bottom)
 		{
-			if (x >= _bounds.left && x <= _bounds.right && y >= _bounds.top && y <= _bounds.bottom)
-			{
+			if (Math.abs(t - _event.getTiming() / 1000.f) < _event.getGracePeriod())
 				_pressed = true;
-				
-				for (int i = 0; i < _callbacks.size(); ++i)
-					_callbacks.get(i).buttonEvent(this, _event);
-			}
+			
+			for (int i = 0; i < _callbacks.size(); ++i)
+				_callbacks.get(i).buttonEvent(this, _event);
 		}
 	}
 

@@ -156,6 +156,7 @@ public class BeatmapLoader
 			itemsToLoad += 4;				// spinner mask, fill, no-fill, spiral
 			itemsToLoad += 2;				// approach ring shadow and fill
 			itemsToLoad += 2 * numCombos;	// approach ring recoloring/rendering 	
+			itemsToLoad += 1;				// 'miss' icon
 			itemsToLoad += 1;				// Create all controls
 			itemsToLoad += 2;            	// beatmap background, audio file	
 			
@@ -248,9 +249,13 @@ public class BeatmapLoader
 				++itemsLoaded; if (cancelled) return;
 			}
 			
+			TexturedQuad missIcon = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.no, opt));
+
 			// Create controls
 			progress = "Initializing UI ...";
 			player = new BeatmapPlayer(beatmap);
+			player.setMissIcon(missIcon);
+			
 			int combo = 0;
 			int comboNumber = 1;
 			int timingPoint = 0;
@@ -285,24 +290,23 @@ public class BeatmapLoader
 					HOButton event = (HOButton)ho;
 					Button b = new Button(event, buttonUps.get(color), buttonDowns.get(color), null, player.getTextCache(), Integer.toString(comboNumber++));
 					b.setApproachRing(new Ring(rings.get(color)));
-					player.add(b);
+					player.add(b, lastbpm);
 				}
 				else if (ho.getClass() == HOSlider.class)
 				{
 					HOSlider event = (HOSlider)ho;
-					float beatLength = lastbpm;
-					Slider s = new Slider(event, beatLength, beatmap.getSliderMultiplier(), event.getPathLength(), sliderCaps.get(color),
+					Slider s = new Slider(event, lastbpm, beatmap.getSliderMultiplier(), event.getPathLength(), sliderCaps.get(color),
 							              sliderFills.get(color), sliderNubUps.get(color), sliderNubDowns.get(color), sliderReturn, null,
 							              player.getTextCache(), Integer.toString(comboNumber++));
 					s.setApproachRing(new Ring(rings.get(color)));
-					player.add(s);
+					player.add(s, lastbpm);
 				}
 				else if (ho.getClass() == HOSpinner.class)
 				{
 					HOSpinner event = (HOSpinner)ho;
 					Spinner s = new Spinner(event, spinnerSpiral, spinnerNoFill, spinnerFill, spinnerMask, null);
 					s.setApproachRing(new Ring(rings.get(color)));
-					player.add(s);
+					player.add(s, lastbpm);
 				}
 				else
 				{

@@ -394,18 +394,6 @@ public class Slider implements Control
 			
 			Bezier.evaluate2d(_bezier, _t, _nubPoint);
 			
-			int dw = (int)(.5f * _nubUp.getWidth() * INPUT_FUDGE_FACTOR);
-			int dh = (int)(.5f * _nubUp.getHeight() * INPUT_FUDGE_FACTOR);
-			
-			_bounds.left   = (int)(_nubPoint.x - dw);
-			_bounds.top    = (int)(_nubPoint.y - dh);
-			_bounds.right  = (int)(_nubPoint.x + dw);
-			_bounds.bottom = (int)(_nubPoint.y + dh);
-			
-			_pressed = kernel.getTouch().isDown() && 
-			           Math.abs(kernel.getTouch().getX() - _nubPoint.x) < dw &&
-			           Math.abs(kernel.getTouch().getY() - _nubPoint.y) < dh;
-			
 			if (_approach != null)
 			{
 				_approach.setAnimated(false);
@@ -414,6 +402,18 @@ public class Slider implements Control
 				_approach.setY(_nubPoint.y);
 			}
 		}
+		
+		int dw = (int)(.5f * _nubUp.getWidth() * INPUT_FUDGE_FACTOR);
+		int dh = (int)(.5f * _nubUp.getHeight() * INPUT_FUDGE_FACTOR);
+		
+		_bounds.left   = (int)(_nubPoint.x - dw);
+		_bounds.top    = (int)(_nubPoint.y - dh);
+		_bounds.right  = (int)(_nubPoint.x + dw);
+		_bounds.bottom = (int)(_nubPoint.y + dh);
+		
+		_pressed = kernel.getTouch().isDown() && 
+		           Math.abs(kernel.getTouch().getX() - _nubPoint.x) < dw &&
+		           Math.abs(kernel.getTouch().getY() - _nubPoint.y) < dh;
 	}
 
 	/** Renders this slider */

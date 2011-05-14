@@ -15,6 +15,8 @@ public abstract class HitObject {
 	// Probably unneeded
 	int sound_type; // Sound this object makes when hit
 	
+	float grace_period; // In partial seconds
+	
 	
 	// *** ACCESSORS *** //
 	public int getX() { return x; }
@@ -26,6 +28,8 @@ public abstract class HitObject {
 	
 	public int getSoundType() { return sound_type; }
 	
+	public float getGracePeriod() { return grace_period; }
+	
 	
 	public void setX(int i) { x = i; }
 	public void setY(int i) { y = i; }
@@ -35,5 +39,7 @@ public abstract class HitObject {
 	public void setNewCombo(boolean b) { new_combo = b; }
 	
 	public void setSoundType(int i) { sound_type = i; }
+	
+	public void setGracePeriod(float gp) { grace_period = gp; }
 
 }

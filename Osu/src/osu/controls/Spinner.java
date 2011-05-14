@@ -19,7 +19,7 @@ public class Spinner implements Control
 	/** The amount of time it takes for a spinner to fade in, in partial seconds */
 	public static final float FADE_IN_TIME  = .3f;
 	/** The amount of time it takes for a spinner to fade out, in partial seconds */
-	public static final float FADE_OUT_TIME = .7f;
+	public static final float FADE_OUT_TIME = .3f;
 	
 	/** Unused */
 	private float _x;
@@ -262,12 +262,7 @@ public class Spinner implements Control
 
 	/** Notifies this spinner of a user's touch input */
 	@Override
-	public void interact(float x, float y, float t) 
-	{
-		if (_isDown)
-			for (int i = 0; i < _callbacks.size(); ++i)
-				_callbacks.get(i).spinnerEvent(this, _event);
-	}
+	public void interact(float x, float y, float t) {}
 
 	/** Does required per-frame updating of this spinner */
 	@Override
@@ -308,6 +303,10 @@ public class Spinner implements Control
 		{
 			_isDown = false;
 		}
+		
+		if (_isDown)
+			for (int i = 0; i < _callbacks.size(); ++i)
+				_callbacks.get(i).spinnerEvent(this, _event);
 		
 		_power -= _powerDrain * dt;
 		if (_power < 0.f) _power = 0.f;

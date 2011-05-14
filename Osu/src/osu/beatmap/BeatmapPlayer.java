@@ -2,12 +2,12 @@ package osu.beatmap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
-import android.util.FloatMath;
 
 import osu.controls.Button;
 import osu.controls.ButtonCallback;
@@ -22,7 +22,9 @@ import osu.game.HOSlider;
 import osu.game.HOSpinner;
 
 import dkilian.andy.Kernel;
+import dkilian.andy.Prerender;
 import dkilian.andy.PrerenderCache;
+import dkilian.andy.PrerenderContext;
 import dkilian.andy.TexturedQuad;
 import dkilian.andy.jni.agl;
 
@@ -36,6 +38,18 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 {
 	/** The 'grace period' before/after a control's timings for which input is accepted, in partial seconds */
 	public static final float GRACE_PERIOD = .25f;
+	/** The amount of HP gained when a hit object is hit */
+	public static final float HP_HIT = .2f;
+	/** The amount of HP lost when a hit object is missed */
+	public static final float HP_MISS = .1f;
+	/** The amount of HP lost per second */
+	public static final float HP_DRAIN = .025f;
+	/** The score awarded for a button press */
+	public static final int BUTTON_SCORE = 100;
+	/** The score awarded for a slider per second */
+	public static final int SLIDER_SCORE = 100;
+	/** The score awarded for a spinner per second */
+	public static final int SPINNER_SCORE = 100;
 	
 	/** The beatmap this player plays */
 	private Beatmap _beatmap;
@@ -59,8 +73,26 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	private TexturedQuad _healthFill;
 	/** The health bar graphic */
 	private TexturedQuad _healthBar;
+	/** The low-health graphic */
+	private TexturedQuad _healthDanger;
 	/** The amount of health the player has */
 	private float _health;
+	/** All items that have been correctly interacted with, for health management */
+	private HashSet<Control> _notMissed;
+	/** The time at which the first control appears. Causes health to be built up at the beginning of the beatmap */
+	private float _firstControlTime;
+	/** Whether or not health is currently draining. Based on whether a spinner or slider is in play */
+	private boolean _healthDrainEnabled;
+	/** The player's current score */
+	private int _score;
+	/** The sprite containing the player's score */
+	private TexturedQuad _scoreSprite;
+	/** Whether or not the score needs to be re-rendered */
+	private boolean _scoreDirty;
+	/** The score rendering context */
+	private PrerenderContext _scoreContext;
+	/** The last dt recorded in an update() call */
+	private float _dt;
 	
 	/**
 	 * Creates a new beatmap player
@@ -75,12 +107,24 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		_misses = new HashMap<Control, Miss>();
 		_player = new MediaPlayer();
 		_health = 1.f;
+		_notMissed = new HashSet<Control>();
+		_firstControlTime = Float.MAX_VALUE;
+		_healthDrainEnabled = true;
+		_score = 0;
+		_scoreDirty = false;
+		_dt = 0.f;
 		
 		Paint p = new Paint();
 		_textCache = new PrerenderCache(p);
 		p.setColor(Color.WHITE);
 		p.setTextSize(60.f);
 		p.setAntiAlias(true);
+		
+		p = new Paint();
+		p.setColor(Color.WHITE);
+		p.setTextSize(40.f);
+		p.setAntiAlias(true);
+		_scoreContext = Prerender.contextForString("0000000", p);
 	}
 	
 	/** Gets the beatmap this player plays */
@@ -117,6 +161,18 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	public void setHealthBar(TexturedQuad health)
 	{
 		_healthBar = health;
+	}
+	
+	/** Gets the low health graphic */
+	public TexturedQuad getLowHealth()
+	{
+		return _healthDanger;
+	}
+	
+	/** Sets the low-health graphic */
+	public void setLowHealth(TexturedQuad low)
+	{
+		_healthDanger = low;
 	}
 	
 	/** Gets the media player that play's this beatmap's audio */
@@ -175,9 +231,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	
 	/** Adds a control to this beatmap */
 	public void add(Control c, float beatLength)
-	{	
-		beatLength *= .001;	// ms -> s
-		
+	{			
 		if (c.getClass() == Button.class)
 		{
 			((Button)c).register(this);
@@ -215,6 +269,9 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		{
 			((Spinner)c).register(this);
 		}
+		
+		if (_firstControlTime > c.getStartTime())
+			_firstControlTime = c.getStartTime();
 
 		_controls.add(c);
 	}
@@ -245,6 +302,49 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	public void update(Kernel kernel, float t, float dt)
 	{
 		t = _player.getCurrentPosition() / 1000.f - GRACE_PERIOD;
+		_dt = dt;
+		
+		// Manage health
+		if (t < _firstControlTime)
+		{
+			_health = t / _firstControlTime;
+		}
+		else
+		{
+			_healthDrainEnabled = true;
+			
+			// Disable the drain if a slider or spinner is in effect
+			for (int i = 0; i < _onDeck.size(); ++i)
+			{
+				Control c = _onDeck.get(i);
+				if (c instanceof Slider)
+				{
+					Slider s = (Slider)c;
+					if (t >= s.getStartTime() + Slider.FADE_IN_TIME + Slider.WAIT_TIME &&
+					    t <= s.getEndTime() - Slider.FADE_OUT_TIME)
+					{
+						_healthDrainEnabled = false;
+						break;
+					}
+				}
+				else if (c instanceof Spinner)
+				{
+					Spinner s = (Spinner)c;
+					if (t >= s.getStartTime() + Spinner.FADE_IN_TIME &&
+						t <= s.getEndTime() - Spinner.FADE_OUT_TIME)
+					{
+						_healthDrainEnabled = false;
+						break;
+					}
+				}
+			}
+			
+			if (_healthDrainEnabled)
+			{
+				_health -= HP_DRAIN * dt;
+				if (_health < 0.f) _health = 0.f;
+			}
+		}
 		
 		// Remove invisible on-deck controls
 		for (int i = 0; i < _onDeck.size(); ++i)
@@ -254,6 +354,11 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 			{
 				_onDeck.remove(i);
 				--i;
+				if (_healthDrainEnabled && !_notMissed.contains(c))
+				{
+					_health -= HP_MISS;
+					if (_health < 0.f) _health = 0.f;
+				}
 			}
 		}
 		
@@ -293,6 +398,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	{		
 		t = _player.getCurrentPosition() / 1000.f - GRACE_PERIOD;
 		
+		// Background
 		if (_background != null)
 		{
 			float w = kernel.getVirtualScreen().getWidth();
@@ -306,11 +412,17 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 			_background.draw(kernel);
 		}
 		
+		// Controls
+		synchronized (_onDeck) 
+		{
+			for (int i = 0; i < _onDeck.size(); ++i)
+				_onDeck.get(i).draw(kernel, t, dt);
+		}
+		
+		// Health bar
 		_healthBar.getTranslation().x = .5f * _healthBar.getWidth();
 		_healthBar.getTranslation().y = .5f * _healthBar.getHeight();
 		_healthBar.draw(kernel);
-		
-		_health = .5f + .5f * FloatMath.sin(t);
 		
 		_healthFill.getTranslation().x = .5f * _healthFill.getWidth();
 		_healthFill.getTranslation().y = .5f * _healthFill.getHeight();
@@ -318,16 +430,42 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		_healthFill.draw(kernel);
 		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight());
 		
-		synchronized (_onDeck) 
+		if (_health < .5f)
 		{
-			for (int i = 0; i < _onDeck.size(); ++i)
-				_onDeck.get(i).draw(kernel, t, dt);
+			float alpha = 1.f - Math.max(0.f, (_health - .25f) / (.5f - .25f));
+
+			_healthDanger.getTranslation().x = .5f * _healthBar.getWidth();
+			_healthDanger.getTranslation().y = .5f * _healthBar.getHeight();
+			_healthDanger.setAlpha(alpha);
+			_healthDanger.draw(kernel);
 		}
+		
+		// Score
+		if (_scoreSprite == null)
+		{
+			int tex = agl.CreateEmptyTexture();
+			_scoreSprite = new TexturedQuad(tex, _scoreContext.getBitmap().getWidth(), _scoreContext.getBitmap().getHeight());
+			_scoreDirty = true;
+		}
+		if (_scoreDirty)
+		{
+			String score = String.format("%07d", _score);
+			Prerender.string(score, _scoreContext, _scoreSprite);
+			_scoreDirty = false;
+		}
+		_scoreSprite.getTranslation().x = kernel.getVirtualScreen().getWidth() - .5f * _scoreSprite.getWidth() - 5.f;
+		_scoreSprite.getTranslation().y = kernel.getVirtualScreen().getHeight() - .5f * _scoreSprite.getHeight() - 5.f;
+		_scoreSprite.draw(kernel);
 	}
 
 	@Override
-	public void spinnerEvent(Spinner spinner, HOSpinner event) 
+	public void spinnerEvent(Spinner sender, HOSpinner event) 
 	{
+		if (!_notMissed.contains(sender))
+			_notMissed.add(sender);
+		
+		_score += (int)(SPINNER_SCORE * _dt);
+		_scoreDirty = true;
 	}
 
 	@Override
@@ -335,8 +473,18 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	{
 		float t = _player.getCurrentPosition() / 1000.f - GRACE_PERIOD;
 		
-		if (Math.abs(t - event.getTiming() / 1000.f) < event.getGracePeriod())
-			_misses.get(sender).cancel();
+		if (t >= sender.getStartTime() + (Slider.FADE_IN_TIME + Slider.WAIT_TIME) - GRACE_PERIOD &&
+			t <= sender.getEndTime() - Slider.FADE_OUT_TIME + GRACE_PERIOD)
+		{
+			if (!_notMissed.contains(sender))
+			{
+				_notMissed.add(sender);
+				_misses.get(sender).cancel();
+			}
+			
+			_score += (int)(SLIDER_SCORE * _dt);
+			_scoreDirty = true;
+		}
 	}
 
 	@Override
@@ -344,7 +492,14 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	{		
 		float t = _player.getCurrentPosition() / 1000.f - GRACE_PERIOD;
 		
-		if (Math.abs(t - event.getTiming() / 1000.f) < event.getGracePeriod())
+		if (Math.abs(t - event.getTiming() / 1000.f) < event.getGracePeriod() && !_notMissed.contains(sender))
+		{
+			_notMissed.add(sender);
 			_misses.get(sender).cancel();
+			_health += HP_HIT;
+			if (_health > 1.f) _health = 1.f;
+			_score += BUTTON_SCORE;
+			_scoreDirty = true;
+		}
 	}
 }

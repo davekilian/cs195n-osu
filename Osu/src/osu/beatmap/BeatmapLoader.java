@@ -159,7 +159,7 @@ public class BeatmapLoader
 			itemsToLoad += 1;				// 'miss' icon
 			itemsToLoad += 2;				// health fill and bar
 			itemsToLoad += 1;				// Create all controls
-			itemsToLoad += 2;            	// beatmap background, audio file	
+			itemsToLoad += 3;            	// beatmap background, audio file	
 			
 			// Load control assets
 			HashMap<ComboColor, TexturedQuad> buttonUps = new HashMap<ComboColor, TexturedQuad>();
@@ -260,6 +260,9 @@ public class BeatmapLoader
 			progress = ":/drawable/health_bar";
 			TexturedQuad healthBar = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.health_bar, opt));
 			++itemsLoaded; if (cancelled) return;
+			progress = ":/drawable/health_danger";
+			TexturedQuad healthDanger = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.health_danger, opt));
+			++itemsLoaded; if (cancelled) return;
 
 			// Create controls
 			progress = "Initializing UI ...";
@@ -267,6 +270,7 @@ public class BeatmapLoader
 			player.setMissIcon(missIcon);
 			player.setHealthBar(healthBar);
 			player.setHealthFill(healthFill);
+			player.setLowHealth(healthDanger);
 			
 			int combo = 0;
 			int comboNumber = 1;

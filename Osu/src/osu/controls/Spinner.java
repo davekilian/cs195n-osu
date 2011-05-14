@@ -19,7 +19,7 @@ public class Spinner implements Control
 	/** The amount of time it takes for a spinner to fade in, in partial seconds */
 	public static final float FADE_IN_TIME  = .3f;
 	/** The amount of time it takes for a spinner to fade out, in partial seconds */
-	public static final float FADE_OUT_TIME = .7f;
+	public static final float FADE_OUT_TIME = .3f;
 	
 	/** Unused */
 	private float _x;

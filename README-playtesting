@@ -7,7 +7,7 @@ A NOTE ON PLAYTESTING NOTES
 
 DIFFICULTIES
 	One of our ideas in our assignment was to reverse engineer the Osu beatmap format (from the PC game) so that we would have a large library of songs to work with from the get-go. As should have been expected, this process was not as flawless as we had hoped. We hit some hurdles in the  undocumented beatmap format.
-	In particularly, the slider format was fairly unintuitive, requiring truncation based upon BPM and the length of the slider as well as the ability to evaluate a Bezier curve of an unlimited number of points (which were thus inclined to implement).
+	In particular, the slider format was fairly unintuitive, requiring truncation based upon BPM and the length of the slider as well as the ability to evaluate a Bezier curve of an unlimited number of points (which were thus inclined to implement).
 	These, among other issues, caused some hiccups that were unexpected, preventing us from making the playtestable handin deadline with actual playtest cases.
 
 ON DEPARTMENT MACHINES

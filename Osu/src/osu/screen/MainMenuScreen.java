@@ -28,7 +28,7 @@ public class MainMenuScreen implements Screen
 	@Override
 	public void update(Kernel kernel, float dt) 
 	{	
-		
+		kernel.swapScreen(new LoadScreen("/osu/beatmaps/tsugaru/test-tsugaru.osu"));
 	}
 
 	@Override

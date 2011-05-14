@@ -67,7 +67,7 @@ public class Spinner implements Control
 		_prevX = _prevY = 0.f;
 		_isDown = false;
 		_rotation = 0.f;
-		_chargePerRotation = .1f;
+		_chargePerRotation = .4f / (_tend - _tbeg);
 		_powerDrain = .1f;
 		_power = 0.f;
 		_callbacks = new ArrayList<SpinnerCallback>();
@@ -94,7 +94,7 @@ public class Spinner implements Control
 		_prevX = _prevY = 0.f;
 		_isDown = false;
 		_rotation = 0.f;
-		_chargePerRotation = .05f;
+		_chargePerRotation = .4f / (_tend - _tbeg);
 		_powerDrain = .1f;
 		_power = 0.f;
 		_callbacks = new ArrayList<SpinnerCallback>();

@@ -1,7 +1,6 @@
 package osu.beatmap;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -41,9 +40,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	/** The index into _controls of the next not-yet on-deck control */
 	private int _nextControl;
 	/** The list of controls that are currently visible */
-	private LinkedList<Control> _onDeck;
-	/** Pre-allocated for GC performance */
-	private ArrayList<Control> _toRemove;
+	private ArrayList<Control> _onDeck;
 	
 	/**
 	 * Creates a new beatmap player
@@ -53,8 +50,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	{
 		_beatmap = beatmap;
 		_controls = new ArrayList<Control>();
-		_onDeck = new LinkedList<Control>();
-		_toRemove = new ArrayList<Control>();
+		_onDeck = new ArrayList<Control>();
 		_nextControl = 0;
 		
 		Paint p = new Paint();
@@ -156,15 +152,13 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	public void update(Kernel kernel, float t, float dt)
 	{
 		// Remove invisible on-deck controls
-		_toRemove.clear();
-		for (Control c : _onDeck)
-			if (c.getEndTime() < t)
-				_toRemove.add(c);
-		for (int i = 0; i < _toRemove.size(); ++i)
+		for (int i = 0; i < _onDeck.size(); ++i)
 		{
-			synchronized (_onDeck) 
+			Control c = _onDeck.get(i);
+			if (c.getEndTime() < t)
 			{
-				_onDeck.remove(_toRemove.get(i));
+				_onDeck.remove(i);
+				--i;
 			}
 		}
 		
@@ -173,7 +167,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		{
 			synchronized (_onDeck)
 			{
-				_onDeck.addFirst(_controls.get(_nextControl));
+				_onDeck.add(0, _controls.get(_nextControl));
 			}
 			++_nextControl;
 		}
@@ -181,8 +175,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		// Update visible controls
 		synchronized (_onDeck) 
 		{
-			for (Control c : _onDeck)
-				c.update(kernel, t, dt);
+			for (int i = 0; i < _onDeck.size(); ++i)
+				_onDeck.get(i).update(kernel, t, dt);
 		}
 		
 		// Interactions with the current on-deck control
@@ -190,9 +184,9 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		{
 			float x = kernel.getTouch().getX();
 			float y = kernel.getTouch().getY();
-			Rect r = _onDeck.getLast().getHitbox();
+			Rect r = _onDeck.get(_onDeck.size() - 1).getHitbox();
 			if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom)
-				_onDeck.getLast().interact(x, y, t);
+				_onDeck.get(_onDeck.size() - 1).interact(x, y, t);
 		}
 	}
 	
@@ -211,8 +205,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		
 		synchronized (_onDeck) 
 		{
-			for (Control c : _onDeck)
-				c.draw(kernel, t, dt);
+			for (int i = 0; i < _onDeck.size(); ++i)
+				_onDeck.get(i).draw(kernel, t, dt);
 		}
 	}
 

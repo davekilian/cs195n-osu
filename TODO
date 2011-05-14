@@ -1,4 +1,3 @@
-- Track allocations, there seems to be a lot of activity but it could just be native alloc()/free()
 - Miss icons
 - Health / losing
 - Scoring

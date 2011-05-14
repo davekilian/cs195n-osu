@@ -374,7 +374,7 @@ public class BeatmapLoader
 		synchronized (_load) 
 		{
 			if (_load.bitmap != null && _load.quad == null)
-				_load.quad = new TexturedQuad(_load.bitmap);
+				_load.quad = new TexturedQuad(_load.bitmap.copy(Bitmap.Config.ARGB_8888, false));
 		}
 	}
 	

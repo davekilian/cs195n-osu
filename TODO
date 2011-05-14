@@ -1,10 +1,9 @@
 - Track allocations, there seems to be a lot of activity but it could just be native alloc()/free()
-- Gameplay interaction
 - Miss icons
-- Combo paths
 - Health / losing
 - Scoring
 - Better hit-target size
+- Combo paths
 - Touch input calibration
 - Fancified graphics (shaders, particles)
 - Music playback

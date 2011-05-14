@@ -317,7 +317,9 @@ public class Spinner implements Control
 	public void draw(Kernel kernel, float t, float dt) 
 	{		
 		if (isVisible(t))
-		{			
+		{
+			float scale = 512.f / _mask.getWidth();
+			
 			float alpha = 1.f;
 			
 			if (t >= _tbeg && t <= _tbeg + FADE_IN_TIME)
@@ -331,23 +333,31 @@ public class Spinner implements Control
 			_spinner.getTranslation().x = cx;
 			_spinner.getTranslation().y = cy;
 			_spinner.setRotation(_rotation);
+			_spinner.getScale().x = scale;
+			_spinner.getScale().y = scale;
 			_spinner.setAlpha(alpha);
 			_spinner.draw(kernel);
 			
 			_fill.getTranslation().x = cx;
 			_fill.getTranslation().y = cy;
+			_fill.getScale().x = scale;
+			_fill.getScale().y = scale;
 			_fill.setAlpha(alpha);
 			_fill.draw(kernel);
 			
 			agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), (int)(((1.f - _power) * kernel.getVirtualScreen().getHeight())));
 			_noFill.getTranslation().x = cx;
 			_noFill.getTranslation().y = cy;
+			_noFill.getScale().x = scale;
+			_noFill.getScale().y = scale;
 			_noFill.setAlpha(alpha);
 			_noFill.draw(kernel);
 			agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight());
 			
 			_mask.getTranslation().x = cx;
 			_mask.getTranslation().y = cy;
+			_mask.getScale().x = scale;
+			_mask.getScale().y = scale;
 			_mask.setAlpha(alpha);
 			_mask.draw(kernel);
 

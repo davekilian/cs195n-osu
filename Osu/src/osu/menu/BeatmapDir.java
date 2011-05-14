@@ -13,7 +13,7 @@ import osu.beatmap.Metadata;
  * 
  * NOTE: Assumes non-malformed BeatmapDescriptors
  */
-public class BeatmapDir {
+public class BeatmapDir implements Comparable<BeatmapDir> {
 
 	private boolean exists; // Tells whether or not any beatmap files exist in this dir
 	
@@ -33,6 +33,12 @@ public class BeatmapDir {
 	}
 	
 	
+	// *** IMPORTANT METHODS *** //
+	/** Returns comparison of BeatmapDir by title (alphabetical ordering) */
+	@Override
+	public int compareTo(BeatmapDir another) { return this.metadata.title.compareTo(another.metadata.title); }
+	
+	
 	// *** ACCESSORS *** //
 	public void addBeatmapDescriptor(BeatmapDescriptor beatmap_des)
 	{
@@ -42,7 +48,27 @@ public class BeatmapDir {
 			metadata = beatmap_des.getMetadata();
 		}
 		
-		beatmaps.add(beatmap_des);
+		
+		// Add in value by sorting through overall_difficulty
+		int len = beatmaps.size();
+		
+		if (len == 0) // No looping needed if we are empty
+			beatmaps.add(beatmap_des);
+		else
+		{
+			for (int i = 0; i < len; ++i)
+			{
+				BeatmapDescriptor cur = beatmaps.get(i);
+				
+				if (beatmap_des.compareTo(cur) < 0)
+				{
+					beatmaps.add(i, beatmap_des);
+					break;
+				}
+				else if (i + 1 == len)
+					beatmaps.add(beatmap_des);
+			}
+		}
 	}
 	
 	
@@ -53,5 +79,5 @@ public class BeatmapDir {
 	public ArrayList<BeatmapDescriptor> getBeatmapDescriptors() { return beatmaps; }
 	/** Returns the absolute path to the file */
 	public String getPath() { return path; }
-	
+
 }

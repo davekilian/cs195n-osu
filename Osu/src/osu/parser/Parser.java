@@ -107,6 +107,9 @@ public class Parser {
 	}
 	
 	
+	/**
+	 * Parses and returns the Metadata section of the given file at the given path.
+	 */
 	public Metadata parseMetadataResource(String path) throws ParseException, IOException
 	{
 		Metadata out = new Metadata();
@@ -116,7 +119,7 @@ public class Parser {
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		
 		// Parse for metadata!
-		String line = getMetadataHeader(reader);
+		String line = getSpecificHeader(reader, "metadata");
 		if (line == null)
 			throw new ParseException("Metadata header does not exist.");
 		
@@ -156,6 +159,36 @@ public class Parser {
 		reader.close();
 		
 		return out;
+	}
+
+	
+	/**
+	 * Parses and returns the overall difficulty from the given file at the given path.
+	 * Throws an exception if this attribute does not exist or cannot be formatted
+	 */
+	public int parseOverallDifficulty(String path) throws ParseException, IOException, NumberFormatException
+	{
+		// File IO
+		File file = new File(path);
+		BufferedReader reader = new BufferedReader(new FileReader(file));
+		
+		// Parse for metadata!
+		String line = getSpecificHeader(reader, "difficulty");
+		if (line == null)
+			throw new ParseException("Difficulty header does not exist.");
+		
+		line = reader.readLine();
+		while (!lineCheck(line))
+		{
+			String attrib = removeSpaces(line.substring(0, line.indexOf(":")).toLowerCase()); 
+			
+			if (attrib.equals("overalldifficulty"))
+				return Integer.parseInt(removeFirstSpaces(line.substring(line.indexOf(":") + 1)));
+			
+			line = reader.readLine();
+		}
+		
+		throw new ParseException("OverallDifficulty does not exist in this file!");
 	}
 	
 	
@@ -713,13 +746,14 @@ public class Parser {
 	
 	
 	/**
-	 * Returns the Metadata header, or null if it does not exist.
+	 * Returns the header of the specified name, or null if it does not exist.
 	 */
-	private String getMetadataHeader(BufferedReader reader) throws IOException
+	private String getSpecificHeader(BufferedReader reader, String header_name) throws IOException
 	{
-		String line = removeSpaces(reader.readLine().toLowerCase());
+		String name = header_name.toLowerCase();
 		
-		while (line != null && !line.equals("[metadata]"))
+		String line = removeSpaces(reader.readLine().toLowerCase());
+		while (line != null && !line.equals("[" + name + "]"))
 			line = removeSpaces(reader.readLine().toLowerCase());
 			
 		return line;

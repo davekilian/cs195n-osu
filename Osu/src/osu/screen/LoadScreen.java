@@ -3,6 +3,8 @@ package osu.screen;
 import android.graphics.Color;
 import android.graphics.Paint;
 import osu.beatmap.BeatmapLoader;
+import osu.beatmap.BeatmapPlayer;
+import osu.main.R;
 import dkilian.andy.Kernel;
 import dkilian.andy.Prerender;
 import dkilian.andy.PrerenderContext;
@@ -28,6 +30,10 @@ public class LoadScreen implements Screen
 	private TexturedQuad _text;
 	
 	private boolean _renderedCombos = false;
+	
+	private TexturedQuad _background;
+	
+	private TexturedQuad _progress;
 	
 	public LoadScreen(String path)
 	{
@@ -58,7 +64,23 @@ public class LoadScreen implements Screen
 	public void update(Kernel kernel, float dt) 
 	{	
 		if (_loader != null && !_loader.isLoading() && _renderedCombos)
-			kernel.swapScreen(new PlayScreen(_loader.getBeatmap()));
+		{
+			// Clear out all load-time temporary resources before the game starts
+			BeatmapPlayer bp = _loader.getBeatmap();
+			synchronized (_loader)
+			{
+				_path = null;
+				_loader = null;
+				_context = null;
+				_text = null;
+				_background = null;
+				_progress = null;
+			}
+			System.gc();
+			
+			kernel.swapScreen(new PlayScreen(bp));
+			return;
+		}
 	}
 
 	@Override
@@ -73,23 +95,43 @@ public class LoadScreen implements Screen
 			
 			_context = new PrerenderContext(500, 20, p);
 			_text = new TexturedQuad(agl.CreateEmptyTexture(), 500, 20);
+			
+			_background = TexturedQuad.fromResource(kernel, R.drawable.loading_screen);
+			_progress = TexturedQuad.fromResource(kernel, R.drawable.loading_screen_progress);
 		}
 		
-		if (_loader != null && !_loader.isLoading() && !_renderedCombos)
-		{				
-			for (int combo = 1; combo <= _loader.getHighestCombo(); ++combo)
-				_loader.getBeatmap().getTextCache().string(Integer.toString(combo));
-			_renderedCombos = true;
+		float progress = 0;
+		if (_loader != null)
+		{
+			synchronized (_loader)
+			{
+				if (_loader != null && !_loader.isLoading() && !_renderedCombos)
+				{				
+					for (int combo = 1; combo <= _loader.getHighestCombo(); ++combo)
+						_loader.getBeatmap().getTextCache().string(Integer.toString(combo));
+					_renderedCombos = true;
+				}
+				
+				progress = _loader.getProgress();
+				Prerender.string(_loader.getProgressString(), _context, _text);
+				_loader.doGLTasks();
+			}
 		}
 		
-		Prerender.string(_loader.getProgressString(), _context, _text);
+		float x = .5f * kernel.getVirtualScreen().getWidth();
+		float y = .5f * kernel.getVirtualScreen().getHeight();
+		_background.getTranslation().x = x;
+		_background.getTranslation().y = y;
+		_background.draw(kernel);
+
+		agl.Clip(0, 0, (int)(kernel.getVirtualScreen().getWidth() * progress), kernel.getVirtualScreen().getHeight());
+		_progress.getTranslation().x = x;
+		_progress.getTranslation().y = y;
+		_progress.draw(kernel);
+		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight());
 		
 		_text.getTranslation().x = kernel.getVirtualScreen().getWidth() * .5f;
-		_text.getTranslation().y = kernel.getVirtualScreen().getHeight() * .5f;
+		_text.getTranslation().y = kernel.getVirtualScreen().getHeight() * .75f;
 		_text.draw(kernel);
-		
-		_loader.doGLTasks();
-		
-		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight());
 	}
 }

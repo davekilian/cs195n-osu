@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 
 import osu.controls.Button;
 import osu.controls.ButtonCallback;
@@ -19,6 +20,7 @@ import osu.game.HOSpinner;
 import dkilian.andy.Kernel;
 import dkilian.andy.PrerenderCache;
 import dkilian.andy.TexturedQuad;
+import dkilian.andy.jni.agl;
 
 /**
  * Encapsulates the logic of playing a beatmap, e.g. playing the audio, showing
@@ -122,7 +124,6 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	/** Initializes playback */
 	public void begin()
 	{
-		
 	}
 	
 	/** Ends playback prematurely (e.g. due to a game over/loss condition) */
@@ -139,8 +140,25 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	
 	/** Renders the beatmap */
 	public void draw(Kernel kernel, float t, float dt)
-	{
+	{		
+		agl.ClearColor(100.f / 255.f, 149.f / 255.f, 237.f / 255.f);
+		agl.BlendPremultiplied();
 		
+		float w = kernel.getVirtualScreen().getWidth();
+		float h = kernel.getVirtualScreen().getHeight();
+
+		float scalex = w / _background.getWidth(), scaley = h / _background.getHeight(), scale = scalex < scaley ? scalex : scaley;
+		_background.getTranslation().x = .5f * w;
+		_background.getTranslation().y = .5f * h;
+		_background.getScale().x = scale;
+		_background.getScale().y = scale;
+		_background.draw(kernel);
+
+		// Well fuck. Do we need to run the loader synchronously in the draw thread? Or somehow delay bitmap generation until draw-time?
+		// -> that way sounds good. It sucks, but basically we need to defer all quad generation until a draw call. For now, just create
+		//    some LoadQuadRequest object and synchronize that on both threads, and call _loader.doGLTasks() in LoadScreen's draw()
+		// -> Write a small helper utility in the thread's class that takes a bitmap, returns a thread, and does any required waiting.
+		// Yay threads.
 	}
 
 	@Override

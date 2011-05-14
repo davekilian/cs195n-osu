@@ -55,7 +55,8 @@ public class LoadScreen implements Screen
 	@Override
 	public void update(Kernel kernel, float dt) 
 	{	
-		
+		if (_loader != null && !_loader.isLoading())
+			kernel.swapScreen(new PlayScreen(_loader.getBeatmap()));
 	}
 
 	@Override
@@ -77,5 +78,7 @@ public class LoadScreen implements Screen
 		_text.getTranslation().x = kernel.getVirtualScreen().getWidth() * .5f;
 		_text.getTranslation().y = kernel.getVirtualScreen().getHeight() * .5f;
 		_text.draw(kernel);
+		
+		_loader.doGLTasks();
 	}
 }

@@ -63,7 +63,7 @@ public class Button implements Control
 	 * @param chrome The chrome on top of the button
 	 * @return A textured quad containing the drop shadow rendered under the button and the chrome rendered over the button
 	 */
-	public static TexturedQuad render(Bitmap button, Bitmap shadow, Bitmap chrome)
+	public static Bitmap render(Bitmap button, Bitmap shadow, Bitmap chrome)
 	{
 		Bitmap target = Bitmap.createBitmap(button.getWidth(), button.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas c = new Canvas(target);
@@ -74,7 +74,7 @@ public class Button implements Control
 		c.drawBitmap(button, 0.f, 0.f, p);
 		c.drawBitmap(chrome, 0.f, 0.f, p);
 		
-		return new TexturedQuad(target);
+		return target;
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public class Button implements Control
 	 * @param color The color to tint the button's fill componenet
 	 * @return A textured quad containing the final, tinted button
 	 */
-	public static TexturedQuad render(Bitmap button, Bitmap shadow, Bitmap chrome, int color)
+	public static Bitmap render(Bitmap button, Bitmap shadow, Bitmap chrome, int color)
 	{
 		button = BitmapTint.apply(button, color);
 		return render(button, shadow, chrome);
@@ -101,7 +101,7 @@ public class Button implements Control
 	 * @param color The color to tint the button's fill componenet
 	 * @return A textured quad containing the final, tinted button
 	 */
-	public static TexturedQuad render(Bitmap button, Bitmap shadow, Bitmap chrome, ComboColor color)
+	public static Bitmap render(Bitmap button, Bitmap shadow, Bitmap chrome, ComboColor color)
 	{
 		button = BitmapTint.apply(button, color);
 		return render(button, shadow, chrome);

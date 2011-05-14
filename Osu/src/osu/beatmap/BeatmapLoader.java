@@ -34,6 +34,17 @@ import osu.parser.ParserUtil;
  */
 public class BeatmapLoader 
 {
+	/** Allows the loading thread to ask the main thread to load a bitmap into an opengl texture in a draw event */
+	private class CrossThreadLoad
+	{
+		/** The bitmap containing the data to load */
+		public Bitmap bitmap;
+		/** Receives the loaded data */
+		public TexturedQuad quad;
+	}
+	
+	private CrossThreadLoad _load = new CrossThreadLoad();
+	
 	/** Loads data on a separate thread, allowing a load screen to be shown on the main thread without blocking */
 	private class LoadThread implements Runnable
 	{
@@ -56,10 +67,38 @@ public class BeatmapLoader
 		/** The kernel containing the resource cache to load assets from */
 		public Kernel kernel;
 		
+		/** Performs a cross-thread GL quad loading operation */
+		private TexturedQuad crossload(Bitmap b)
+		{
+			synchronized (_load) 
+			{
+				_load.bitmap = b;
+				_load.quad = null;
+			}
+			
+			TexturedQuad quad = null;
+			while (quad == null)
+			{
+				synchronized (_load)
+				{
+					quad = _load.quad;
+				}
+			}
+			
+			synchronized (_load)
+			{
+				_load.bitmap = null;
+				_load.quad = null;
+			}
+			
+			return quad;
+		}
+		
 		/** Creates a new loading thread */
 		public LoadThread()
 		{
 			path = "";
+			running = false;
 			init();
 		}
 		
@@ -71,7 +110,6 @@ public class BeatmapLoader
 			itemsLoaded = 0;
 			itemsToLoad = 0;
 			progress = "Initializing osu! ...";
-			running = false;
 			cancelled = false;
 		}
 
@@ -148,14 +186,14 @@ public class BeatmapLoader
 				ComboColor c = beatmap.getComboColors().get(i);
 				progress = String.format("Coloring button (%d, %d, %d)", c.getR(), c.getG(), c.getB());
 				
-				buttonUps.put(c, Button.render(buttonUp, buttonShadow, buttonChrome, c));
+				buttonUps.put(c, crossload(Button.render(buttonUp, buttonShadow, buttonChrome, c)));
 				++itemsLoaded; if (cancelled) return;
-				buttonDowns.put(c, Button.render(buttonDown, buttonShadow, buttonChrome, c));
+				buttonDowns.put(c, crossload(Button.render(buttonDown, buttonShadow, buttonChrome, c)));
 				++itemsLoaded; if (cancelled) return;
 			}
 
 			progress = ":/drawable/slider_return";
-			TexturedQuad sliderReturn = TexturedQuad.fromResource(kernel, R.drawable.slider_return);
+			TexturedQuad sliderReturn = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.slider_return, opt));
 			++itemsLoaded; if (cancelled) return;
 			
 			for (int i = 0; i < beatmap.getComboColors().size(); ++i)
@@ -168,27 +206,27 @@ public class BeatmapLoader
 				Bitmap sliderChrome = buttonChrome;
 				Bitmap sliderShadow = buttonShadow;
 				
-				sliderCaps.put(c, Button.render(sliderUp, sliderShadow, sliderChrome));
+				sliderCaps.put(c, crossload(Button.render(sliderUp, sliderShadow, sliderChrome)));
 				++itemsLoaded; if (cancelled) return;
-				sliderFills.put(c, Button.render(sliderUp, sliderShadow, sliderUp));
+				sliderFills.put(c, crossload(Button.render(sliderUp, sliderShadow, sliderUp)));
 				++itemsLoaded; if (cancelled) return;
-				sliderNubUps.put(c, Button.render(sliderUp, sliderShadow, sliderChrome));
+				sliderNubUps.put(c, crossload(Button.render(sliderUp, sliderShadow, sliderChrome)));
 				++itemsLoaded; if (cancelled) return;
-				sliderNubDowns.put(c, Button.render(sliderDown, sliderShadow, sliderChrome));
+				sliderNubDowns.put(c, crossload(Button.render(sliderDown, sliderShadow, sliderChrome)));
 				++itemsLoaded; if (cancelled) return;
 			}
 
 			progress = ":/drawable/spinner_spiral";
-			TexturedQuad spinnerSpiral = TexturedQuad.fromResource(kernel, R.drawable.spinner_spiral);
+			TexturedQuad spinnerSpiral = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.spinner_spiral, opt));
 			++itemsLoaded; if (cancelled) return;
 			progress = ":/drawable/spinner_fill";
-			TexturedQuad spinnerFill = TexturedQuad.fromResource(kernel, R.drawable.spinner_fill);
+			TexturedQuad spinnerFill = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.spinner_fill, opt));
 			++itemsLoaded; if (cancelled) return;
 			progress = ":/drawable/spinner_nofill";
-			TexturedQuad spinnerNoFill = TexturedQuad.fromResource(kernel, R.drawable.spinner_nofill);
+			TexturedQuad spinnerNoFill = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.spinner_nofill, opt));
 			++itemsLoaded; if (cancelled) return;
 			progress = ":/drawable/spinner_mask";
-			TexturedQuad spinnerMask = TexturedQuad.fromResource(kernel, R.drawable.spinner_mask);
+			TexturedQuad spinnerMask = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.spinner_mask, opt));
 			++itemsLoaded; if (cancelled) return;
 
 			progress = ":/drawable/ring";
@@ -203,7 +241,7 @@ public class BeatmapLoader
 				ComboColor c = beatmap.getComboColors().get(i);
 				progress = String.format("Coloring ring (%d, %d, %d)", c.getR(), c.getG(), c.getB());
 				
-				rings.put(c, Ring.render(ring, ringShadow, c));
+				rings.put(c, crossload(Ring.render(ring, ringShadow, c)));
 				++itemsLoaded; if (cancelled) return;
 			}
 			
@@ -266,7 +304,8 @@ public class BeatmapLoader
 				Log.e("BeatmapLoader", progress);
 				return;
 			}
-			player.setBackground(new TexturedQuad(BitmapFactory.decodeFile(bgpath)));
+			Log.v("", bgpath);
+			player.setBackground(crossload(BitmapFactory.decodeFile(bgpath).copy(Bitmap.Config.ARGB_8888, false)));
 			++itemsLoaded; if (cancelled) return;
 			
 			progress = beatmap.getAudioFilename();
@@ -294,6 +333,7 @@ public class BeatmapLoader
 	/** Begins asynchronously loading a beatmap */
 	public void begin()
 	{
+		_thread.running = true;
 		new Thread(_thread).start();
 	}
 	
@@ -315,6 +355,16 @@ public class BeatmapLoader
 	public String getProgressString()
 	{
 		return _thread.progress;
+	}
+	
+	/** Does tasks that can only be done on the main thread, during a draw() call */
+	public void doGLTasks()
+	{
+		synchronized (_load) 
+		{
+			if (_load.bitmap != null && _load.quad == null)
+				_load.quad = new TexturedQuad(_load.bitmap);
+		}
 	}
 	
 	/** Prematurely ends the loading process. The thread may not immediately end. */

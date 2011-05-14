@@ -96,15 +96,15 @@ public class TestScreen implements Screen
 			event.setRepeats(4);
  			
 			_slider = new Slider(event, 1000.f, 1.f, 340.f,
-								 Button.render(up, shadow, chrome), 
-								 Button.render(up, shadow, up), 
-								 Button.render(up, shadow, chrome), 
-					             Button.render(down, shadow, chrome), 
+								 new TexturedQuad(Button.render(up, shadow, chrome)), 
+								 new TexturedQuad(Button.render(up, shadow, up)), 
+								 new TexturedQuad(Button.render(up, shadow, chrome)), 
+								 new TexturedQuad(Button.render(down, shadow, chrome)), 
 					             TexturedQuad.fromResource(kernel, R.drawable.slider_return),
 					             null,
 					             _textCache,
 					             "2");
-			_slider.setApproachRing(new Ring(Ring.render(ring, ringshadow)));
+			_slider.setApproachRing(new Ring(new TexturedQuad(Ring.render(ring, ringshadow))));
 		}
 		
 		_slider.draw(kernel, _time, dt);

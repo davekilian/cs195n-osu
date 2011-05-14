@@ -49,7 +49,7 @@ public class Ring implements Control
 	 * @param shadow The drop shadow below the ring image
 	 * @return The final ring image
 	 */
-	public static TexturedQuad render(Bitmap ring, Bitmap shadow)
+	public static Bitmap render(Bitmap ring, Bitmap shadow)
 	{
 		Bitmap target = Bitmap.createBitmap(ring.getWidth(), ring.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas c = new Canvas(target);
@@ -59,7 +59,7 @@ public class Ring implements Control
 		c.drawBitmap(shadow, 0.f, 0.f, p);
 		c.drawBitmap(ring, 0.f, 0.f, p);
 		
-		return new TexturedQuad(target);
+		return target;
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class Ring implements Control
 	 * @param color The ARGB color to ting the ring image
 	 * @return The final ring image
 	 */
-	public static TexturedQuad render(Bitmap ring, Bitmap shadow, int color)
+	public static Bitmap render(Bitmap ring, Bitmap shadow, int color)
 	{
 		ring = BitmapTint.apply(ring, color);
 		return render(ring, shadow);
@@ -82,7 +82,7 @@ public class Ring implements Control
 	 * @param color The ARGB color to ting the ring image
 	 * @return The final ring image
 	 */
-	public static TexturedQuad render(Bitmap ring, Bitmap shadow, ComboColor color)
+	public static Bitmap render(Bitmap ring, Bitmap shadow, ComboColor color)
 	{
 		ring = BitmapTint.apply(ring, color);
 		return render(ring, shadow);

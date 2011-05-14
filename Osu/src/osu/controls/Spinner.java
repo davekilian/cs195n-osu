@@ -262,12 +262,7 @@ public class Spinner implements Control
 
 	/** Notifies this spinner of a user's touch input */
 	@Override
-	public void interact(float x, float y, float t) 
-	{
-		if (_isDown)
-			for (int i = 0; i < _callbacks.size(); ++i)
-				_callbacks.get(i).spinnerEvent(this, _event);
-	}
+	public void interact(float x, float y, float t) {}
 
 	/** Does required per-frame updating of this spinner */
 	@Override
@@ -308,6 +303,10 @@ public class Spinner implements Control
 		{
 			_isDown = false;
 		}
+		
+		if (_isDown)
+			for (int i = 0; i < _callbacks.size(); ++i)
+				_callbacks.get(i).spinnerEvent(this, _event);
 		
 		_power -= _powerDrain * dt;
 		if (_power < 0.f) _power = 0.f;

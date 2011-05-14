@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
+import android.util.FloatMath;
 
 import osu.controls.Button;
 import osu.controls.ButtonCallback;
@@ -23,6 +24,7 @@ import osu.game.HOSpinner;
 import dkilian.andy.Kernel;
 import dkilian.andy.PrerenderCache;
 import dkilian.andy.TexturedQuad;
+import dkilian.andy.jni.agl;
 
 /**
  * Encapsulates the logic of playing a beatmap, e.g. playing the audio, showing
@@ -53,6 +55,12 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	private TexturedQuad _missIcon;
 	/** The player that plays this beatmap's audio */
 	private MediaPlayer _player;
+	/** The health graphic */
+	private TexturedQuad _healthFill;
+	/** The health bar graphic */
+	private TexturedQuad _healthBar;
+	/** The amount of health the player has */
+	private float _health;
 	
 	/**
 	 * Creates a new beatmap player
@@ -66,6 +74,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		_nextControl = 0;
 		_misses = new HashMap<Control, Miss>();
 		_player = new MediaPlayer();
+		_health = 1.f;
 		
 		Paint p = new Paint();
 		_textCache = new PrerenderCache(p);
@@ -84,6 +93,30 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	public void setBeatmap(Beatmap bm)
 	{
 		_beatmap = bm;
+	}
+	
+	/** Gets the health graphic */
+	public TexturedQuad getHealthFill()
+	{
+		return _healthFill;
+	}
+	
+	/** Sets the health graphic */
+	public void setHealthFill(TexturedQuad health)
+	{
+		_healthFill = health;
+	}
+	
+	/** Gets the health bar graphic */
+	public TexturedQuad getHealthBar()
+	{
+		return _healthBar;
+	}
+	
+	/** Sets the health bar graphic */
+	public void setHealthBar(TexturedQuad health)
+	{
+		_healthBar = health;
 	}
 	
 	/** Gets the media player that play's this beatmap's audio */
@@ -272,6 +305,18 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 			_background.getScale().y = scale;
 			_background.draw(kernel);
 		}
+		
+		_healthBar.getTranslation().x = .5f * _healthBar.getWidth();
+		_healthBar.getTranslation().y = .5f * _healthBar.getHeight();
+		_healthBar.draw(kernel);
+		
+		_health = .5f + .5f * FloatMath.sin(t);
+		
+		_healthFill.getTranslation().x = .5f * _healthFill.getWidth();
+		_healthFill.getTranslation().y = .5f * _healthFill.getHeight();
+		agl.Clip(0, 0, (int)(_health * _healthFill.getWidth()), _healthFill.getHeight());
+		_healthFill.draw(kernel);
+		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight());
 		
 		synchronized (_onDeck) 
 		{

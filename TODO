@@ -1,14 +1,15 @@
-- Health graphics
+- Shit I forgot to make the low health graphic doh
 - Health
 - Scoring
-- Combo paths
-- Touch input calibration
-- Fancified graphics (shaders, particles)
 - Main menu
 - Beatmap menu
 - Pause menu
 - Loading screen
 - Score screen
+- Calibration
+- Tutorial mode
+- Fancy graphics
+- Combo paths
 - Test postprocessing
 - Insert postprocessing as appropriate (e.g. blur on defeat, oversaturate on low health?)
 - Find interaction sfx

@@ -157,6 +157,7 @@ public class BeatmapLoader
 			itemsToLoad += 2;				// approach ring shadow and fill
 			itemsToLoad += 2 * numCombos;	// approach ring recoloring/rendering 	
 			itemsToLoad += 1;				// 'miss' icon
+			itemsToLoad += 2;				// health fill and bar
 			itemsToLoad += 1;				// Create all controls
 			itemsToLoad += 2;            	// beatmap background, audio file	
 			
@@ -249,12 +250,23 @@ public class BeatmapLoader
 				++itemsLoaded; if (cancelled) return;
 			}
 			
+			progress = ":/drawable/no";
 			TexturedQuad missIcon = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.no, opt));
+			++itemsLoaded; if (cancelled) return;
+
+			progress = ":/drawable/health";
+			TexturedQuad healthFill = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.health, opt));
+			++itemsLoaded; if (cancelled) return;
+			progress = ":/drawable/health_bar";
+			TexturedQuad healthBar = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.health_bar, opt));
+			++itemsLoaded; if (cancelled) return;
 
 			// Create controls
 			progress = "Initializing UI ...";
 			player = new BeatmapPlayer(beatmap);
 			player.setMissIcon(missIcon);
+			player.setHealthBar(healthBar);
+			player.setHealthFill(healthFill);
 			
 			int combo = 0;
 			int comboNumber = 1;

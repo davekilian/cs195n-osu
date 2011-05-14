@@ -27,6 +27,8 @@ public class LoadScreen implements Screen
 	
 	private TexturedQuad _text;
 	
+	private boolean _renderedCombos = false;
+	
 	public LoadScreen(String path)
 	{
 		_path = path;
@@ -55,7 +57,7 @@ public class LoadScreen implements Screen
 	@Override
 	public void update(Kernel kernel, float dt) 
 	{	
-		if (_loader != null && !_loader.isLoading())
+		if (_loader != null && !_loader.isLoading() && _renderedCombos)
 			kernel.swapScreen(new PlayScreen(_loader.getBeatmap()));
 	}
 
@@ -71,6 +73,13 @@ public class LoadScreen implements Screen
 			
 			_context = new PrerenderContext(500, 20, p);
 			_text = new TexturedQuad(agl.CreateEmptyTexture(), 500, 20);
+		}
+		
+		if (_loader != null && !_loader.isLoading() && !_renderedCombos)
+		{				
+			for (int combo = 1; combo <= _loader.getHighestCombo(); ++combo)
+				_loader.getBeatmap().getTextCache().string(Integer.toString(combo));
+			_renderedCombos = true;
 		}
 		
 		Prerender.string(_loader.getProgressString(), _context, _text);

@@ -263,8 +263,8 @@ public class BeatmapLoader
 			
 			for (int i = 0; i < pc.hit_objects.size(); ++i)
 			{
-				if (highestCombo < combo)
-					highestCombo = combo;
+				if (highestCombo < comboNumber)
+					highestCombo = comboNumber;
 				
 				HitObject ho = pc.hit_objects.get(i);
 				if (ho.getNewCombo())
@@ -351,8 +351,6 @@ public class BeatmapLoader
 	
 	/** The thread that loads data for this loaded */
 	private LoadThread _thread;
-	/** The highest combo that has already been pre-rendered */
-	private int _highestPrerenderedCombo;
 	
 	/**
 	 * Creates a new asynchronous beatmap laoded
@@ -400,11 +398,6 @@ public class BeatmapLoader
 			if (_load.bitmap != null && _load.quad == null)
 				_load.quad = new TexturedQuad(_load.bitmap.copy(Bitmap.Config.ARGB_8888, false));
 		}
-		while (_thread.player != null && _highestPrerenderedCombo < _thread.highestCombo)
-		{
-			_thread.player.getTextCache().string(Integer.toString(_highestPrerenderedCombo));
-			++_highestPrerenderedCombo;
-		}
 	}
 	
 	/** Prematurely ends the loading process. The thread may not immediately end. */
@@ -417,5 +410,11 @@ public class BeatmapLoader
 	public BeatmapPlayer getBeatmap()
 	{
 		return _thread.player;
+	}
+	
+	/** Gets the highest combo number any control receives */
+	public int getHighestCombo()
+	{
+		return _thread.highestCombo;
 	}
 }

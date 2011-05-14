@@ -1,7 +1,7 @@
 - Grace window still fucked up I think
-- Health / losing
+- Health graphics
+- Health
 - Scoring
-- Better hit-target size
 - Combo paths
 - Touch input calibration
 - Fancified graphics (shaders, particles)
@@ -9,6 +9,7 @@
 - Beatmap menu
 - Pause menu
 - Loading screen
+- Score screen
 - Test postprocessing
 - Insert postprocessing as appropriate (e.g. blur on defeat, oversaturate on low health?)
 - Find interaction sfx

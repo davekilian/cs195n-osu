@@ -3,6 +3,7 @@ package osu.screen;
 import android.graphics.Color;
 import android.graphics.Paint;
 import osu.beatmap.BeatmapLoader;
+import osu.beatmap.BeatmapPlayer;
 import osu.main.R;
 import dkilian.andy.Kernel;
 import dkilian.andy.Prerender;
@@ -63,7 +64,23 @@ public class LoadScreen implements Screen
 	public void update(Kernel kernel, float dt) 
 	{	
 		if (_loader != null && !_loader.isLoading() && _renderedCombos)
-			kernel.swapScreen(new PlayScreen(_loader.getBeatmap()));
+		{
+			// Clear out all load-time temporary resources before the game starts
+			BeatmapPlayer bp = _loader.getBeatmap();
+			synchronized (_loader)
+			{
+				_path = null;
+				_loader = null;
+				_context = null;
+				_text = null;
+				_background = null;
+				_progress = null;
+			}
+			System.gc();
+			
+			kernel.swapScreen(new PlayScreen(bp));
+			return;
+		}
 	}
 
 	@Override
@@ -83,11 +100,22 @@ public class LoadScreen implements Screen
 			_progress = TexturedQuad.fromResource(kernel, R.drawable.loading_screen_progress);
 		}
 		
-		if (_loader != null && !_loader.isLoading() && !_renderedCombos)
-		{				
-			for (int combo = 1; combo <= _loader.getHighestCombo(); ++combo)
-				_loader.getBeatmap().getTextCache().string(Integer.toString(combo));
-			_renderedCombos = true;
+		float progress = 0;
+		if (_loader != null)
+		{
+			synchronized (_loader)
+			{
+				if (_loader != null && !_loader.isLoading() && !_renderedCombos)
+				{				
+					for (int combo = 1; combo <= _loader.getHighestCombo(); ++combo)
+						_loader.getBeatmap().getTextCache().string(Integer.toString(combo));
+					_renderedCombos = true;
+				}
+				
+				progress = _loader.getProgress();
+				Prerender.string(_loader.getProgressString(), _context, _text);
+				_loader.doGLTasks();
+			}
 		}
 		
 		float x = .5f * kernel.getVirtualScreen().getWidth();
@@ -96,18 +124,14 @@ public class LoadScreen implements Screen
 		_background.getTranslation().y = y;
 		_background.draw(kernel);
 
-		agl.Clip(0, 0, (int)(kernel.getVirtualScreen().getWidth() * _loader.getProgress()), kernel.getVirtualScreen().getHeight());
+		agl.Clip(0, 0, (int)(kernel.getVirtualScreen().getWidth() * progress), kernel.getVirtualScreen().getHeight());
 		_progress.getTranslation().x = x;
 		_progress.getTranslation().y = y;
 		_progress.draw(kernel);
 		agl.Clip(0, 0, kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight());
 		
-		Prerender.string(_loader.getProgressString(), _context, _text);
-		
 		_text.getTranslation().x = kernel.getVirtualScreen().getWidth() * .5f;
 		_text.getTranslation().y = kernel.getVirtualScreen().getHeight() * .75f;
 		_text.draw(kernel);
-		
-		_loader.doGLTasks();
 	}
 }

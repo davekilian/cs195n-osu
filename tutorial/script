@@ -1,0 +1,72 @@
+This is a very general osu! tutorial script.
+
+The format is as follows:
+	- On-screen text will be placed on their own lines in quotes: "
+	- Actions will be inserted into brackets: [ & ]
+	- Divisions in the tutorial, when the screen is cleared for example, will be divided with dashed lines: ---
+
+HERE WE GO.
+---
+"Welcome to osu!"
+
+---
+"osu! is a music rhythm game where points are awarded for using your finger to hit the various controls in time."
+
+---
+"Gameplay is comprised of three different controls: the button, the slider, and the spinner."
+
+---
+[Display button on the screen]
+"The button simply needs to be pressed in time."
+[Show the timing ring decreasing in size around the button]
+"A ring will slowly decrease in size around the button. When the ring is the same size as the button, hit it!"
+"Watch the ring, listen to the music, and trust your instincts!"
+
+---
+[Display slider on the screen]
+"At first, a slider acts as an ordinary button."
+[Show slider moving along towards the end]
+"However, after the slider has initially been pressed, you will need to keep your finger depressed along its path following the nub in-time until the end point."
+[Slider hits the end, disappears]
+
+---
+[Display slider with three repetitions]
+"Sliders can also repeat their path! Watch for repeat arrows on either end of the slider to know when to go back…"
+[Start moving slider during above text]
+"This slider repeats three times in total."
+
+---
+[Display spinner (lol)]
+"Spinners are the final control in osu!"
+[Spin the spinner]
+"Spin as fast as you can. If you spin fast enough to fill up the power bar before the spinner runs out of time, you will gain credit for the section!"
+
+---
+[Display health bar on screen]
+"Be sure not to miss too many controls in time or you will lose!"
+[Display buttons & sliders on-screen - have them miss w/ X's and drain the health bar until it is empty - into game-over screen (do we have one?)]
+"Misses count against your overall HP and your HP deducts over time."
+[Hit buttons on-screen, increase HP for each hit while draining HP over time]
+"Each successive correct hit increases your HP so be sure to stay on top of the hit markers to keep your game alive!"
+
+---
+[Show controls on the screen (come in sequentially) to show how numbers change sequentially]
+"Each control is given a number to show you what order to hit them in."
+"Use this in combination with the timing rings to hit the controls in time!"
+[Show new combo of a different color & number]
+"New combos will start at the number 1 and change colors to show a new combo."
+"Be sure to finish your old combos before starting a new one!"
+
+---
+[Show score bar on screen, w/ a few buttons to hit, show score increasing on success]
+"Every successful hit will give you points."
+"Aim for the highest score possible!"
+
+---
+"If a song is too hard for you, try an easier difficulty!"
+"Songs in the library are sorted alphabetically with each song having multiple beatmaps based upon difficulty."
+"For a given song, easier beatmaps should be sorted towards the top!"
+
+---
+"Good luck and osu!"
+[trollface.jpg]

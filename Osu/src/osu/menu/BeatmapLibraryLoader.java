@@ -3,6 +3,7 @@ package osu.menu;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import osu.beatmap.Metadata;
 import osu.parser.ParseException;
@@ -20,7 +21,7 @@ public class BeatmapLibraryLoader {
 	 * Returns an ArrayList of BeatmapDir to represent the osu! beatmap library at the given path.
 	 * 
 	 * @param lib_path The path to the dir where dirs storing beatmap files are located.
-	 * @return An ArrayList of all Beatmap Files found.
+	 * @return An ArrayList of all Beatmap Files found in alphabetical order.
 	 * @throws IOException If the specified lib_path is not a directory.
 	 */
 	public static ArrayList<BeatmapDir> getBeatmapDirs(String lib_path) throws IOException
@@ -47,6 +48,9 @@ public class BeatmapLibraryLoader {
 			}
 		}
 		
+		// Alphabetically sort by title
+		Collections.sort(lib);
+		
 		// Return the list of beatmaps
 		return lib;
 	}
@@ -67,15 +71,17 @@ public class BeatmapLibraryLoader {
 				continue;
 			
 			try {
-				// Get metadata for files, store them
+				// Get metadata and difficulty for files
 				Metadata metadata = parser.parseMetadataResource(beatmap.getAbsolutePath());
-				BeatmapDescriptor des = new BeatmapDescriptor(beatmap.getAbsolutePath());
+				int difficulty = parser.parseOverallDifficulty(beatmap.getAbsolutePath());
 				
+				BeatmapDescriptor des = new BeatmapDescriptor(beatmap.getAbsolutePath());
 				des.setMetadata(metadata);
+				des.setOverallDifficulty(difficulty);
 				
 				beatmap_dir.addBeatmapDescriptor(des);
 			} catch (ParseException ex) {
-				Log.e("BeatmapLibraryLoader.handleBeatmapDir", "Error parsing beatmap metadata for " + beatmap.getAbsolutePath() + ": " + ex.toString());
+				Log.e("BeatmapLibraryLoader.handleBeatmapDir", "Error parsing beatmap metadata/difficulty for " + beatmap.getAbsolutePath() + ": " + ex.toString());
 			}
 		}
 		

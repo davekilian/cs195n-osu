@@ -132,7 +132,6 @@ public class Slider implements Control
 			      TexturedQuad cap, TexturedQuad fill, TexturedQuad nubUp, TexturedQuad nubDown, TexturedQuad repeat, Ring approach, PrerenderCache textCache, String text)
 	{
 		_event = event;
-		_velocity = .5f;
 		_x = event.getX();
 		_y = event.getY();
 		_bounds = new Rect();

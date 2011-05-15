@@ -297,20 +297,25 @@ public class BeatmapLoader
 					comboNumber = 1;
 				}
 				
-				Log.v("", "" + ho.getClass());
-				Log.v("", "" + ho.getTiming());
-				Log.v("", "" + ho.getX() + " " + ho.getY());
-				
 				ComboColor color = beatmap.getComboColors().get(combo);
 				
+				Log.v("", "test");
 				while (timingPoint+1 < beatmap.getTimingPoint().size() && beatmap.getTimingPoint().get(timingPoint+1).getOffset() < ho.getTiming())
 				{
 					++timingPoint;
 					float bpm = (float)beatmap.getTimingPoint().get(timingPoint).getBPM();
 					if (bpm < 0)
-						lastbpm *= bpm / -100.f;
+					{
+//						lastbpm *= bpm / -100.f;
+						lastbpm *= -100.f / bpm; // derp
+						Log.v("BeatmapLoader", "Now at timing point " + timingPoint + ", with relative beat length " + (bpm / -100.f));
+						Log.v("BeatmapLoader", "Beatlength is now " + lastbpm);
+					}
 					else
+					{
 						lastbpm = bpm;
+						Log.v("BeatmapLoader", "Now at timing point " + timingPoint + ", with absolute beat length " + bpm);
+					}
 				}
 				
 				// What happens when an object's start time happens to be negative?
@@ -320,7 +325,6 @@ public class BeatmapLoader
 					Button b = new Button(event, buttonUps.get(color), buttonDowns.get(color), null, player.getTextCache(), Integer.toString(comboNumber++));
 					b.setApproachRing(new Ring(rings.get(color)));
 					player.add(b, lastbpm);
-					Log.v("", "" + b.getStartTime() + " " + b.getEndTime());
 				}
 				else if (ho.getClass() == HOSlider.class)
 				{
@@ -330,7 +334,6 @@ public class BeatmapLoader
 							              player.getTextCache(), Integer.toString(comboNumber++));
 					s.setApproachRing(new Ring(rings.get(color)));
 					player.add(s, lastbpm);
-					Log.v("", "" + s.getStartTime() + " " + s.getEndTime());
 				}
 				else if (ho.getClass() == HOSpinner.class)
 				{
@@ -338,7 +341,6 @@ public class BeatmapLoader
 					Spinner s = new Spinner(event, spinnerSpiral, spinnerNoFill, spinnerFill, spinnerMask, spinnerText, null);
 					s.setApproachRing(new Ring(rings.get(color)));
 					player.add(s, lastbpm);
-					Log.v("", "" + s.getStartTime() + " " + s.getEndTime());
 				}
 				else
 				{

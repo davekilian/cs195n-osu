@@ -1,14 +1,27 @@
 - Score screen
+  - Collect some stats (buttons, sliders, spinners, misses)
+  - Give a grade based on ratio of misses to total num controls
+  - When the score screen is shown
+    - Do a fade-in / scale from huge to normal size of the grade letter
+    - Then fade in auxiliary stats
+  - On-tap
+    - If the animation is finished
+      - Fade to black
+      - Swap with a new main menu screen
 - Beatmap menu graphics
 - Beatmap menu
 - Calibration
 - Tutorial mode script
 - Tutorial mode graphics
 - Tutorial mode
-- Fancy graphics
+- Splash/main menu crossfade
+- Particle graphics
+- Particle usage
+- On-completed control recoloring
 - Combo paths
-- Test postprocessing
-- Insert postprocessing as appropriate (e.g. blur on defeat, oversaturate on low health?)
+- HelloFBO
+- Progress blur on defeat
+- Sound effects on defeat (see MediaPlayer.attachAuxEffect()?)
 - Find interaction sfx
 - Implement interaction sfx
 

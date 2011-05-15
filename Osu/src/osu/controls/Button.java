@@ -28,6 +28,8 @@ public class Button implements Control
 	public static final float WAIT_TIME = 1.f;
 	/** The amount of time, in partial seconds, the button fades to white after being interacted with */
 	public static final float INTERACTED_FADE_OUT_TIME = .5f;
+	/** The scale factor to apply to this control. Hitboxes will be unaffected. */
+	public static final float SCALE_FACTOR = .75f;
 	
 	/** The X coordinate of this button's center in virtual space */
 	private float _x;
@@ -207,7 +209,7 @@ public class Button implements Control
 			_approach.setStartTime(_tbeg);
 			_approach.setEndTime(_event.getTiming() / 1000.f);
 			_approach.setStartScale(3.f);
-			_approach.setEndScale(1.f);
+			_approach.setEndScale(SCALE_FACTOR);
 		}
 	}
 	
@@ -356,6 +358,8 @@ public class Button implements Control
 			s.getTranslation().x = _x;
 			s.getTranslation().y = _y;
 			s.setAlpha(alpha);
+			s.getScale().x = SCALE_FACTOR;
+			s.getScale().y = SCALE_FACTOR;
 			s.draw(kernel);
 			
 			if (_text != null)
@@ -364,6 +368,8 @@ public class Button implements Control
 				s.getTranslation().x = _x;
 				s.getTranslation().y = _y;
 				s.setAlpha(alpha);
+				s.getScale().x = SCALE_FACTOR;
+				s.getScale().y = SCALE_FACTOR;
 				s.draw(kernel);
 			}
 		}

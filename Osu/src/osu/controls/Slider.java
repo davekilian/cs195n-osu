@@ -29,6 +29,8 @@ public class Slider implements Control
 	public static final float WAIT_TIME = 1.f;
 	/** The scale ratio between the bounding box of the graphic and the interaction bounding box. Also controls the scale factor of the nub when pressed. */
 	public static final float INPUT_FUDGE_FACTOR = 1.35f;
+	/** The scale factor to apply to this control. Hitboxes will be unaffected. */
+	public static final float SCALE_FACTOR = .75f;
 	
 	/** The X coordinate of the initial cap in virtual space */
 	private float _x;
@@ -194,7 +196,7 @@ public class Slider implements Control
 			_approach.setStartAlpha(0.f);
 			_approach.setEndAlpha(1.f);
 			_approach.setStartScale(3.f);
-			_approach.setEndScale(1.f);
+			_approach.setEndScale(SCALE_FACTOR);
 			_approach.setStartTime(_tbeg);
 			_approach.setEndTime(_event.getTiming() / 1000.f);
 		}
@@ -423,6 +425,7 @@ public class Slider implements Control
 		if (isVisible(t))
 		{	
 			float scale = _pressed ? INPUT_FUDGE_FACTOR : 1.f;
+			scale *= SCALE_FACTOR;
 			float alpha = 1.f;
 			if (t >= _tbeg && t <= _tbeg + FADE_IN_TIME)
 				alpha = (t - _tbeg) / FADE_IN_TIME;
@@ -434,8 +437,10 @@ public class Slider implements Control
 			float endy = _point.y;
 			
 			agl.InstanceBitmapBezier(_fill.getTexture(), _fill.getWidth(), _fill.getHeight(), _bezier, _bezier.length / 2, STEPS_PER_CONTROL_POINT * _bezier.length / 2, 
-					                 0.f, _bezierUpper, 0.f, 1.f, 1.f, alpha);
+					                 0.f, _bezierUpper, 0.f, SCALE_FACTOR, SCALE_FACTOR, alpha);
 			_cap.setAlpha(alpha);
+			_cap.getScale().x = SCALE_FACTOR;
+			_cap.getScale().y = SCALE_FACTOR;
 			_cap.getTranslation().x = _bezier[0];
 			_cap.getTranslation().y = _bezier[1];
 			_cap.draw(kernel);
@@ -457,6 +462,8 @@ public class Slider implements Control
 						_repeat.getTranslation().y = _bezier[1];
 						_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(tmpx - _bezier[1], tmpy - _bezier[0])));
 						_repeat.setAlpha(alpha);
+						_repeat.getScale().x = SCALE_FACTOR;
+						_repeat.getScale().y = SCALE_FACTOR;
 						_repeat.draw(kernel);
 					}
 				}
@@ -468,6 +475,8 @@ public class Slider implements Control
 					_repeat.getTranslation().y = endy;
 					_repeat.setRotation((float)(-90.f + 180.0 / Math.PI * Math.atan2(tmpx - endx, tmpy - endy)));
 					_repeat.setAlpha(alpha);
+					_repeat.getScale().x = SCALE_FACTOR;
+					_repeat.getScale().y = SCALE_FACTOR;
 					_repeat.draw(kernel);
 				}
 
@@ -481,6 +490,8 @@ public class Slider implements Control
 				s.getTranslation().x = _bezier[0];
 				s.getTranslation().y = _bezier[1];
 				s.setAlpha(alpha);
+				s.getScale().x = SCALE_FACTOR;
+				s.getScale().y = SCALE_FACTOR;
 				s.draw(kernel);
 			}
 		}

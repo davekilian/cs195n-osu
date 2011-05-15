@@ -148,8 +148,8 @@ public class BeatmapLoader
 			// SHIIIIIIT
 			if (pc.combo_colors.size() == 0)
 			{
-				pc.combo_colors.add(new ComboColor(255, 0, 255));
-				pc.combo_colors.add(new ComboColor(0, 255, 0));
+				pc.combo_colors.add(new ComboColor(255,   0, 0));
+				pc.combo_colors.add(new ComboColor(255, 128, 0));
 			}
 			
 			// Count the assets to load

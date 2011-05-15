@@ -1,13 +1,18 @@
 package osu.screen;
 
 import osu.main.R;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.FloatMath;
 import dkilian.andy.Kernel;
+import dkilian.andy.Prerender;
 import dkilian.andy.Screen;
 import dkilian.andy.TexturedQuad;
 
 public class MainMenuScreen implements Screen
 {
+	public static final float FADE_IN_TIME = 1.f;
+	
 	private enum Action
 	{
 		TUTORIAL,
@@ -20,7 +25,13 @@ public class MainMenuScreen implements Screen
 	private Action _action;
 	private TexturedQuad _background;
 	private TexturedQuad _sheen;
+	private TexturedQuad _fade;
 	private float _time = 0.f;
+	private boolean _fadeIn = false;
+	
+	public MainMenuScreen() {}
+	
+	public MainMenuScreen(boolean fade) { _fadeIn = fade; }
 
 	@Override
 	public boolean isLoaded() 
@@ -79,6 +90,9 @@ public class MainMenuScreen implements Screen
 		{
 			_background = TexturedQuad.fromResource(kernel, R.drawable.main_menu);
 			_sheen = TexturedQuad.fromResource(kernel, R.drawable.main_menu_sheen);
+			Paint p = new Paint();
+			p.setColor(Color.BLACK);
+			_fade = Prerender.rectangle(kernel.getVirtualScreen().getWidth(), kernel.getVirtualScreen().getHeight(), p);
 		}
 		
 		float x = kernel.getVirtualScreen().getWidth() * .5f;
@@ -95,5 +109,13 @@ public class MainMenuScreen implements Screen
 		_sheen.getTranslation().y = y;
 		_sheen.setAlpha(alpha);
 		_sheen.draw(kernel);
+		
+		if (_fadeIn && _time < FADE_IN_TIME)
+		{
+			_fade.setAlpha(1.f - _time / FADE_IN_TIME);
+			_fade.getTranslation().x = x;
+			_fade.getTranslation().y = y;
+			_fade.draw(kernel);
+		}
 	}
 }

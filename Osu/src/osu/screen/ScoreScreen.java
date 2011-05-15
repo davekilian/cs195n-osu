@@ -91,7 +91,7 @@ public class ScoreScreen implements Screen
 			float fade = (_time - _fadeStart) / FADE_OUT_TIME;
 			if (fade >= 1.f)
 			{
-				kernel.swapScreen(new MainMenuScreen());
+				kernel.swapScreen(new MainMenuScreen(true));
 				return;
 			}
 		}

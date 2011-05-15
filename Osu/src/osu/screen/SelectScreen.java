@@ -20,9 +20,10 @@ import dkilian.andy.TexturedQuad;
 
 public class SelectScreen implements Screen
 {
-	public static final float MARGIN = 20.f;        // pixels
-	public static final float SNAP_SPEED = 50.f;    // pixels/sec
-	public static final float BOTTOM_MARGIN = 30.f; // pixels
+	public static final float MARGIN = 20.f;             // pixels
+	public static final float SNAP_SPEED = 50.f;         // pixels/sec
+	public static final float BOTTOM_MARGIN = 30.f;      // pixels
+	public static final float DRAG_TAP_THRESHOLD = 10.f; // pixels moved before a tap becomes a drag (for hitting the play button)
 	
 	private boolean _loaded = false;
 	private TexturedQuad _background;
@@ -35,6 +36,8 @@ public class SelectScreen implements Screen
 	private TexturedQuad _up, _down;
 	private boolean _dragging;
 	private float _lastY;
+	private boolean _queuePlay = false;
+	private float _totalDrag = 0.f;
 	
 	@Override
 	public boolean isLoaded() 
@@ -95,28 +98,27 @@ public class SelectScreen implements Screen
 			{
 				float y = kernel.getTouch().getY();
 				_scroll += y - _lastY;
+				_totalDrag += Math.abs(y - _lastY);
 				_lastY = y;
 			}
 			else
 			{				
 				_dragging = true;
 				_lastY = kernel.getTouch().getY();
-
-				if (_background != null)
-				{
-					if (kernel.getTouch().getX() > .5f * kernel.getVirtualScreen().getWidth()
-					    && kernel.getTouch().getY() > kernel.getVirtualScreen().getHeight() - MARGIN - BOTTOM_MARGIN)
-					{
-						Log.v("", _beatmaps.get(_beatmapNames.get(_selectedIndex)).getPath());
-						kernel.swapScreen(new LoadScreen(_beatmaps.get(_beatmapNames.get(_selectedIndex)).getPath()));
-						return;
-					}
-				}
+				_totalDrag = 0.f;
+				_queuePlay = (kernel.getTouch().getX() > .5f * kernel.getVirtualScreen().getWidth()
+				           && kernel.getTouch().getY() > kernel.getVirtualScreen().getHeight() - MARGIN - BOTTOM_MARGIN);
 			}
 		}
 		else
 		{
 			_dragging = false;
+			
+			if (_queuePlay && _totalDrag < DRAG_TAP_THRESHOLD)
+			{
+				kernel.swapScreen(new LoadScreen(_beatmaps.get(_beatmapNames.get(_selectedIndex)).getPath()));
+				return;
+			}
 		}
 		
 		// Change the selected item to the one closest to the center of the screen

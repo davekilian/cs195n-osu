@@ -34,6 +34,8 @@ public class LoadScreen implements Screen
 	private TexturedQuad _background;
 	
 	private TexturedQuad _progress;
+
+	private boolean _drawing = false;
 	
 	public LoadScreen(String path)
 	{
@@ -67,6 +69,14 @@ public class LoadScreen implements Screen
 		{
 			// Clear out all load-time temporary resources before the game starts
 			BeatmapPlayer bp = _loader.getBeatmap();
+			while (_drawing)
+			{
+				try
+				{
+					Thread.sleep(50);
+				}
+				catch (InterruptedException ex) {}
+			}
 			synchronized (_loader)
 			{
 				_path = null;
@@ -86,6 +96,8 @@ public class LoadScreen implements Screen
 	@Override
 	public void draw(Kernel kernel, float dt) 
 	{
+		_drawing = true;
+		
 		if (_context == null)
 		{
 			Paint p = new Paint();
@@ -133,5 +145,7 @@ public class LoadScreen implements Screen
 		_text.getTranslation().x = kernel.getVirtualScreen().getWidth() * .5f;
 		_text.getTranslation().y = kernel.getVirtualScreen().getHeight() * .75f;
 		_text.draw(kernel);
+		
+		_drawing = false;
 	}
 }

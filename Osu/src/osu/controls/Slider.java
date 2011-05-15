@@ -382,17 +382,12 @@ public class Slider implements Control
 	{
 		if (t >= _tbeg + FADE_IN_TIME + WAIT_TIME && t <= _tend)
 		{
-			_t += _velocity * dt * ((_repeatIteration & 1) != 0 ? -1.f : 1.f);
-			if (_t > _bezierUpper)
-			{
-				++_repeatIteration;
-				_t = 2.f * _bezierUpper - _t;
-			}
-			else if (_t < 0.f)
-			{
-				++_repeatIteration;
-				_t *= -1.f;
-			}
+			float t0 = _tbeg + FADE_IN_TIME + WAIT_TIME;
+			_t = (t - t0) * _velocity;
+			_repeatIteration = (int)_t;
+			_t -= _repeatIteration;
+			if ((_repeatIteration & 1) != 0)
+				_t = 1.f - _t;
 			
 			Bezier.evaluate2d(_bezier, _t, _nubPoint);
 			

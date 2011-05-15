@@ -4,6 +4,7 @@
 - Some of our beatmaps don't start right and I'm starting to think it's something I did ...
   - Update: in at least one case, the first hit object had a negative start time. ??
 - Tempo change problems in some beatmaps too (I think deep space?)
+- Sliders screwed up in some cases (seem very non-linear, can't be right?)
 - Tutorial mode graphics
 - Tutorial mode
 - User should not be able to to mash their figner all over the screen and do okay T_T

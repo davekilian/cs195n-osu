@@ -1,6 +1,8 @@
 package osu.beatmap;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -300,6 +302,15 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	/** Initializes playback */
 	public void begin()
 	{
+		Collections.sort(_controls, new Comparator<Control>() 
+		{
+			@Override
+			public int compare(Control object1, Control object2) 
+			{
+				return (int)((object1.getStartTime() - object2.getStartTime()) * 1000.f);
+			}
+		});
+		
 		_player.start();
 	}
 	
@@ -380,7 +391,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		}
 		
 		// Put visible non-on-deck controls on-deck
-		while (_nextControl < _controls.size() && _controls.get(_nextControl).getStartTime() > t)
+		while (_nextControl < _controls.size() && _controls.get(_nextControl).getStartTime() < t)
 		{
 			synchronized (_onDeck)
 			{

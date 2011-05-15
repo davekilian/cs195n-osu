@@ -20,6 +20,8 @@ public class Spinner implements Control
 	public static final float FADE_IN_TIME  = .3f;
 	/** The amount of time it takes for a spinner to fade out, in partial seconds */
 	public static final float FADE_OUT_TIME = .3f;
+	/** The amount of time the "Spin!" text is shown, in partial seconds */
+	public static final float SPIN_TEXT_TIME = 1.f;
 	
 	/** Unused */
 	private float _x;
@@ -32,7 +34,7 @@ public class Spinner implements Control
 	/** The bounds of this spinner */
 	private Rect _bounds;
 	/** This spinner's graphics */
-	private TexturedQuad _spinner, _noFill, _fill, _mask;
+	private TexturedQuad _spinner, _noFill, _fill, _mask, _spintext;
 	/** The previous touch point */
 	private float _prevX, _prevY;
 	/** Whether or not this spinner is being dragged */
@@ -82,9 +84,10 @@ public class Spinner implements Control
 	 * @param noFill The graphic that covers the fill layer, making the power bar seem not filled. Will be clipped based on charge amount
 	 * @param fill The graphic that makes the power bar seem filled.
 	 * @param mask The mask that is drawn above the power bar and spinner graphic.
+	 * @param spinText A sprite containing the text "Spin!"
 	 * @param approach This spinner's optional approach ring
 	 */
-	public Spinner(HOSpinner event, TexturedQuad spinner, TexturedQuad noFill, TexturedQuad fill, TexturedQuad mask, Ring approach)
+	public Spinner(HOSpinner event, TexturedQuad spinner, TexturedQuad noFill, TexturedQuad fill, TexturedQuad mask, TexturedQuad spinText, Ring approach)
 	{
 		_event = event;
 		_x = event.getX();
@@ -105,6 +108,7 @@ public class Spinner implements Control
 		_noFill = noFill;
 		_fill = fill;
 		_mask = mask;
+		_spintext = spinText;
 	}
 	
 	/** Registers an object to receive notifications from this spinner */
@@ -360,6 +364,18 @@ public class Spinner implements Control
 			_mask.getScale().y = scale;
 			_mask.setAlpha(alpha);
 			_mask.draw(kernel);
+			
+			if (t - _tbeg < SPIN_TEXT_TIME)
+			{
+				float pos = (t - _tbeg) / SPIN_TEXT_TIME;
+				
+				_spintext.getTranslation().x = cx;
+				_spintext.getTranslation().y = cy;
+				_spintext.getScale().x = scale * (1.f * (1.f - pos) + 2.f * pos);
+				_spintext.getScale().y = scale * (1.f * (1.f - pos) + 2.f * pos);
+				_spintext.setAlpha(1.f - (t - _tbeg) / SPIN_TEXT_TIME);
+				_spintext.draw(kernel);
+			}
 
 			if (_approach != null)
 			{

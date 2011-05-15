@@ -158,7 +158,7 @@ public class BeatmapLoader
 			itemsToLoad += 2 * numCombos;	// button up/down recoloring/rendering
 			itemsToLoad += 1;            	// slider return arrow
 			itemsToLoad += 4 * numCombos;	// slider cap, fill, nub-up, nub-down recoloring/rendering
-			itemsToLoad += 4;				// spinner mask, fill, no-fill, spiral
+			itemsToLoad += 5;				// spinner mask, fill, no-fill, spiral, text
 			itemsToLoad += 2;				// approach ring shadow and fill
 			itemsToLoad += 2 * numCombos;	// approach ring recoloring/rendering 	
 			itemsToLoad += 1;				// 'miss' icon
@@ -237,6 +237,9 @@ public class BeatmapLoader
 			++itemsLoaded; if (cancelled) return;
 			progress = ":/drawable/spinner_mask";
 			TexturedQuad spinnerMask = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.spinner_mask, opt));
+			++itemsLoaded; if (cancelled) return;
+			progress = ":/drawable/spinner_text";
+			TexturedQuad spinnerText = crossload(BitmapFactory.decodeResource(kernel.getActivity().getResources(), R.drawable.spinner_text, opt));
 			++itemsLoaded; if (cancelled) return;
 
 			progress = ":/drawable/ring";
@@ -332,7 +335,7 @@ public class BeatmapLoader
 				else if (ho.getClass() == HOSpinner.class)
 				{
 					HOSpinner event = (HOSpinner)ho;
-					Spinner s = new Spinner(event, spinnerSpiral, spinnerNoFill, spinnerFill, spinnerMask, null);
+					Spinner s = new Spinner(event, spinnerSpiral, spinnerNoFill, spinnerFill, spinnerMask, spinnerText, null);
 					s.setApproachRing(new Ring(rings.get(color)));
 					player.add(s, lastbpm);
 					Log.v("", "" + s.getStartTime() + " " + s.getEndTime());

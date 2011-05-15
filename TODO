@@ -1,6 +1,7 @@
 - Crash bug in loader
   - Race condition - nulling the class's objects. Either cache local copies of
     member vars or mutex the entire thing
+- Some of our beatmaps don't start right and I'm starting to think it's something I did ...
 - Tutorial mode graphics
 - Tutorial mode
 - Calibration

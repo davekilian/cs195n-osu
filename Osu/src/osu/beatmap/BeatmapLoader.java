@@ -145,6 +145,13 @@ public class BeatmapLoader
 				return;
 			}
 			
+			// SHIIIIIIT
+			if (pc.combo_colors.size() == 0)
+			{
+				pc.combo_colors.add(new ComboColor(255, 0, 255));
+				pc.combo_colors.add(new ComboColor(0, 255, 0));
+			}
+			
 			// Count the assets to load
 			int numCombos = beatmap.getComboColors().size();
 			itemsToLoad += 4;            	// button up, down, chrome, shadow
@@ -287,6 +294,10 @@ public class BeatmapLoader
 					comboNumber = 1;
 				}
 				
+				Log.v("", "" + ho.getClass());
+				Log.v("", "" + ho.getTiming());
+				Log.v("", "" + ho.getX() + " " + ho.getY());
+				
 				ComboColor color = beatmap.getComboColors().get(combo);
 				
 				while (timingPoint+1 < beatmap.getTimingPoint().size() && beatmap.getTimingPoint().get(timingPoint+1).getOffset() < ho.getTiming())
@@ -299,12 +310,14 @@ public class BeatmapLoader
 						lastbpm = bpm;
 				}
 				
+				// What happens when an object's start time happens to be negative?
 				if (ho.getClass() == HOButton.class)
 				{
 					HOButton event = (HOButton)ho;
 					Button b = new Button(event, buttonUps.get(color), buttonDowns.get(color), null, player.getTextCache(), Integer.toString(comboNumber++));
 					b.setApproachRing(new Ring(rings.get(color)));
 					player.add(b, lastbpm);
+					Log.v("", "" + b.getStartTime() + " " + b.getEndTime());
 				}
 				else if (ho.getClass() == HOSlider.class)
 				{
@@ -314,6 +327,7 @@ public class BeatmapLoader
 							              player.getTextCache(), Integer.toString(comboNumber++));
 					s.setApproachRing(new Ring(rings.get(color)));
 					player.add(s, lastbpm);
+					Log.v("", "" + s.getStartTime() + " " + s.getEndTime());
 				}
 				else if (ho.getClass() == HOSpinner.class)
 				{
@@ -321,6 +335,7 @@ public class BeatmapLoader
 					Spinner s = new Spinner(event, spinnerSpiral, spinnerNoFill, spinnerFill, spinnerMask, null);
 					s.setApproachRing(new Ring(rings.get(color)));
 					player.add(s, lastbpm);
+					Log.v("", "" + s.getStartTime() + " " + s.getEndTime());
 				}
 				else
 				{

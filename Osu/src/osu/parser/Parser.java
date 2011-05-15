@@ -338,6 +338,9 @@ public class Parser {
 			
 			// Parse right-side of expression
 			line = line.substring(line.indexOf(':') + 1);
+			if (line.length() == 0)
+				continue;
+			
 			if (line.charAt(0) == ' ')
 				val = line.substring(1);
 			else

@@ -44,7 +44,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	/** The amount of HP lost when a hit object is missed */
 	public static final float HP_MISS = .1f;
 	/** The amount of HP lost per second */
-	public static final float HP_DRAIN = .025f;
+	public static final float HP_DRAIN = .0125f;
 	/** The score awarded for a button press */
 	public static final int BUTTON_SCORE = 100;
 	/** The score awarded for a slider per second */
@@ -357,6 +357,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 			{
 				_player.stop();
 				kernel.swapScreen(new ScoreScreen(0, 0, true));	// encapsulation? what's that?
+				return;
 			}
 		}
 		
@@ -368,7 +369,9 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 			{
 				_onDeck.remove(i);
 				--i;
-				if (_healthDrainEnabled && !_notMissed.contains(c))
+				boolean miss = !_notMissed.contains(c) && (c instanceof Slider || c instanceof Button || c instanceof Spinner);
+				
+				if (_healthDrainEnabled && miss)
 				{
 					_health -= HP_MISS;
 					if (_health < 0.f) _health = 0.f;
@@ -487,6 +490,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		{
 			_notMissed.add(sender);
 			++_numHit;
+			_health += HP_HIT;
+			if (_health > 1.f) _health = 1.f;
 		}
 		
 		_score += (int)(SPINNER_SCORE * _dt);
@@ -506,6 +511,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 				_notMissed.add(sender);
 				_misses.get(sender).cancel();
 				++_numHit;
+				_health += HP_HIT;
+				if (_health > 1.f) _health = 1.f;
 			}
 			
 			_score += (int)(SLIDER_SCORE * _dt);

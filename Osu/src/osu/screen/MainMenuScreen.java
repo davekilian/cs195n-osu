@@ -68,7 +68,7 @@ public class MainMenuScreen implements Screen
 		else if (_queued)
 		{
 			if (_action == Action.PLAY)
-				kernel.swapScreen(new LoadScreen("/osu/beatmaps/tsugaru/test-tsugaru.osu"));
+				kernel.swapScreen(new SelectScreen());
 		}
 	}
 

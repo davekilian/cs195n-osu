@@ -7,7 +7,6 @@ import dkilian.andy.Kernel;
 import dkilian.andy.TexturedQuad;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import osu.controls.Button;
@@ -135,7 +134,6 @@ public class BeatmapLoader
 			try
 			{
 				progress = "Parsing .osu ...";
-				path = Environment.getExternalStorageDirectory().getAbsolutePath() + path;
 				parser.parseResource(path, pc);
 				beatmap = ParserUtil.parserContainerToBeatmap(pc);
 				progress += "done";

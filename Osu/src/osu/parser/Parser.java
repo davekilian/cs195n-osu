@@ -458,41 +458,40 @@ public class Parser {
 			long timing = Long.parseLong(tokenizer.nextToken());
 			int piece_type = Integer.parseInt(tokenizer.nextToken());
 			int sound_type = Integer.parseInt(tokenizer.nextToken());
+
+			// bitflags lol
+			// 1 = button
+			// 2 = slider
+			// 4 = new combo
+			// 8 = spinner
+			// 16 = ??, appears in krison's heavy tsugaru (1 + 4 + 16 = 21)
+			// 32 = ??, appears in krisom's heavy tsugaru (2 + 4 + 32 = 38)
 			
 			// Specific Hit Object Information
 			HitObject ho = null;
-			switch (piece_type)
+			boolean newcombo = (piece_type & 4) != 0;
+			if ((piece_type & 1) != 0) // button!
 			{
-			case 1: // Button
-				ho = new HOButton(x, y, timing, false, sound_type);
-				break;
-			case 5: // Button (new combo)
-				ho = new HOButton(x, y, timing, true, sound_type);
-				break;
-				
-			case 2: // Slider
-				ho = new HOSlider(x, y, timing, false, sound_type);
+				ho = new HOButton(x, y, timing, newcombo, sound_type);
+			}
+			else if ((piece_type & 2) != 0) // slider!
+			{
+				ho = new HOSlider(x, y, timing, newcombo, sound_type);
 				
 				if (!handleSlider(ho, line, tokenizer))
 					continue;
-				break;
-			case 6: // Slider (new combo)
-				ho = new HOSlider(x, y, timing, true, sound_type);
-				
-				if (!handleSlider(ho, line, tokenizer))
-					continue;
-				break;
-				
-			case 12: // Spinner
-				ho = new HOSpinner(x, y, timing, false, sound_type);
+			}
+			else if ((piece_type & 8) != 0) // spinner!
+			{
+				ho = new HOSpinner(x, y, timing, newcombo, sound_type);
 				
 				if (!handleSpinner(ho, line, tokenizer))
 					continue;
-				break;
-				
-			default: // Uh oh!
-				printError("Parser.handleHitObjects", "Unknown hit object type: " + piece_type);
-				break;
+			}
+			else
+			{
+				Log.v("Parser.handleHitObjects", "Hit-object with type " + piece_type + " is not button, slider, or spinner!");
+				continue;
 			}
 			
 			pc.hit_objects.add(ho); // Add to ParserContainer list

@@ -4,6 +4,7 @@ The format is as follows:
 	- On-screen text will be placed on their own lines in quotes: "
 	- Actions will be inserted into brackets: [ & ]
 	- Divisions in the tutorial, when the screen is cleared for example, will be divided with dashed lines: ---
+	- Text Dave tweaked appears under "" in ''
 
 HERE WE GO.
 ---
@@ -11,27 +12,34 @@ HERE WE GO.
 
 ---
 "osu! is a music rhythm game where points are awarded for using your finger to hit the various controls in time."
+'osu! is a music rhythm game where you get points for using your finger to hit various controls in time with the music.'
 
 ---
 "Gameplay is comprised of three different controls: the button, the slider, and the spinner."
+'You have three different controls: the button, the slider, and the spinner.'
 
 ---
 [Display button on the screen]
 "The button simply needs to be pressed in time."
+'The button just needs to be tapped.'
 [Show the timing ring decreasing in size around the button]
 "A ring will slowly decrease in size around the button. When the ring is the same size as the button, hit it!"
+'As the correct time approaches, a ring will slowly zoom in around the button. When the ring is the same size as the button, hit it!'
 "Watch the ring, listen to the music, and trust your instincts!"
 
 ---
 [Display slider on the screen]
 "At first, a slider acts as an ordinary button."
+'At first, a slider works like an ordinary button.'
 [Show slider moving along towards the end]
 "However, after the slider has initially been pressed, you will need to keep your finger depressed along its path following the nub in-time until the end point."
+'However, after tapping a slider, you will need to drag your finger along its path, following the nub to the end in time with the song.'
 [Slider hits the end, disappears]
 
 ---
 [Display slider with three repetitions]
 "Sliders can also repeat their path! Watch for repeat arrows on either end of the slider to know when to go back…"
+'Some sliders can bounce backward! Watch for repeat arrows on either end of the slider to know when to go back.'
 [Start moving slider during above text]
 "This slider repeats three times in total."
 
@@ -46,8 +54,10 @@ HERE WE GO.
 "Be sure not to miss too many controls in time or you will lose!"
 [Display buttons & sliders on-screen - have them miss w/ X's and drain the health bar until it is empty - into game-over screen (do we have one?)]
 "Misses count against your overall HP and your HP deducts over time."
+'Missing takes away some of your health. Your health will also drop slowly over time.'
 [Hit buttons on-screen, increase HP for each hit while draining HP over time]
 "Each successive correct hit increases your HP so be sure to stay on top of the hit markers to keep your game alive!"
+'Each correct hit increases your health, so be sure to stay on top of the hit markers to keep your game alive!'
 
 ---
 [Show controls on the screen (come in sequentially) to show how numbers change sequentially]
@@ -56,6 +66,7 @@ HERE WE GO.
 [Show new combo of a different color & number]
 "New combos will start at the number 1 and change colors to show a new combo."
 "Be sure to finish your old combos before starting a new one!"
+'Be sure to finish your current combo before starting a new one!'
 
 ---
 [Show score bar on screen, w/ a few buttons to hit, show score increasing on success]
@@ -65,7 +76,9 @@ HERE WE GO.
 ---
 "If a song is too hard for you, try an easier difficulty!"
 "Songs in the library are sorted alphabetically with each song having multiple beatmaps based upon difficulty."
+'Songs in the library are sorted alphabetically, and each is available in one or more difficulty levels.'
 "For a given song, easier beatmaps should be sorted towards the top!"
+'Different difficulties are grouped in the library, ordered from top to bottom increasing in difficulty.'
 
 ---
 "Good luck and osu!"

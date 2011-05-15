@@ -1,6 +1,5 @@
-- Tutorial mode graphics
 - Tutorial mode
-- User should not be able to to mash their figner all over the screen and do okay T_T
+- User should not be able to to mash their finger all over the screen and do okay T_T
 - Calibration
 - Splash/main menu crossfade
 - Particle graphics
@@ -8,8 +7,10 @@
 - On-completed control recoloring
 - Combo paths
 - HelloFBO
-- Progress blur on defeat
+- Progressive blur on defeat
 - Sound effects on defeat (see MediaPlayer.attachAuxEffect()?)
+  - If nothing else, at least fade out
+  - Preferably slow down the track. Can I get ahold of the samplerate?
 - Find interaction sfx
 - Implement interaction sfx
 

@@ -20,6 +20,7 @@ import osu.controls.SpinnerCallback;
 import osu.game.HOButton;
 import osu.game.HOSlider;
 import osu.game.HOSpinner;
+import osu.screen.ScoreScreen;
 
 import dkilian.andy.Kernel;
 import dkilian.andy.Prerender;
@@ -93,6 +94,10 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	private PrerenderContext _scoreContext;
 	/** The last dt recorded in an update() call */
 	private float _dt;
+	/** The numbers of hit objects that have been interacted with, for scoring */
+	private int _numHit;
+	/** The total number of hit objects, for scoring */
+	private int _totalObjects;
 	
 	/**
 	 * Creates a new beatmap player
@@ -113,6 +118,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		_score = 0;
 		_scoreDirty = false;
 		_dt = 0.f;
+		_numHit = 0;
+		_totalObjects = 0;
 		
 		Paint p = new Paint();
 		_textCache = new PrerenderCache(p);
@@ -274,6 +281,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 			_firstControlTime = c.getStartTime();
 
 		_controls.add(c);
+		++_totalObjects;
 	}
 
 	/** Removes a control from this beatmap */
@@ -344,6 +352,12 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 				_health -= HP_DRAIN * dt;
 				if (_health < 0.f) _health = 0.f;
 			}
+			
+			if (_health <= 0.f)	// game over, man! game over!
+			{
+				_player.stop();
+				kernel.swapScreen(new ScoreScreen(0, 0, true));	// encapsulation? what's that?
+			}
 		}
 		
 		// Remove invisible on-deck controls
@@ -390,6 +404,14 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 				if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom)
 					_onDeck.get(i).interact(x, y, t);
 			}
+		}
+		
+		// Done?
+		if (!_player.isPlaying())
+		{
+			_player.stop();
+			kernel.swapScreen(new ScoreScreen(_numHit, _totalObjects, false));
+			return;
 		}
 	}
 	
@@ -462,7 +484,10 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	public void spinnerEvent(Spinner sender, HOSpinner event) 
 	{
 		if (!_notMissed.contains(sender))
+		{
 			_notMissed.add(sender);
+			++_numHit;
+		}
 		
 		_score += (int)(SPINNER_SCORE * _dt);
 		_scoreDirty = true;
@@ -480,6 +505,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 			{
 				_notMissed.add(sender);
 				_misses.get(sender).cancel();
+				++_numHit;
 			}
 			
 			_score += (int)(SLIDER_SCORE * _dt);
@@ -500,6 +526,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 			if (_health > 1.f) _health = 1.f;
 			_score += BUTTON_SCORE;
 			_scoreDirty = true;
+			++_numHit;
 		}
 	}
 }

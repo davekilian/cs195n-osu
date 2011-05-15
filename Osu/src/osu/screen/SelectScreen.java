@@ -20,12 +20,12 @@ import dkilian.andy.TexturedQuad;
 
 public class SelectScreen implements Screen
 {
-	public static final float MARGIN = 20.f;      // pixels
-	public static final float SNAP_SPEED = 50.f; // pixels/sec
+	public static final float MARGIN = 20.f;        // pixels
+	public static final float SNAP_SPEED = 50.f;    // pixels/sec
+	public static final float BOTTOM_MARGIN = 30.f; // pixels
 	
 	private boolean _loaded = false;
 	private TexturedQuad _background;
-	private TexturedQuad _play;
 	private ArrayList<String> _beatmapNames;
 	private HashMap<String, BeatmapDescriptor> _beatmaps;
 	private HashMap<String, TexturedQuad> _renderedBeatmapNames;
@@ -105,7 +105,7 @@ public class SelectScreen implements Screen
 				if (_background != null)
 				{
 					if (kernel.getTouch().getX() > .5f * kernel.getVirtualScreen().getWidth()
-					    && kernel.getTouch().getY() > kernel.getVirtualScreen().getHeight() - MARGIN - _play.getHeight())
+					    && kernel.getTouch().getY() > kernel.getVirtualScreen().getHeight() - MARGIN - BOTTOM_MARGIN)
 					{
 						Log.v("", _beatmaps.get(_beatmapNames.get(_selectedIndex)).getPath());
 						kernel.swapScreen(new LoadScreen(_beatmaps.get(_beatmapNames.get(_selectedIndex)).getPath()));
@@ -163,8 +163,6 @@ public class SelectScreen implements Screen
 			p.setColor(Color.WHITE);
 			p.setAntiAlias(true);
 			
-			_play = Prerender.string("Play >", p);
-			
 			p.setTextSize(40.f);
 			_up = Prerender.string("^", p);
 			_down = Prerender.string("^", p);
@@ -194,7 +192,7 @@ public class SelectScreen implements Screen
 			s.getTranslation().y = y + _scroll;
 			y += s.getHeight() + MARGIN;
 			
-			if (_selectedIndex >= 0 && s.getTranslation().y + .5f * s.getHeight() > h - _play.getHeight() - MARGIN)
+			if (_selectedIndex >= 0 && s.getTranslation().y + .5f * s.getHeight() > h - BOTTOM_MARGIN)
 			{
 				down = true;
 				break;
@@ -224,13 +222,6 @@ public class SelectScreen implements Screen
 			_down.getTranslation().x = .5f * _down.getWidth() + MARGIN;
 			_down.getTranslation().y = h - .5f * _down.getHeight() - MARGIN;
 			_down.draw(kernel);
-		}
-		
-		if (_selectedIndex >= 0)
-		{
-			_play.getTranslation().x = w - .5f * _play.getWidth() - MARGIN;
-			_play.getTranslation().y = h - .5f * _play.getHeight() - MARGIN;
-			_play.draw(kernel);
 		}
 	}
 }

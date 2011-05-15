@@ -19,8 +19,8 @@ import dkilian.andy.jni.agl;
  */
 public class Slider implements Control
 {
-	/** The number of instances of the fill graphic drawn for a slider divided by the number of control points in the curve */
-	public static final int STEPS_PER_CONTROL_POINT = 3;
+	/** The spacing of the points along this slider, in pixels */
+	public static final float LENGTH_PER_STEP = 10.f;
 	/** The amount of time it takes for a button to fade in, in partial seconds */
 	public static final float FADE_IN_TIME  = .3f;
 	/** The amount of time it takes for a button to fade out, in partial seconds */
@@ -431,7 +431,7 @@ public class Slider implements Control
 			float endx = _point.x;
 			float endy = _point.y;
 			
-			agl.InstanceBitmapBezier(_fill.getTexture(), _fill.getWidth(), _fill.getHeight(), _bezier, _bezier.length / 2, STEPS_PER_CONTROL_POINT * _bezier.length / 2, 
+			agl.InstanceBitmapBezier(_fill.getTexture(), _fill.getWidth(), _fill.getHeight(), _bezier, _bezier.length / 2, (int)(_event.getPathLength() / LENGTH_PER_STEP), 
 					                 0.f, _bezierUpper, 0.f, SCALE_FACTOR, SCALE_FACTOR, alpha);
 			_cap.setAlpha(alpha);
 			_cap.getScale().x = SCALE_FACTOR;

@@ -17,12 +17,13 @@ import dkilian.andy.Kernel;
 import dkilian.andy.Prerender;
 import dkilian.andy.Screen;
 import dkilian.andy.TexturedQuad;
+import dkilian.andy.jni.agl;
 
 public class SelectScreen implements Screen
 {
 	public static final float MARGIN = 20.f;             // pixels
 	public static final float SNAP_SPEED = 50.f;         // pixels/sec
-	public static final float BOTTOM_MARGIN = 30.f;      // pixels
+	public static final float BOTTOM_MARGIN = 40.f;      // pixels
 	public static final float DRAG_TAP_THRESHOLD = 10.f; // pixels moved before a tap becomes a drag (for hitting the play button)
 	
 	private boolean _loaded = false;
@@ -185,6 +186,7 @@ public class SelectScreen implements Screen
 		_background.getTranslation().y = .5f * h;
 		_background.draw(kernel);
 		
+		agl.Clip(0, 0, (int)w, (int)(h - BOTTOM_MARGIN));
 		boolean up = false, down = false;
 		float y = h * .5f;
 		for (int i = 0; i < _beatmapNames.size(); ++i)
@@ -195,14 +197,9 @@ public class SelectScreen implements Screen
 			y += s.getHeight() + MARGIN;
 			
 			if (_selectedIndex >= 0 && s.getTranslation().y + .5f * s.getHeight() > h - BOTTOM_MARGIN)
-			{
 				down = true;
-				break;
-			}
 			else if (s.getTranslation().y < 0)
-			{
 				up = true;
-			}
 			
 			if (i == _selectedIndex)
 				s.setAlpha(.5f + .5f * FloatMath.sin(_time * 4.f));
@@ -211,6 +208,7 @@ public class SelectScreen implements Screen
 			
 			s.draw(kernel);
 		}
+		agl.Clip(0, 0, (int)w, (int)h);
 		
 		if (up)
 		{

@@ -78,7 +78,9 @@ public class MainMenuScreen implements Screen
 		}
 		else if (_queued)
 		{
-			if (_action == Action.PLAY)
+			if (_action == Action.TUTORIAL)
+				kernel.swapScreen(new TutorialScreen());
+			else if (_action == Action.PLAY)
 				kernel.swapScreen(new SelectScreen());
 		}
 	}

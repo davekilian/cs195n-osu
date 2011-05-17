@@ -29,6 +29,8 @@ public class SlidePlayer
 	private HashMap<String, SlideLayer> _layers;
 	private HashMap<String, LayerPlaybackInfo> _playback;
 	private float _time;
+	private boolean _nextQueued;
+	private boolean _wasDown;
 	
 	public SlidePlayer()
 	{
@@ -36,6 +38,8 @@ public class SlidePlayer
 		_layers = new HashMap<String, SlideLayer>();
 		_playback = new HashMap<String, SlidePlayer.LayerPlaybackInfo>();
 		_time = 0.f;
+		_nextQueued = false;
+		_wasDown = false;
 	}
 	
 	public void createLayer(String name)
@@ -81,6 +85,30 @@ public class SlidePlayer
 	{
 		_time += dt;
 		
+		if (kernel.getTouch().isDown())
+		{
+			if (!_wasDown)
+			{
+				_wasDown = true;
+				_nextQueued = true;
+			}
+		}
+		else
+		{
+			_wasDown = false;
+			if (_nextQueued)
+			{
+				for (int i = 0; i < _layerNames.size(); ++i)
+				{
+					LayerPlaybackInfo play = _playback.get(_layerNames.get(i));
+					++play.currentSlide;
+					play.slideBegin = _time;
+				}
+				
+				_nextQueued = false;
+			}
+		}
+		
 		for (int i = 0; i < _layerNames.size(); ++i)
 		{
 			LayerPlaybackInfo play = _playback.get(_layerNames.get(i));
@@ -91,6 +119,7 @@ public class SlidePlayer
 				{
 					play.slideBegin += s.getDuration();
 					++play.currentSlide;
+					_nextQueued = false;
 				}
 			}
 		}

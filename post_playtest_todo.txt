@@ -3,13 +3,14 @@ X Remove taiko maps
 X Slider problems (bezierUpper sometimes > 1?)
 X End a beatmap when there are no controls left (unhandled an on-deck lists are both empty)
 X Engine mod: don't let the screen turn off
-- Tutorial tap-through (to next slide, e.g.)
+X Tutorial tap-through (to next slide, e.g.)
 - Tutorial images
 - Snare on button hits
 - Snare on sliders ended, if the user didn't miss them entirely
 - Drumroll on slider being held, stop when finger lifted or slider ended
 - Some type of sound for spinners
 - Replace some of the eh beatmaps
+- Handle different sound types
 - Particle-system effects when stuff is hit
 
 Stop at 11:00 and do these:

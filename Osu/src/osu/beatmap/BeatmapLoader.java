@@ -299,7 +299,6 @@ public class BeatmapLoader
 				
 				ComboColor color = beatmap.getComboColors().get(combo);
 				
-				Log.v("", "test");
 				while (timingPoint+1 < beatmap.getTimingPoint().size() && beatmap.getTimingPoint().get(timingPoint+1).getOffset() < ho.getTiming())
 				{
 					++timingPoint;

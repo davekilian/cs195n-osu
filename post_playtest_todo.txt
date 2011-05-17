@@ -4,6 +4,8 @@ X Slider problems (bezierUpper sometimes > 1?)
 X End a beatmap when there are no controls left (unhandled an on-deck lists are both empty)
 X Engine mod: don't let the screen turn off
 X Tutorial tap-through (to next slide, e.g.)
+X No health drain during breaks
+- Custom int-to-string to avoid GC activity -_-
 - Tutorial images
 - Snare on button hits
 - Snare on sliders ended, if the user didn't miss them entirely
@@ -11,7 +13,9 @@ X Tutorial tap-through (to next slide, e.g.)
 - Some type of sound for spinners
 - Replace some of the eh beatmaps
 - Handle different sound types
+- Break-timing letterboxes
 - Particle-system effects when stuff is hit
+- Recoloring effects when stuff is hit
 
 Stop at 11:00 and do these:
 - Brag slide

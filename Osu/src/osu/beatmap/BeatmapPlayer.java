@@ -19,6 +19,7 @@ import osu.controls.Slider;
 import osu.controls.SliderCallback;
 import osu.controls.Spinner;
 import osu.controls.SpinnerCallback;
+import osu.game.BreakTiming;
 import osu.game.HOButton;
 import osu.game.HOSlider;
 import osu.game.HOSpinner;
@@ -100,6 +101,30 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	private int _numHit;
 	/** The total number of hit objects, for scoring */
 	private int _totalObjects;
+	/** Mike used a linked list. Linked lists make garbage. Ergo this. */
+	private ArrayList<BreakTiming> _breaks;
+	
+	/** Determines whether or not the game is in the middle of a break period */
+	private boolean isBreak(float time)
+	{
+		if (_breaks == null)
+		{
+			_breaks = new ArrayList<BreakTiming>();
+			for (BreakTiming bt : _beatmap.getBreakTimings())
+				_breaks.add(bt);
+		}
+		
+		time *= 1000.f;
+		
+		for (int i = 0; i < _breaks.size(); ++i)
+		{
+			BreakTiming bt = _breaks.get(i);
+			if (time >= bt.getStartTime() && time <= bt.getEndTime())
+				return true;
+		}
+		
+		return false;
+	}
 	
 	/**
 	 * Creates a new beatmap player
@@ -330,38 +355,41 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		}
 		else
 		{
-			_healthDrainEnabled = true;
-			
-			// Disable the drain if a slider or spinner is in effect
-			for (int i = 0; i < _onDeck.size(); ++i)
-			{
-				Control c = _onDeck.get(i);
-				if (c instanceof Slider)
-				{
-					Slider s = (Slider)c;
-					if (t >= s.getStartTime() + Slider.FADE_IN_TIME + Slider.WAIT_TIME &&
-					    t <= s.getEndTime() - Slider.FADE_OUT_TIME)
-					{
-						_healthDrainEnabled = false;
-						break;
-					}
-				}
-				else if (c instanceof Spinner)
-				{
-					Spinner s = (Spinner)c;
-					if (t >= s.getStartTime() + Spinner.FADE_IN_TIME &&
-						t <= s.getEndTime() - Spinner.FADE_OUT_TIME)
-					{
-						_healthDrainEnabled = false;
-						break;
-					}
-				}
-			}
+			_healthDrainEnabled = !isBreak(t);
 			
 			if (_healthDrainEnabled)
 			{
-				_health -= HP_DRAIN * dt;
-				if (_health < 0.f) _health = 0.f;
+				// Disable the drain if a slider or spinner is in effect
+				for (int i = 0; i < _onDeck.size(); ++i)
+				{
+					Control c = _onDeck.get(i);
+					if (c instanceof Slider)
+					{
+						Slider s = (Slider)c;
+						if (t >= s.getStartTime() + Slider.FADE_IN_TIME + Slider.WAIT_TIME &&
+						    t <= s.getEndTime() - Slider.FADE_OUT_TIME)
+						{
+							_healthDrainEnabled = false;
+							break;
+						}
+					}
+					else if (c instanceof Spinner)
+					{
+						Spinner s = (Spinner)c;
+						if (t >= s.getStartTime() + Spinner.FADE_IN_TIME &&
+							t <= s.getEndTime() - Spinner.FADE_OUT_TIME)
+						{
+							_healthDrainEnabled = false;
+							break;
+						}
+					}
+				}
+				
+				if (_healthDrainEnabled)
+				{
+					_health -= HP_DRAIN * dt;
+					if (_health < 0.f) _health = 0.f;
+				}
 			}
 			
 			if (_health <= 0.f)	// game over, man! game over!

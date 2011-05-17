@@ -1,0 +1,25 @@
+TODO
+These are ordered sequentially in terms of importance with respect to time. The numbers are ordered for general overall importance if we had all the time in the world. Keep in mind these are general and done quickly.
+
+- (1) Take off Taiko maps!!!
+- (9) Turn off sleep ability
+- (6) Tutorial Duration
+	- Shorten tutorial! Or make it advance faster.
+	- Next button in tutorial (just tap screen to advance)
+- (5) Objects in the tutorial (just images)
+- (8) Don't let you tap randomly
+- (7) Beatmap cleanup
+	- Deep space easy difficulty is harder than expected
+	- Na na na na (name length and says fuck?)
+	- New songs/better maps
+- (10) Affirmative in break sections
+- (3) More reinforcement for sliders so people know what to do with them.
+- (4) Feedback on correct hits?
+	- (HAPTIC LOL)
+	- Splash on buttons
+- (2) Fix broken sliders
+
+THINGS I AM UNSURE ABOUT
+- Are there songs that don't end after the beatmap does (I think there is one or two on there)
+- Are X's delayed?
+- Make it harder? - Seems to be bad for playtesting

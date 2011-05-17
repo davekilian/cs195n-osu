@@ -3,6 +3,8 @@ package dkilian.andy;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
@@ -64,8 +66,8 @@ public abstract class KernelActivity extends Activity
         super.onCreate(savedInstanceState);
         
     	requestWindowFeature(Window.FEATURE_NO_TITLE);
-    	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
-    						 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    	getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, 
+    						 WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     	
 		initialize();
 		

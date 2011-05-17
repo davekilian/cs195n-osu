@@ -1,9 +1,8 @@
 The list
-X  Remove taiko maps
+X Remove taiko maps
 X Slider problems (bezierUpper sometimes > 1?)
 X End a beatmap when there are no controls left (unhandled an on-deck lists are both empty)
-- Tutorial should acquire a wake-lock that gets released upon it ending
-- Engine mods to notify someone of shutdown events so the wake-lock can be released (assuming that's necessary)
+X Engine mod: don't let the screen turn off
 - Tutorial tap-through (to next slide, e.g.)
 - Tutorial images
 - Snare on button hits

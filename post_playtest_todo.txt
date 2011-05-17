@@ -1,3 +1,22 @@
+The list
+X  Remove taiko maps
+X Slider problems (bezierUpper sometimes > 1?)
+- End a beatmap when there are no controls left (unhandled an on-deck lists are both empty)
+- Tutorial should acquire a wake-lock that gets released upon it ending
+- Engine mods to notify someone of shutdown events so the wake-lock can be released (assuming that's necessary)
+- Tutorial tap-through (to next slide, e.g.)
+- Tutorial images
+- Snare on button hits
+- Snare on sliders ended, if the user didn't miss them entirely
+- Drumroll on slider being held, stop when finger lifted or slider ended
+- Some type of sound for spinners
+- Replace some of the eh beatmaps
+- Particle-system effects when stuff is hit
+
+Stop at 11:00 and do these:
+- Brag slide
+- Installation instructions for TAs
+
 TODO
 These are ordered sequentially in terms of importance with respect to time. The numbers are ordered for general overall importance if we had all the time in the world. Keep in mind these are general and done quickly.
 

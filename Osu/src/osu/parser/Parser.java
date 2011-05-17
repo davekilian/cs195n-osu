@@ -756,7 +756,13 @@ public class Parser {
 		
 		String line = removeSpaces(reader.readLine().toLowerCase());
 		while (line != null && !line.equals("[" + name + "]"))
-			line = removeSpaces(reader.readLine().toLowerCase());
+		{
+			line = reader.readLine();
+			if (line == null)
+				return line;
+		
+			line = removeSpaces(line.toLowerCase());
+		}
 			
 		return line;
 	}

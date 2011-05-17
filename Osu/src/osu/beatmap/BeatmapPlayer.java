@@ -421,7 +421,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		}
 		
 		// Done?
-		if (!_player.isPlaying())
+		if (!_player.isPlaying() || (_onDeck.isEmpty() && _nextControl == _controls.size()))
 		{
 			_player.stop();
 			kernel.swapScreen(new ScoreScreen(_numHit, _totalObjects, false));

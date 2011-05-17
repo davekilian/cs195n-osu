@@ -5,7 +5,7 @@ X End a beatmap when there are no controls left (unhandled an on-deck lists are 
 X Engine mod: don't let the screen turn off
 X Tutorial tap-through (to next slide, e.g.)
 X No health drain during breaks
-- Custom int-to-string to avoid GC activity -_-
+X Custom int-to-string to avoid GC activity -_-
 - Tutorial images
 - Snare on button hits
 - Snare on sliders ended, if the user didn't miss them entirely

@@ -89,6 +89,10 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	private boolean _healthDrainEnabled;
 	/** The player's current score */
 	private int _score;
+	/** The string to contain the player's score */
+	private String _scoreStr;
+	/** GC! */
+	private StringBuffer _scoreBuilder;
 	/** The sprite containing the player's score */
 	private TexturedQuad _scoreSprite;
 	/** Whether or not the score needs to be re-rendered */
@@ -126,6 +130,30 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		return false;
 	}
 	
+	/** An allocation-less int-to-string */
+	private void makeScoreString()
+	{
+		if (_scoreBuilder == null)
+			_scoreBuilder = new StringBuffer("0000000");
+		
+		int factorDiv10 = 1;
+		int factor = 10;
+		int subtract = 0;
+		for (int i = 0; i < 7; ++i)
+		{
+			int digit = ((_score - subtract) % factor);
+			subtract += digit;
+			digit /= factorDiv10;
+			
+			factor *= 10;
+			factorDiv10 *= 10;
+			
+			char num = (char)((int)'0' + digit);
+			_scoreBuilder.setCharAt(6 - i, num);
+			_scoreStr = _scoreBuilder.toString();
+		}
+	}
+	
 	/**
 	 * Creates a new beatmap player
 	 * @param beatmap The beatmap this player can play
@@ -143,6 +171,7 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		_firstControlTime = Float.MAX_VALUE;
 		_healthDrainEnabled = true;
 		_score = 0;
+		_scoreStr = "0000000";
 		_scoreDirty = false;
 		_dt = 0.f;
 		_numHit = 0;
@@ -513,8 +542,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		}
 		if (_scoreDirty)
 		{
-			String score = String.format("%07d", _score);
-			Prerender.string(score, _scoreContext, _scoreSprite);
+			makeScoreString();
+			Prerender.string(_scoreStr, _scoreContext, _scoreSprite);
 			_scoreDirty = false;
 		}
 		_scoreSprite.getTranslation().x = kernel.getVirtualScreen().getWidth() - .5f * _scoreSprite.getWidth() - 5.f;

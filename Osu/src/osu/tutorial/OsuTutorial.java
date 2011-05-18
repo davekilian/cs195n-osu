@@ -70,15 +70,15 @@ public class OsuTutorial
 		player.add("examples", new MissDemo());
 		
 		text(player, new String[] {"Each miss takes away a portion of your health.", "Your health will also drain slowly over time."}, cy);
-		player.add("examples", new NullSlide());
+		player.add("examples", new HealthDemo());
 		
 		text(player, new String[] {"Each hit restores some of your health, so be sure", "to stay on top of your game to stay alive!"}, cy);
 		player.add("examples", new NullSlide());
 		
-		text(player, new String[] {"Some controls have numbers that show the order", "to hit them in. Use this in combination with", "timing rings to hit controls in time!"}, cy, 10.f);
-		player.add("examples", new NullSlide());
+		text(player, new String[] {"Many controls have numbers that show the order", "to hit them in. Use this in combination with", "timing rings to hit controls in time!"}, cy);
+		player.add("examples", new ComboDemo());
 		
-		text(player, new String[] {"New combos start at \"1\" with a new color. Be sure", "to finish the current combo before starting the next!"}, cy, 10.f);
+		text(player, new String[] {"New combos start at \"1\" with a new color. Be sure", "to finish the current combo before starting the next!"}, cy);
 		player.add("examples", new NullSlide());
 		
 		text(player, new String[] {"Hitting controls correctly will give you points.", "Aim for the highest score possible!"}, cy);

@@ -27,7 +27,7 @@ public class SelectScreen implements Screen
 	public static final float DRAG_TAP_THRESHOLD = 10.f; // pixels moved before a tap becomes a drag (for hitting the play button)
 	
 	private boolean _loaded = false;
-	private TexturedQuad _background;
+	private TexturedQuad _background, _arrow;
 	private ArrayList<String> _beatmapNames;
 	private HashMap<String, BeatmapDescriptor> _beatmaps;
 	private HashMap<String, TexturedQuad> _renderedBeatmapNames;
@@ -166,17 +166,16 @@ public class SelectScreen implements Screen
 			p.setColor(Color.WHITE);
 			p.setAntiAlias(true);
 			
-			p.setTextSize(40.f);
-			_up = Prerender.string("^", p);
-			_down = Prerender.string("^", p);
-			_down.getScale().y = -1.f;
-			p.setTextSize(30.f);
-			
 			_renderedBeatmapNames = new HashMap<String, TexturedQuad>();
 			for (int i = 0; i < _beatmapNames.size(); ++i)
 				_renderedBeatmapNames.put(_beatmapNames.get(i), Prerender.string(_beatmapNames.get(i), p));
 
 			_background = TexturedQuad.fromResource(kernel, R.drawable.beatmap_background);
+			_arrow = TexturedQuad.fromResource(kernel, R.drawable.beatmap_select);
+			_up = TexturedQuad.fromResource(kernel, R.drawable.beatmap_select);
+			_up.setRotation(90.f);
+			_down = TexturedQuad.fromResource(kernel, R.drawable.beatmap_select);
+			_down.setRotation(270.f);
 		}
 		
 		float w = kernel.getVirtualScreen().getWidth();
@@ -214,6 +213,7 @@ public class SelectScreen implements Screen
 		{
 			_up.getTranslation().x = .5f * _up.getWidth() + MARGIN;
 			_up.getTranslation().y = .5f * _up.getHeight() + MARGIN;
+			_up.setAlpha(.5f + .5f * FloatMath.sin(_time * 2.f));
 			_up.draw(kernel);
 		}
 		
@@ -221,7 +221,12 @@ public class SelectScreen implements Screen
 		{
 			_down.getTranslation().x = .5f * _down.getWidth() + MARGIN;
 			_down.getTranslation().y = h - .5f * _down.getHeight() - MARGIN;
+			_down.setAlpha(.5f + .5f * FloatMath.sin(_time * 2.f));
 			_down.draw(kernel);
 		}
+		
+		_arrow.getTranslation().x = MARGIN + .5f * _arrow.getWidth();
+		_arrow.getTranslation().y = .5f * h;
+		_arrow.draw(kernel);
 	}
 }

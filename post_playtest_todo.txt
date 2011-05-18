@@ -8,7 +8,7 @@ X No health drain during breaks
 X Custom int-to-string to avoid GC activity -_-
 X Remove calbiration from the main menu (yaaay rebooting)
 X Side arrow in beatmap menu
-- Use some fudge factor to determine whether to manually fade the song out or let it finish
+X Use some fudge factor to determine whether to manually fade the song out or let it finish
 - Tutorial images
 - Snare on button hits
 - Snare on sliders ended, if the user didn't miss them entirely

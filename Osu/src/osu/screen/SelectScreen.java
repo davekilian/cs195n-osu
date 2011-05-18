@@ -213,7 +213,7 @@ public class SelectScreen implements Screen
 		{
 			_up.getTranslation().x = .5f * _up.getWidth() + MARGIN;
 			_up.getTranslation().y = .5f * _up.getHeight() + MARGIN;
-			_up.setAlpha(.5f + .5f * FloatMath.sin(_time * 2.f));
+			_up.setAlpha(.5f);// + .5f * FloatMath.sin(_time * 2.f));
 			_up.draw(kernel);
 		}
 		
@@ -221,7 +221,7 @@ public class SelectScreen implements Screen
 		{
 			_down.getTranslation().x = .5f * _down.getWidth() + MARGIN;
 			_down.getTranslation().y = h - .5f * _down.getHeight() - MARGIN;
-			_down.setAlpha(.5f + .5f * FloatMath.sin(_time * 2.f));
+			_down.setAlpha(.5f);// + .5f * FloatMath.sin(_time * 2.f));
 			_down.draw(kernel);
 		}
 		

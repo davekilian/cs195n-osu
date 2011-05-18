@@ -54,6 +54,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 	public static final int SLIDER_SCORE = 100;
 	/** The score awarded for a spinner per second */
 	public static final int SPINNER_SCORE = 100;
+	/** The number of seconds after a beatmap music is allowed to keep playing. If the remaining duration is longer than this value, the beatmap just stops */
+	public static final float MUSIC_END_TIME = 30.f;
 	
 	/** The beatmap this player plays */
 	private Beatmap _beatmap;
@@ -478,7 +480,8 @@ public class BeatmapPlayer implements ButtonCallback, SliderCallback, SpinnerCal
 		}
 		
 		// Done?
-		if (!_player.isPlaying() || (_onDeck.isEmpty() && _nextControl == _controls.size()))
+		if (!_player.isPlaying() || 
+			(_player.getDuration() - _player.getCurrentPosition() > MUSIC_END_TIME * 1000.f && _onDeck.isEmpty() && _nextControl == _controls.size()))
 		{
 			_player.stop();
 			kernel.swapScreen(new ScoreScreen(_numHit, _totalObjects, false));

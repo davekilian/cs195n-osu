@@ -2,4 +2,30 @@ Hello,
 
 Some friendly notes for setting up our game on other devices for demo day:
 
-- 
+- In the root of this handin is a folder called bin/ containing Osu.apk. 
+  We don't have another device to test this on, but theoretically you should
+  be able to install this using adb install just like any other APK.
+
+- In the interest of time, we've handed in one of our eclipse workspaces as
+  is, without changing it to work on departmental systems. This means that you
+  won't be able to compile another copy of our game. Even if you fix Eclipse,
+  you'll probably also need to install the NDK and then do some Makefile kung
+  fu. If adb install doesn't work, let us know and we'll work with you to 
+  attempt to find a workaround on short notice. 
+
+- We felt it was logical to place beatmaps on external storage both to make
+  compilation/deployment times not insane and to make it easy for a user to
+  edit their device's beatmaps. Unfortunately, this means just installing the
+  APK alone will lead to our game not being very fun.
+  
+  When installing our game, please mount the device's internal storage (you
+  can do this by sliding down the notifications tab, selecting "USB 
+  connected", and then following the instructions). Once you have done this,
+  please copy the contents of the assets/beatmaps/ directory of this handin to a
+  folder on the device storage called /osu/beatmaps. So, for example, 
+  handin:/assets/beatmaps/tsugaru should end up in
+  device:/osu/beatmaps/tsugaru
+
+Thanks for your help :)
+
+-Dave and Mike

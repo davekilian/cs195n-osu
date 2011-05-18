@@ -50,7 +50,7 @@ public class Bezier
 	 */
 	public static float length(float[] points)
 	{
-		return length(points, .01f);
+		return length(points, .1f);
 	}
 
 	/**

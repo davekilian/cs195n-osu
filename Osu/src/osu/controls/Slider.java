@@ -108,7 +108,7 @@ public class Slider implements Control
 		}
 		
 		_velocity = 100.f / (beatLength / 1000.f) * sliderMultiplier / length;
-		_bezierUpper = length / Bezier.length(_bezier);
+		_bezierUpper = length / Bezier.length(_bezier, .01f);
 		if (_bezierUpper > 1.f) _bezierUpper = 1.f;
 		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);
 		_tend = _event.getTiming() / 1000.f + _event.getRepeats() * _bezierUpper / _velocity + FADE_OUT_TIME;
@@ -161,7 +161,7 @@ public class Slider implements Control
 		}
 		
 		_velocity = 100.f / (beatLength / 1000.f) * sliderMultiplier / length;
-		_bezierUpper = length / Bezier.length(_bezier);
+		_bezierUpper = length / Bezier.length(_bezier, .01f);
 		if (_bezierUpper > 1.f) _bezierUpper = 1.f;
 		_tbeg = _event.getTiming() / 1000.f - (FADE_IN_TIME + WAIT_TIME);
 		_tend = _event.getTiming() / 1000.f + _event.getRepeats() * _bezierUpper / _velocity + FADE_OUT_TIME;

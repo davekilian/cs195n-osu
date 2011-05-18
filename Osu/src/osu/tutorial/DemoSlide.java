@@ -5,7 +5,7 @@ import dkilian.andy.Kernel;
 /** Base class for a slide that demos something (usually a control */
 public abstract class DemoSlide implements Slide
 {
-	private float _duration;
+	protected float _duration;
 	
 	public DemoSlide()
 	{

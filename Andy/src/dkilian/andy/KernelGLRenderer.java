@@ -24,6 +24,8 @@ public class KernelGLRenderer implements GLSurfaceView.Renderer
 	private boolean _resized;
 	/** Whether or not the first draw is the first (in which case aglInitialize2D() needs to be called */
 	private boolean _firstDraw;
+	/** The old dimensions of the screen */
+	private int _oldw, _oldh;
 	
 	/**
 	 * Creates an OpenGL renderer
@@ -53,6 +55,13 @@ public class KernelGLRenderer implements GLSurfaceView.Renderer
 				_firstDraw = false;
 			}
 			
+			if (_view.getWidth() != _oldw || _view.getHeight() != _oldh)
+			{
+				_oldw = _view.getWidth();
+				_oldh = _view.getHeight();
+				queueResize();
+			}
+			
 			if (_resized)
 			{
 				_resized = false;
@@ -78,9 +87,7 @@ public class KernelGLRenderer implements GLSurfaceView.Renderer
 	{
 		_gl = gl;
 		
-		_kernel.getVirtualScreen().setPhysicalWidth(w);
-		_kernel.getVirtualScreen().setPhysicalHeight(h);
-		_kernel.getVirtualScreen().computeTransform(true);
+		queueResize();
 	}
 
 	/** Handles surface (re)creation events */
